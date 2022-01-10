@@ -1,0 +1,533 @@
+    on:
+    jump boot2 notEqual a null
+    print "By: [cyan]Ice[blue]wave[sky]#0394"
+    print "\n"
+    print "[green]V2.0"
+    printflush message1
+    set a 1
+    set target container1
+    set u1item @lead
+    set u2item @sand
+    set u3item @silicon
+    set u4item @coal
+    set u5item @sand
+    set u6item @silicon
+    set u7item @coal
+    set u8item @silicon
+    set u9item @sand
+    set u10item @null
+    set u1mode target
+    set u2mode target
+    set u3mode core
+    set u4mode target
+    set u5mode target
+    set u6mode core
+    set u7mode target
+    set u8mode core
+    set u9mode target
+    set u10mode target
+    boot2:
+    jump on strictEqual target null
+    set prevconfig config
+    sensor config sorter1 @config
+    jump type notEqual config prevconfig
+    sensor shit core @dead
+    jump boot equal shit true
+    jump start always x false
+    type:   
+    jump flare equal config @copper
+    jump mono equal config @lead
+    jump horizon equal config @metaglass
+    jump poly equal config @graphite
+    jump mega equal config @thorium
+    jump zenith equal config @titanium
+    end
+
+    flare:
+    set unit_type @flare
+    set u_cap 20
+    set units 9
+    jump start always x false
+    mono:
+    set unit_type @mono
+    set u_cap 20
+    set units 9
+    jump start always x false
+    horizon:
+    set unit_type @horizon
+    set u_cap 30
+    set units 6
+    jump start always x false
+    poly:
+    set unit_type @poly
+    set u_cap 30
+    set units 6
+    jump start always x false
+    mega:
+    set unit_type @mega
+    set u_cap 60
+    set units 4
+    jump start always x false
+    zenith:
+    set unit_type @zenith
+    set u_cap 80
+    set units 4
+    jump start always x false
+
+    boot:
+    ucontrol move @thisx @thisy 0 0 0
+    ucontrol within @thisx @thisy 3 here
+    jump boot equal here true
+    ulocate building core false @copper cx cy found core
+    sensor x target @x
+    sensor y target @y
+    set a null
+
+
+    start:
+    u1:
+        ubind u1
+        sensor dead @unit @dead
+        sensor controller @unit @controller
+        jump u1null equal dead true
+        jump work1 strictEqual controller @this
+        u1null:
+        set u1 null
+        jump bind always x false
+
+        work1:
+            jump work1b notEqual u1mode target
+            sensor item @unit u1item
+            jump empty1 greaterThan item 0
+            jump boot equal cx null
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            ucontrol itemTake core u1item u_cap
+            jump u2 always x false
+            empty1:
+                ucontrol approach x y 5
+                ucontrol itemDrop target u_cap
+                jump u2 always x false
+
+        work1b:
+            sensor item @unit u1item
+            jump empty1b greaterThan item 0
+            jump boot equal cx null
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            ucontrol itemTake target u1item u_cap
+            jump u2 always x false
+            empty1b:
+                ucontrol approach cx cy 5
+                ucontrol itemDrop core u_cap
+                jump u2 always x false
+    u2:
+    jump done lessThan units 2
+        ubind u2
+        sensor dead @unit @dead
+        sensor controller @unit @controller
+        jump u2null equal dead true
+        jump work2 strictEqual controller @this
+        u2null:
+        set u2 null
+        jump bind always x false
+
+
+        work2:
+            jump work2b notEqual u2mode target
+            sensor item @unit u2item
+            jump empty2 greaterThan item 0
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            ucontrol itemTake core u2item u_cap
+            jump u3 always x false
+
+            empty2:
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            jump u3 always x false
+
+        work2b:
+            sensor item @unit u2item
+            jump empty2b greaterThan item 0
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            ucontrol itemTake target u2item u_cap
+            jump u3 always x false
+
+            empty2b:
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            jump u3 always x false
+    u3:
+    jump done lessThan units 3
+        ubind u3
+        sensor dead @unit @dead
+        sensor controller @unit @controller
+        jump u3null equal dead true
+        jump work3 strictEqual controller @this
+        u3null:
+        set u3 null
+        jump bind always x false
+
+        work3:
+            jump work3b notEqual u3mode target
+            sensor item @unit u3item
+            jump empty3 greaterThan item 0
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            ucontrol itemTake core u3item u_cap
+            jump u4 always x false
+
+            empty3:
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            jump u4 always x false
+
+        work3b:
+            sensor item @unit u3item
+            jump empty3b greaterThan item 0
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            ucontrol itemTake target u3item u_cap
+            jump u4 always x false
+
+            empty3b:
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            jump u4 always x false
+    u4:
+    jump done lessThan units 4
+        ubind u4
+        sensor dead @unit @dead
+        sensor controller @unit @controller
+        jump u4null equal dead true
+        jump work4 strictEqual controller @this
+        u4null:
+        set u4 null
+        jump bind always x false
+
+        work4:
+            jump work4b notEqual u4mode target
+            sensor item @unit u4item
+            jump empty4 greaterThan item 0
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            ucontrol itemTake core u4item u_cap
+            jump u5 always x false
+
+            empty4:
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            jump u5 always x false
+
+        work4b:
+            sensor item @unit u4item
+            jump empty4b greaterThan item 0
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            ucontrol itemTake target u4item u_cap
+            jump u5 always x false
+
+            empty4b:
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            jump u5 always x false
+    u5:
+    jump done lessThan units 5
+        ubind u5
+        sensor dead @unit @dead
+        sensor controller @unit @controller
+        jump u5null equal dead true
+        jump work5 strictEqual controller @this
+        u5null:
+        set u5 null
+        jump bind always x false
+
+        work5:
+            jump work5b notEqual u5mode target
+            sensor item @unit u5item
+            jump empty5 greaterThan item 0
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            ucontrol itemTake core u5item u_cap
+            jump u6 always x false
+
+            empty5:
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            jump u6 always x false
+
+        work5b:
+            sensor item @unit u5item
+            jump empty5b greaterThan item 0
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            ucontrol itemTake target u5item u_cap
+            jump u6 always x false
+
+            empty5b:
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            jump u6 always x false
+    u6:
+        jump done lessThan units 6
+        ubind u6
+        sensor dead @unit @dead
+        sensor controller @unit @controller
+        jump u6null equal dead true
+        jump work6 strictEqual controller @this
+        u6null:
+        set u6 null
+        jump bind always x false
+
+        work6:
+            jump work6b notEqual u6mode target
+            sensor item @unit u6item
+            jump empty6 greaterThan item 0
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            ucontrol itemTake core u6item u_cap
+            jump u7 always x false
+
+            empty6:
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            jump u7 always x false
+
+        work6b:
+            sensor item @unit u6item
+            jump empty6b greaterThan item 0
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            ucontrol itemTake target u6item u_cap
+            jump u7 always x false
+
+            empty6b:
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            jump u7 always x false
+    u7:
+        jump done lessThan units 7
+        ubind u7
+        sensor dead @unit @dead
+        sensor controller @unit @controller
+        jump u7null equal dead true
+        jump work7 strictEqual controller @this
+        u7null:
+        set u7 null
+        jump bind always x false
+
+        work7:
+            jump work7b notEqual u7mode target
+            sensor item @unit u7item
+            jump empty7 greaterThan item 0
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            ucontrol itemTake core u7item u_cap
+            jump u8 always x false
+
+            empty7:
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            jump u8 always x false
+
+        work7b:
+            sensor item @unit u7item
+            jump empty7b greaterThan item 0
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            ucontrol itemTake target u7item u_cap
+            jump u8 always x false
+
+            empty7b:
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            jump u8 always x false
+    u8:
+        jump done lessThan units 8
+        ubind u8
+        sensor dead @unit @dead
+        sensor controller @unit @controller
+        jump u8null equal dead true
+        jump work8 strictEqual controller @this
+        u8null:
+        set u8 null
+        jump bind always x false
+
+        work8:
+            jump work8b notEqual u8mode target
+            sensor item @unit u8item
+            jump empty8 greaterThan item 0
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            ucontrol itemTake core u8item u_cap
+            jump u9 always x false
+
+            empty8:
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            jump u9 always x false
+
+        work8b:
+            sensor item @unit u8item
+            jump empty8b greaterThan item 0
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            ucontrol itemTake target u8item u_cap
+            jump u9 always x false
+
+            empty8b:
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            jump u9 always x false
+    u9:
+        jump done lessThan units 9
+        ubind u9
+        sensor dead @unit @dead
+        sensor controller @unit @controller
+        jump u9null equal dead true
+        jump work9 strictEqual controller @this
+        u9null:
+        set u9 null
+        jump bind always x false
+
+        work9:
+            jump work9b notEqual u9mode target
+            sensor item @unit u9item
+            jump empty9 greaterThan item 0
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            ucontrol itemTake core u9item u_cap
+            jump u10 always x false
+
+            empty9:
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            jump u9 always x false
+
+        work9b:
+            sensor item @unit u9item
+            jump empty9b greaterThan item 0
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            ucontrol itemTake target u9item u_cap
+            jump u10 always x false
+
+            empty9b:
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            jump u10 always x false
+    u10:
+        jump done lessThan units 10
+        ubind u10
+        sensor dead @unit @dead
+        sensor controller @unit @controller
+        jump u10null equal dead true
+        jump work10 strictEqual controller @this
+        u10null:
+        set u10 null
+        jump bind always x false
+
+        work10:
+            jump work10b notEqual u10mode target
+            sensor item @unit u10item
+            jump empty10 greaterThan item 0
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            ucontrol itemTake core u10item u_cap
+            jump work_end always x false
+
+            empty10:
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            jump work_end always x false
+
+        work10b:
+            sensor item @unit u10item
+            jump empty10b greaterThan item 0
+            ucontrol approach x y 5
+            ucontrol itemDrop target u_cap
+            ucontrol itemTake target u10item u_cap
+            jump work_end always x false
+
+            empty10b:
+            ucontrol approach cx cy 5
+            ucontrol itemDrop core u_cap
+            jump work_end always x false
+    work_end:
+    end
+    bind:
+    ubind unit_type
+    sensor c @unit @controlled
+    sensor f @unit @flag
+    jump found strictEqual c 0
+    jump bind notEqual f 0
+    jump bind notEqual @unit null
+
+    found:
+    set key @time
+    ucontrol flag key
+        u1set:
+        jump u2set notEqual u1 null
+        set u1 @unit
+        set key1 key
+        end
+        u2set:
+        jump done lessThan units 2 
+        jump u3set notEqual u2 null
+        set u2 @unit
+        set key2 key
+        end
+        u3set:
+        jump done lessThan units 3 
+        jump u4set notEqual u3 null
+        set u3 @unit
+        set key3 key
+        end
+        u4set:
+        jump done lessThan units 4 
+        jump u5set notEqual u4 null
+        set u4 @unit
+        set key4 key
+        end
+        u5set:
+        jump done lessThan units 5
+        jump u6set notEqual u5 null
+        set u5 @unit
+        set key5 key
+        end
+        u6set:
+        jump done lessThan units 6
+        jump u7set notEqual u6 null
+        set u6 @unit
+        set key6 key
+        end
+        u7set:
+        jump done lessThan units 7
+        jump u8set notEqual u7 null
+        set u7 @unit
+        set key7 key
+        end
+        u8set:
+        jump done lessThan units 8
+        jump u9set notEqual u8 null
+        set u8 @unit
+        set key8 key
+        end
+        u9set:
+        jump done lessThan units 9
+        jump u10set notEqual u9 null
+        set u9 @unit
+        set key9 key
+        end
+        u10set:
+        jump done lessThan units 10
+        jump ubind_end notEqual u10 null
+        set u10 @unit
+        set key10 key
+        end
+        ubind_end:
+        end
+    done:
+    end
