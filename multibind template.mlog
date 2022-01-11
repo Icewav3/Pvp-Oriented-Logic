@@ -463,7 +463,6 @@
     sensor c @unit @controlled
     sensor f @unit @flag
     jump found strictEqual c 0
-    jump bind notEqual @unit null
     jump bind notEqual f 0
 
     found:
