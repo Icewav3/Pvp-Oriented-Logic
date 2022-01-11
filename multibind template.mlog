@@ -99,9 +99,9 @@
     u1:
         ubind u1
         sensor dead @unit @dead
-        sensor controller @unit @controller
+        sensor flag @unit @flag
         jump u1null equal dead true
-        jump work1 strictEqual controller @this
+        jump work1 strictEqual flag key1
         u1null:
         set u1 null
         jump bind always x false
@@ -136,9 +136,9 @@
     jump done lessThan units 2
         ubind u2
         sensor dead @unit @dead
-        sensor controller @unit @controller
+        sensor flag @unit @flag
         jump u2null equal dead true
-        jump work2 strictEqual controller @this
+        jump work2 strictEqual flag key2
         u2null:
         set u2 null
         jump bind always x false
@@ -174,9 +174,9 @@
     jump done lessThan units 3
         ubind u3
         sensor dead @unit @dead
-        sensor controller @unit @controller
+        sensor flag @unit @flag
         jump u3null equal dead true
-        jump work3 strictEqual controller @this
+        jump work3 strictEqual flag key3
         u3null:
         set u3 null
         jump bind always x false
@@ -211,9 +211,9 @@
     jump done lessThan units 4
         ubind u4
         sensor dead @unit @dead
-        sensor controller @unit @controller
+        sensor flag @unit @flag
         jump u4null equal dead true
-        jump work4 strictEqual controller @this
+        jump work4 strictEqual flag key4
         u4null:
         set u4 null
         jump bind always x false
@@ -248,9 +248,9 @@
     jump done lessThan units 5
         ubind u5
         sensor dead @unit @dead
-        sensor controller @unit @controller
+        sensor flag @unit @flag
         jump u5null equal dead true
-        jump work5 strictEqual controller @this
+        jump work5 strictEqual flag key5
         u5null:
         set u5 null
         jump bind always x false
@@ -285,9 +285,9 @@
         jump done lessThan units 6
         ubind u6
         sensor dead @unit @dead
-        sensor controller @unit @controller
+        sensor flag @unit @flag
         jump u6null equal dead true
-        jump work6 strictEqual controller @this
+        jump work6 strictEqual flag key6
         u6null:
         set u6 null
         jump bind always x false
@@ -322,9 +322,9 @@
         jump done lessThan units 7
         ubind u7
         sensor dead @unit @dead
-        sensor controller @unit @controller
+        sensor flag @unit @flag
         jump u7null equal dead true
-        jump work7 strictEqual controller @this
+        jump work7 strictEqual flag key7
         u7null:
         set u7 null
         jump bind always x false
@@ -359,9 +359,9 @@
         jump done lessThan units 8
         ubind u8
         sensor dead @unit @dead
-        sensor controller @unit @controller
+        sensor flag @unit @flag
         jump u8null equal dead true
-        jump work8 strictEqual controller @this
+        jump work8 strictEqual flag key8
         u8null:
         set u8 null
         jump bind always x false
@@ -396,9 +396,9 @@
         jump done lessThan units 9
         ubind u9
         sensor dead @unit @dead
-        sensor controller @unit @controller
+        sensor flag @unit @flag
         jump u9null equal dead true
-        jump work9 strictEqual controller @this
+        jump work9 strictEqual flag key9
         u9null:
         set u9 null
         jump bind always x false
@@ -433,9 +433,9 @@
         jump done lessThan units 10
         ubind u10
         sensor dead @unit @dead
-        sensor controller @unit @controller
+        sensor flag @unit @flag
         jump u10null equal dead true
-        jump work10 strictEqual controller @this
+        jump work10 strictEqual flag key10
         u10null:
         set u10 null
         jump bind always x false
