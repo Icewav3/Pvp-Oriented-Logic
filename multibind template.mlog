@@ -35,7 +35,17 @@
     sensor shit core @dead
     jump boot equal shit true
     jump start always x false
-    type:   
+    type:
+    set u1 null
+    set u2 null
+    set u3 null
+    set u4 null
+    set u5 null
+    set u6 null
+    set u7 null
+    set u8 null
+    set u9 null 
+    set u10 null 
     jump flare equal config @copper
     jump mono equal config @lead
     jump horizon equal config @metaglass
