@@ -1,5 +1,6 @@
     on:
     jump boot2 notEqual a null
+    on2:
     print "By: [cyan]Ice[blue]wave[sky]#0394"
     print "\n"
     print "[green]V2.0"
@@ -27,7 +28,7 @@
     set u9mode target
     set u10mode target
     boot2:
-    jump on strictEqual target null
+    jump on2 strictEqual target null
     set prevconfig config
     sensor config sorter1 @config
     jump type notEqual config prevconfig
@@ -462,8 +463,8 @@
     sensor c @unit @controlled
     sensor f @unit @flag
     jump found strictEqual c 0
-    jump bind notEqual f 0
     jump bind notEqual @unit null
+    jump bind notEqual f 0
 
     found:
     set key @time
