@@ -415,7 +415,7 @@
             empty9:
             ucontrol approach x y 5
             ucontrol itemDrop target u_cap
-            jump u9 always x false
+            jump u10 always x false
 
         work9b:
             sensor item @unit u9item
