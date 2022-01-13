@@ -88,8 +88,8 @@
     boot:
     ucontrol move @thisx @thisy 0 0 0
     ucontrol within @thisx @thisy 3 here
-    jump boot equal here true
-    ulocate building core false @copper cx cy found core
+    jump boot equal here false
+    ulocate building core false cx cy found core
     sensor x target @x
     sensor y target @y
     set a null
