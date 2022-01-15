@@ -92,7 +92,8 @@
     jump nxt strictEqual c 0
     jump boot notEqual f 0
     nxt:
-    sensor dead @unit @dead
+    jump type strictEqual unit_type null
+    sensor dead @unit @dead 
     ucontrol move @thisx @thisy 0 0 0
     ucontrol within @thisx @thisy 3 here
     jump boot equal dead true
