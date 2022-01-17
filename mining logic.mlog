@@ -80,6 +80,7 @@ start:
     jump core strictEqual cx null
     jump resource notEqual ded true
     core:
+        ucontrol boost 1 
         ucontrol move @thisx @thisy 0 0 0
         ucontrol within @thisx @thisy 3 here 0
         jump core notEqual here true
@@ -148,10 +149,12 @@ locate:
     jump empty notEqual type item
 
     dig:
+        ucontrol boost 1 0 0 0 0
         ucontrol approach x y 7 0 0
         ucontrol mine x y 0 0 0
         end
 empty:
+    ucontrol boost 1 0 0 0 0
     ucontrol approach cx cy 7 0 0
     ucontrol itemDrop core u_cap 0 0 0
     ucontrol mine 0 0 0 0 0
