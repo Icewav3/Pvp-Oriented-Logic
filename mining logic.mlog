@@ -1,0 +1,165 @@
+on:
+jump on equal sorter1 null
+sensor config sorter1 @config
+jump on strictEqual config null
+set prevconfig config
+sensor config sorter1 @config
+jump type equal u_type null
+jump type notEqual config prevconfig
+jump bind always x false
+
+type:
+    jump pulsar equal config @copper
+    jump mono equal config @lead
+    jump poly equal config @graphite
+    jump pulsar equal config @metaglass
+    jump mega equal config @sand
+    jump quasar equal config @coal
+    jump rankedpoly equal config @titanium
+    jump rankedmega equal config @thorium
+    jump type always x false
+
+    pulsar:
+    set u_type @pulsar
+    set icon "Pulsar"
+    set u_cap 40
+    set ground true
+    set maxmine @coal
+    jump bind always x false
+    mono:
+    set u_type @mono
+    set icon "Mono"
+    set u_cap 20
+    set ground false
+    set maxmine @sand
+    jump bind always x false
+    poly:
+    set u_type @poly
+    set icon "Poly"
+    set u_cap 30
+    set ground false
+    set maxmine @coal
+    jump bind always x false
+    mega:
+    set u_type @mega
+    set icon "Mega"
+    set u_cap 60
+    set ground false
+    set maxmine @titanium
+    jump bind always x false
+    quasar:
+    set u_type @quasar
+    set icon "Quasar"
+    set u_cap 50
+    set ground true
+    set maxmine @titanium
+    jump bind always x false
+    rankedpoly: 
+    set u_type @poly
+    set icon "Ranked Poly"
+    set u_cap 30
+    set ground true
+    set maxmine @titanium
+    jump bind always x false
+    rankedmega: 
+    set u_type @poly
+    set icon "Ranked Mega"
+    set u_cap 60
+    set ground true
+    set maxmine @thorium
+    jump bind always x false
+bind:
+    ubind u_type
+    sensor c @unit @controlled
+    sensor f @unit @flag
+    jump start strictEqual c 0
+    jump bind notEqual f 0
+
+start:
+    sensor ded core @dead
+    jump core strictEqual cx null
+    jump resource notEqual ded true
+    core:
+        ucontrol move @thisx @thisy 0 0 0
+        ucontrol within @thisx @thisy 3 here 0
+        jump core notEqual here true
+        ulocate building core false @copper cx cy found core
+
+resource:
+    op add cycle cycle 1
+    op div percent cycle 5
+    print "[green]Current unit: "
+    print icon
+    print "\n[red]Mining percentage: "
+    print percent
+    print "%\n[white]"
+    print "By: [cyan]Ice[blue]wave[sky]#0394"
+    printflush
+
+    jump lowres strictEqual item null
+    jump mine lessThan cycle 500
+lowres:
+    set cycle 0
+    sensor copper core @copper
+    sensor lead core @lead
+    sensor sand core @sand
+    sensor coal core @coal
+    sensor titan core @titanium
+    sensor thor core @thorium
+set last item
+    checkcopper:
+        jump checklead greaterThan copper lead
+        set item @copper
+        jump mine always x false
+    checklead:
+        jump checksand greaterThan lead sand
+        set item @lead
+        jump mine always x false
+    checksand:
+        jump sand equal maxmine @sand
+        jump checkcoal greaterThan sand coal
+        sand:
+        set item @sand
+        jump mine always x false
+    checkcoal:
+        jump coal equal maxmine @coal
+        jump checktitan greaterThan coal titan
+        coal:
+        set item @coal
+        jump mine always x false
+    checktitan:
+        jump titan equal maxmine @titanium
+        jump checkthor greaterThan titan thor
+        titan:
+        set item @titanium
+        jump mine always x false
+    checkthor:
+        set item @thorium
+mine:
+    jump locate strictEqual last item
+    ulocate ore core true item x y found building
+    jump locate notEqual y null
+    op add y @thisy 1
+    set x @thisx
+
+locate:
+    sensor items @unit item
+    jump empty strictEqual items u_cap
+    sensor type @unit @firstItem
+    sensor total @unit @totalItems
+    jump dig strictEqual total 0
+    jump empty notEqual type item
+
+    dig:
+        ucontrol approach x y 7 0 0
+        ucontrol mine x y 0 0 0
+        end
+empty:
+    ucontrol approach cx cy 7 0 0
+    ucontrol itemDrop core u_cap 0 0 0
+    ucontrol mine 0 0 0 0 0
+    end
+
+
+
+
