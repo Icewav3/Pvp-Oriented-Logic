@@ -90,7 +90,9 @@ resource:
     op div percent cycle 5
     print "[green]Current unit: "
     print icon
-    print "\n[red]Mining percentage: "
+    print "\n[orange]Mining: "
+    print item
+    print "[red]\nPercentage: "
     print percent
     print "%\n[white]"
     print "By: [cyan]Ice[blue]wave[sky]#0394"
@@ -107,32 +109,27 @@ lowres:
     sensor titan core @titanium
     sensor thor core @thorium
     checkcopper:
-        jump checklead greaterThan copper lead
+        jump boot strictEqual last null
+        jump checklead lessThan copper last
+        boot:
         set item @copper
-        jump mine always x false
     checklead:
-        jump checksand greaterThan lead sand
+        jump checksand lessThan copper lead
         set item @lead
-        jump mine always x false
     checksand:
-        jump sand equal maxmine @sand
-        jump checkcoal greaterThan sand coal
-        sand:
+        jump checkcoal lessThan lead sand
         set item @sand
-        jump mine always x false
     checkcoal:
-        jump coal equal maxmine @coal
-        jump checktitan greaterThan coal titan
-        coal:
+        jump mine equal maxmine @sand
+        jump checktitan lessThan sand coal
         set item @coal
-        jump mine always x false
     checktitan:
-        jump titan equal maxmine @titanium
-        jump checkthor greaterThan titan thor
-        titan:
+        jump mine equal maxmine @coal
+        jump checkthor lessThan coal titan
         set item @titanium
-        jump mine always x false
     checkthor:
+        jump mine equal maxmine @titanium
+        jump mine lessThan titan thor
         set item @thorium
 mine:
     jump locate strictEqual last item
