@@ -106,7 +106,6 @@ lowres:
     sensor coal core @coal
     sensor titan core @titanium
     sensor thor core @thorium
-set last item
     checkcopper:
         jump checklead greaterThan copper lead
         set item @copper
@@ -137,8 +136,9 @@ set last item
         set item @thorium
 mine:
     jump locate strictEqual last item
+    set last item
     ulocate ore core true item x y found building
-    jump locate notEqual y null
+    jump locate equal found true
     op add y @thisy 1
     set x @thisx
 
