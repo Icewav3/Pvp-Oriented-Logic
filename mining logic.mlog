@@ -83,7 +83,7 @@ start:
         ucontrol boost 1 
         ucontrol move @thisx @thisy 0 0 0
         ucontrol within @thisx @thisy 3 here 0
-        jump core notEqual here true
+        jump on notEqual here true
         ulocate building core false @copper cx cy found core
 
 resource:
