@@ -1,6 +1,7 @@
     on:
     jump boot2 notEqual a null
     on2:
+    printflush message1
     print "By: [cyan]Ice[blue]wave[sky]#0394"
     print "\n"
     print "[green]V2.0"

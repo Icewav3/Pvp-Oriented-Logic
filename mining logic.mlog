@@ -62,7 +62,7 @@ type:
     set maxmine @titanium
     jump bind always x false
     rankedmega: 
-    set u_type @poly
+    set u_type @mega
     set icon "Ranked Mega"
     set u_cap 60
     set ground true
