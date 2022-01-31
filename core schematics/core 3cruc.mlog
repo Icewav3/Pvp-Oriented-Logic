@@ -1,0 +1,113 @@
+cruc1:
+    sensor c crucible1 @coal
+    sensor s crucible1 @sand
+    jump cruc1coal greaterThan s c
+    jump cruc1sand greaterThan c s
+    jump cruc2 always x false
+
+    cruc1coal:
+        control configure unloader1 @coal
+        control configure unloader2 @coal
+    jump cruc2 always x false
+
+        cruc1sand:
+        control configure unloader1 @sand
+        control configure unloader2 @sand
+
+cruc2:
+    sensor c crucible2 @coal
+    sensor s crucible2 @sand
+    jump cruc2coal greaterThan s c
+    jump cruc2sand greaterThan c s
+    jump cruc3 always x false
+
+    cruc2coal:
+        control configure unloader3 @coal
+        control configure unloader4 @coal
+    jump cruc3 always x false
+
+        cruc2sand:
+        control configure unloader3 @sand
+        control configure unloader4 @sand
+
+cruc3:
+    sensor c crucible3 @coal
+    sensor s crucible3 @sand
+    jump cruc3coal greaterThan s c
+    jump cruc3sand greaterThan c s
+    jump mixer1 always x false
+
+    cruc3coal:
+        control configure unloader5 @coal
+        control configure unloader6 @coal
+    jump mixer1 always x false
+
+        cruc3sand:
+        control configure unloader5 @sand
+        control configure unloader6 @sand
+
+mixer1:
+    sensor c mixer1 @coal
+    sensor s mixer1 @sand
+    sensor l mixer1 @lead
+    jump mixer1lead lessThan l 8
+    jump mixer1sand lessThan s 8
+    jump mixer1coal lessThan c 8
+    control configure unloader7 @lead
+    jump mixer2 always x false
+
+    mixer1sand:
+        control configure unloader7 @sand
+        jump mixer2 always x false
+    mixer1coal:
+        control configure unloader7 @coal
+        jump mixer2 always x false
+    mixer1lead:
+        control configure unloader7 @lead
+        jump mixer2 always x false
+
+mixer2:
+    sensor c mixer2 @coal
+    sensor s mixer2 @sand
+    sensor l mixer2 @lead
+    jump mixer2sand lessThan s 6
+    jump mixer2coal lessThan c 3
+    jump mixer2lead lessThan l 6
+    control configure unloader10 @sand
+    jump mixer3 always x false
+    
+    mixer2sand:
+        control configure unloader10 @sand
+        jump mixer3 always x false
+    mixer2coal:
+        control configure unloader10 @coal
+        jump mixer3 always x false
+    mixer2lead:
+        control configure unloader8 @lead
+        jump mixer3 always x false
+
+mixer3:
+    sensor c mixer3 @coal
+    sensor s mixer3 @sand
+    sensor l mixer3 @lead
+    jump mixer3sand lessThan s 4
+    jump mixer3coal lessThan c 2
+    jump mixer3lead lessThan l 4
+    control configure unloader9 @null
+    jump proj always x false
+    
+    mixer3sand:
+        control configure unloader9 @sand
+        jump proj always x false
+    mixer3coal:
+        control configure unloader9 @coal
+        jump proj always x false
+    mixer3lead:
+        control configure unloader9 @lead
+        jump proj always x false
+proj:
+    sensor p projector1 @phase-fabric
+    jump ending notEqual p false
+    control configure unloader7 @phase-fabric
+ending:
+end
