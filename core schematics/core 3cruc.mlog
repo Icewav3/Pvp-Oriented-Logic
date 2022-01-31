@@ -23,12 +23,10 @@ cruc2:
 
     cruc2coal:
         control configure unloader3 @coal
-        control configure unloader4 @coal
     jump cruc3 always x false
 
         cruc2sand:
         control configure unloader3 @sand
-        control configure unloader4 @sand
 
 cruc3:
     sensor c crucible3 @coal
@@ -38,13 +36,13 @@ cruc3:
     jump mixer1 always x false
 
     cruc3coal:
-        control configure unloader5 @coal
-        control configure unloader6 @coal
+        control configure unloader4 @coal
+
     jump mixer1 always x false
 
         cruc3sand:
-        control configure unloader5 @sand
-        control configure unloader6 @sand
+        control configure unloader4 @sand
+
 
 mixer1:
     sensor c mixer1 @coal
@@ -53,17 +51,17 @@ mixer1:
     jump mixer1lead lessThan l 8
     jump mixer1sand lessThan s 8
     jump mixer1coal lessThan c 8
-    control configure unloader7 @lead
+    control configure unloader5 @sand
     jump mixer2 always x false
 
     mixer1sand:
-        control configure unloader7 @sand
+        control configure unloader5 @sand
         jump mixer2 always x false
     mixer1coal:
-        control configure unloader7 @coal
+        control configure unloader5 @coal
         jump mixer2 always x false
     mixer1lead:
-        control configure unloader7 @lead
+        control configure unloader5 @lead
         jump mixer2 always x false
 
 mixer2:
@@ -73,17 +71,18 @@ mixer2:
     jump mixer2sand lessThan s 6
     jump mixer2coal lessThan c 3
     jump mixer2lead lessThan l 6
-    control configure unloader10 @sand
+    sensor b unloader3 @config
+    control configure unloader6 b
     jump mixer3 always x false
     
     mixer2sand:
-        control configure unloader10 @sand
+        control configure unloader6 @sand
         jump mixer3 always x false
     mixer2coal:
-        control configure unloader10 @coal
+        control configure unloader6 @coal
         jump mixer3 always x false
     mixer2lead:
-        control configure unloader8 @lead
+        control configure unloader6 @lead
         jump mixer3 always x false
 
 mixer3:
@@ -93,21 +92,21 @@ mixer3:
     jump mixer3sand lessThan s 4
     jump mixer3coal lessThan c 2
     jump mixer3lead lessThan l 4
-    control configure unloader9 @null
+    control configure unloader7 @null
     jump proj always x false
     
     mixer3sand:
-        control configure unloader9 @sand
+        control configure unloader7 @sand
         jump proj always x false
     mixer3coal:
-        control configure unloader9 @coal
+        control configure unloader7 @coal
         jump proj always x false
     mixer3lead:
-        control configure unloader9 @lead
+        control configure unloader7 @lead
         jump proj always x false
 proj:
     sensor p projector1 @phase-fabric
-    jump ending notEqual p false
-    control configure unloader7 @phase-fabric
+    jump ending greaterThan p 5
+    control configure unloader1 @phase-fabric
 ending:
 end
