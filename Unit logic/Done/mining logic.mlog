@@ -9,7 +9,6 @@ jump type notEqual config prevconfig
 jump bind always x false
 
 type:
-:DDDD
     jump pulsar equal config @copper
     jump mono equal config @lead
     jump poly equal config @graphite
