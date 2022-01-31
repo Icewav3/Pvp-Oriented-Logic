@@ -1,0 +1,79 @@
+print "Logic by Icewave#0394"
+start:
+    ubind @poly
+    sensor flag @unit @flag
+    sensor hp @unit @health
+    sensor res @unit @lead
+    jump repair lessThan hp 150
+    jump mine strictEqual flag 1
+    jump air_detected strictEqual flag 2
+    jump mine lessThanEq res 15
+    uradar enemy flying any distance 0 1 a
+    jump air_detected notEqual a null
+    uradar enemy ground any distance 0 1 b
+    jump ground_detected notEqual b null
+    ulocate damaged core true @copper dx dy found building
+    jump none strictEqual found false
+    ucontrol approach dx dy 5 0 0
+    ucontrol target dx dy 1
+    end
+    none:
+        ulocate building core false @copper cx cy found building
+        ucontrol move cx cy 5 0 0
+        ucontrol target cx cy 1 0 0
+        end
+mine:
+    ucontrol flag 1
+    ulocate ore core true @lead ox oy found building
+    ucontrol approach ox oy 8 0 0
+    ucontrol mine ox oy 0 0 0
+    jump start lessThanEq res 25
+    ucontrol flag 0
+    ucontrol mine 9999 9999 0 0 0
+    end
+ground_detected:
+    sensor x b @x
+    sensor y b @y
+    ucontrol approach x y 20 0 0
+    ucontrol build x y @shock-mine 0 0
+    end
+air_detected:
+    sensor ammo scatter @ammo
+    jump newscat strictEqual scatter null
+    jump scatdone greaterThan ammo 0
+    ucontrol approach x y 7.5
+    ucontrol getBlock x y 0 check 0
+    jump newscat strictEqual check null
+    ucontrol itemDrop scatter 99999 0 0 0
+    ucontrol flag 2
+    end
+
+    scatdone:
+        ucontrol flag 0
+        set scatter null
+        end
+
+    newscat:
+        sensor x a @x
+        sensor y a @y
+        ucontrol approach x y 20 0 0
+        ucontrol build x y @scatter 0 0
+        ucontrol getBlock x y 0 scatter 0
+        ucontrol flag 0
+        end
+
+repair:
+    ulocate building repair false @copper rx ry found building
+    ucontrol approach rx ry 4 0 0
+    sensor hp @unit @health
+    jump maxhp equal hp 400
+    ucontrol flag -1
+    end
+    maxhp:
+        ucontrol flag 0
+        end
+        print "Logic by Icewave#0394"
+u1:
+u2:
+u3:
+u4:
