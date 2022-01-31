@@ -23,12 +23,11 @@ cruc2:
 
     cruc2coal:
         control configure unloader3 @coal
-        control configure unloader4 @coal
     jump mixer1 always x false
 
         cruc2sand:
         control configure unloader3 @sand
-        control configure unloader4 @sand
+
 
 mixer1:
     sensor c mixer1 @coal
@@ -41,13 +40,13 @@ mixer1:
     jump mixer2 always x false
 
     mixer1sand:
-        control configure unloader5 @sand
+        control configure unloader4 @sand
         jump mixer2 always x false
     mixer1coal:
-        control configure unloader5 @coal
+        control configure unloader4 @coal
         jump mixer2 always x false
     mixer1lead:
-        control configure unloader5 @lead
+        control configure unloader4 @lead
         jump mixer2 always x false
 
 mixer2:
@@ -61,19 +60,19 @@ mixer2:
     jump proj always x false
     
     mixer2sand:
-        control configure unloader6     @sand
+        control configure unloader5 @sand
         jump proj always x false
     mixer2coal:
-        control configure unloader6 @coal
+        control configure unloader5 @coal
         jump proj always x false
     mixer2lead:
-        control configure unloader6 @lead
+        control configure unloader5 @lead
         jump proj always x false
 
 proj:
     sensor p projector1 @phase-fabric
-    jump ending notEqual p false
-    control configure unloader7 @phase-fabric
+    jump ending greaterThan p 5
+    control configure unloader1 @phase-fabric
 ending:
-print "By: Icewave#0394"
+print "Logic by: Icewave#0394"
 end
