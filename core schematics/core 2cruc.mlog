@@ -56,7 +56,8 @@ mixer2:
     jump mixer2sand lessThan s 6
     jump mixer2coal lessThan c 3
     jump mixer2lead lessThan l 6
-    control configure unloader6 @null
+    sensor p unloader3 @config
+    control configure unloader5 p
     jump proj always x false
     
     mixer2sand:
