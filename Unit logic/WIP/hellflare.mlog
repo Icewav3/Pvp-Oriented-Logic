@@ -1,0 +1,17 @@
+bind:
+    ubind @flare
+    sensor f @unit @flag
+    jump bind notEqual f 0
+start:
+    ulocate building factory true youmom fx fy found fac
+    jump approach equal found true
+    ulocate building core true youmom cx cy found co
+
+        approach:
+        ulocate building turret true youmom tx ty found tr
+        ucontrol within tx ty 35 shit 
+        jump circle equal shit true
+
+            circle:
+            "how math?"
+
