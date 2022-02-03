@@ -1,18 +1,17 @@
 on:
-jump on equal sorter1 null
-sensor config sorter1 @config
-jump on strictEqual config null
-set prevconfig config
-sensor config sorter1 @config
-jump type equal u_type null
-jump type notEqual config prevconfig
-jump bind always x false
+    jump on equal sorter1 null
+    sensor config sorter1 @config
+    jump on strictEqual config null
+    set prevconfig config
+    sensor config sorter1 @config
+    jump type equal u_type null
+    jump type notEqual config prevconfig
+    jump bind always x false
 
 type:
     jump pulsar equal config @copper
     jump mono equal config @lead
     jump poly equal config @graphite
-    jump pulsar equal config @metaglass
     jump mega equal config @sand
     jump quasar equal config @coal
     jump rankedpoly equal config @titanium
@@ -20,54 +19,61 @@ type:
     jump type always x false
 
     pulsar:
-    set u_type @pulsar
-    set icon "Pulsar"
-    set u_cap 40
-    set ground true
-    set maxmine @coal
-    jump bind always x false
+        set u_type @pulsar
+        set icon "Pulsar"
+        set u_cap 40
+        set ground true
+        set maxmine @coal
+        jump bind always x false
+
     mono:
-    set u_type @mono
-    set icon "Mono"
-    set u_cap 20
-    set ground false
-    set maxmine @sand
-    jump bind always x false
+        set u_type @mono
+        set icon "Mono"
+        set u_cap 20
+        set ground false
+        set maxmine @sand
+        jump bind always x false
+
     poly:
-    set u_type @poly
-    set icon "Poly"
-    set u_cap 30
-    set ground false
-    set maxmine @coal
-    jump bind always x false
+        set u_type @poly
+        set icon "Poly"
+        set u_cap 30
+        set ground false
+        set maxmine @coal
+        jump bind always x false
+
     mega:
-    set u_type @mega
-    set icon "Mega"
-    set u_cap 60
-    set ground false
-    set maxmine @titanium
-    jump bind always x false
+        set u_type @mega
+        set icon "Mega"
+        set u_cap 60
+        set ground false
+        set maxmine @titanium
+        jump bind always x false
+
     quasar:
-    set u_type @quasar
-    set icon "Quasar"
-    set u_cap 50
-    set ground true
-    set maxmine @titanium
-    jump bind always x false
+        set u_type @quasar
+        set icon "Quasar"
+        set u_cap 50
+        set ground true
+        set maxmine @titanium
+        jump bind always x false
+
     rankedpoly: 
-    set u_type @poly
-    set icon "Ranked Poly"
-    set u_cap 30
-    set ground true
-    set maxmine @titanium
-    jump bind always x false
+        set u_type @poly
+        set icon "Ranked Poly"
+        set u_cap 30
+        set ground true
+        set maxmine @titanium
+        jump bind always x false
+
     rankedmega: 
-    set u_type @mega
-    set icon "Ranked Mega"
-    set u_cap 60
-    set ground true
-    set maxmine @thorium
-    jump bind always x false
+        set u_type @mega
+        set icon "Ranked Mega"
+        set u_cap 60
+        set ground true
+        set maxmine @thorium
+        jump bind always x false
+
 bind:
     ubind u_type
     sensor c @unit @controlled
@@ -79,6 +85,7 @@ start:
     sensor ded core @dead
     jump core strictEqual cx null
     jump resource notEqual ded true
+
     core:
         ucontrol boost 1 
         ucontrol move @thisx @thisy 0 0 0
@@ -87,8 +94,10 @@ start:
         ulocate building core false @copper cx cy found core
 
 resource:
-    op add cycle cycle 1
-    op div percent cycle 5
+    op sub timer mining_timer @time
+    op div percent timer 50
+    op sub percent 100 percent
+    op floor percent percent
     print "[green]Current unit: "
     print icon
     print "\n[orange]Mining: "
@@ -97,41 +106,58 @@ resource:
     print percent
     print "%\n[white]"
     print "By: [cyan]Ice[blue]wave[sky]#0394"
+    print " [white] and WiZeR1233#9336"
     printflush
 
     jump lowres strictEqual item null
-    jump mine lessThan cycle 500
+    jump mine greaterThan timer 0
+
 lowres:
-    set cycle 0
+    op add mining_timer @time 5000
     sensor copper core @copper
     sensor lead core @lead
     sensor sand core @sand
     sensor coal core @coal
     sensor titan core @titanium
     sensor thor core @thorium
+    sensor item_amount core last
+
     checkcopper:
         jump boot strictEqual last null
-        jump checklead lessThan copper last
+        jump checklead lessThan item_amount copper
+
         boot:
-        set item @copper
+            set item_amount copper
+            set item @copper
+
     checklead:
-        jump checksand lessThan copper lead
+        jump checksand lessThan item_amount lead
         set item @lead
+        set item_amount lead
+
     checksand:
-        jump checkcoal lessThan lead sand
+        jump checkcoal lessThan item_amount sand
         set item @sand
+        set item_amount sand
+
     checkcoal:
         jump mine equal maxmine @sand
-        jump checktitan lessThan sand coal
+        jump checktitan lessThan item_amount coal
         set item @coal
+        set item_amount coal
+
     checktitan:
         jump mine equal maxmine @coal
-        jump checkthor lessThan coal titan
+        jump checkthor lessThan item_amount titan
         set item @titanium
+        set item_amount titanium
+
     checkthor:
         jump mine equal maxmine @titanium
-        jump mine lessThan titan thor
+        jump mine lessThan item_amount thor
         set item @thorium
+        set item_amount thorium
+
 mine:
     jump locate strictEqual last item
     set last item
@@ -149,17 +175,14 @@ locate:
     jump empty notEqual type item
 
     dig:
-        ucontrol boost 1 0 0 0 0
-        ucontrol approach x y 7 0 0
-        ucontrol mine x y 0 0 0
+        ucontrol boost 1
+        ucontrol approach x y 7
+        ucontrol mine x y
         end
+
 empty:
-    ucontrol boost 1 0 0 0 0
-    ucontrol approach cx cy 7 0 0
-    ucontrol itemDrop core u_cap 0 0 0
-    ucontrol mine 0 0 0 0 0
+    ucontrol boost 1
+    ucontrol approach cx cy 7
+    ucontrol itemDrop core u_cap
+    ucontrol mine 0 0
     end
-
-
-
-
