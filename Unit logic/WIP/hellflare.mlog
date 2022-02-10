@@ -1,17 +1,40 @@
+set r 30
+set panic 35
+jump start notEqual unit false
 bind:
     ubind @flare
     sensor f @unit @flag
     jump bind notEqual f 0
 start:
-    ulocate building factory true youmom fx fy found fac
-    jump approach equal found true
-    ulocate building core true youmom cx cy found co
+    set unit @unit
+    sensor dead @unit @dead
+    jump locate notEqual dead true
+    set unit null
+    end
+    locate:
+        ulocate building factory true youmom fx fy found fac
+        jump approach equal found true
+        ulocate building core true youmom cx cy found co
 
-        approach:
-        ulocate building turret true youmom tx ty found tr
-        ucontrol within tx ty 35 shit 
-        jump circle equal shit true
+            approach:
+                ulocate building turret true youmom tx ty found tr
+                ucontrol within tx ty panic shit 
+                jump circle equal shit true
 
-            circle:
-            "how math?"
+                circle:
+                    sensor ux @unit @x
+                    sensor uy @unit @y
+                    op sub x ux tx
+                    op sub y uy ty
+                    op angle angle x y
+                    op add angle angle 5
+                    op cos cos angle
+                    op sin sin angle
+                    op mul dx cos r
+                    op mul dy sin r
+                    op add x dx tx
+                    op add y dy ty
+                movement:
+                    ucontrol move x y
+
 

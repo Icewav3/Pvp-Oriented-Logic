@@ -1,5 +1,5 @@
 constants:
-    set creator "[SG] Визя"
+    set creator "[SG] Визя and Icewave#0394"
     set attempt_amount 73
     set unit_amount 8
     set time_between_bind 3000
@@ -11,6 +11,8 @@ flag_def:
 
 binding:
     is_binding_needed:
+        sensor powernet reconstructor1 @powerNetStored
+        jump free_up_binded_unit lessThan powernet 4000
         op sub timer @time time_between_bind
         jump main_part greaterThan last_time timer
         sensor timescale reconstructor2 @timescale
@@ -389,8 +391,12 @@ main_part:
             jump nova_chain always
 
         factory1_config_crawler:
-            jump factory1_config_risso notEqual factory1_config @crawler
+            jump factory1_config_retusa notEqual factory1_config @crawler
             jump crawler_chain always
+        
+        factory1_config_retusa:
+            jump factory1_config_risso notEqual factory1_config @retusa
+            jump retusa_chain always
 
         factory1_config_risso:
             jump grathite_chain notEqual factory1_config @risso
@@ -447,6 +453,28 @@ main_part:
             set item2 @graphite
             set item3 @titanium
             jump select_main_item_end always
+
+        retusa_chain:
+            sensor metaglass_in_first_factory factory1 @metaglass
+            sensor titanium_in_first_factory factory1 @titanium
+            sensor metaglass_in_second_factory factory2 @metaglass
+            sensor titanium_in_second_factory factory2 @titanium
+            op add total_metaglass metaglass_in_first_factory metaglass_in_second_factory
+            op add total_titanium titanium_in_first_factory titanium_in_second_factory
+            jump retusa_titanium_chain greaterThanEq total_metaglass 140
+
+                retusa_metaglass_chain:
+                set item1 @metaglass
+                set item2 @titanium
+                set item3 @silicon
+                jump select_main_item_end always
+
+                retusa_titanium_chain:
+                jump grathite_chain greaterThanEq total_titanium 80
+                set item1 @titanium
+                set item2 @metaglass
+                set item3 @silicon
+                jump select_main_item_end always
 
         risso_chain:
             sensor metaglass_in_first_factory factory1 @metaglass
