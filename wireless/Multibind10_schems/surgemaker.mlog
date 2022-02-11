@@ -92,13 +92,13 @@
     flare:
     set unit_type @flare
     set u_cap 20
-    set units 5
+    set units 10
     op mul units units scale
     jump start always x false
     mono:
     set unit_type @mono
     set u_cap 20
-    set units 5
+    set units 10
     op mul units units scale
     jump start always x false
     horizon:
