@@ -1,5 +1,5 @@
 set r 30
-set panic 35
+set panic 29
 jump start notEqual unit false
 bind:
     ubind @flare
@@ -8,19 +8,22 @@ bind:
 start:
     set unit @unit
     sensor dead @unit @dead
+    sensor item @unit @firstItem
+    ucontrol flag @time
     jump locate notEqual dead true
     set unit null
     end
     locate:
         ulocate building factory true youmom fx fy found fac
         jump approach equal found true
-        ulocate building core true youmom cx cy found co
+        ulocate building core true youmom fx fy found co
 
             approach:
                 ulocate building turret true youmom tx ty found tr
-                ucontrol within tx ty panic shit 
+                ucontrol within tx ty panic shit
                 jump circle equal shit true
-
+                ucontrol move fx fy
+                ucontrol target fx fy 1
                 circle:
                     sensor ux @unit @x
                     sensor uy @unit @y

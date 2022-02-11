@@ -4,42 +4,41 @@
     printflush message1
     print "By: [cyan]Ice[blue]wave[sky]#0394"
     print "\n"
-    print "[green]V2.5 Auto Overdrive"
+    print "[green]V2.0"
+    print "\n"
+    print "[red]delete after vault is filled, and then click on vault"
     printflush message1
     set a 1
-    set target container1
-    set u1item @lead
-    set u2item @sand
-    set u3item @silicon
-    set u4item @coal
-    set u5item @sand
-    set u6item @silicon
-    set u7item @coal
-    set u8item @silicon
-    set u9item @sand
-    set u10item @null
+    set target vault1
+    set u1item @thorium
+    set u2item @thorium
+    set u3item @thorium
+    set u4item @thorium
+    set u5item @thorium
+    set u6item @thorium
+    set u7item @thorium
+    set u8item @thorium
+    set u9item @thorium
+    set u10item @thorium
     set u1mode target
     set u2mode target
-    set u3mode core
+    set u3mode target
     set u4mode target
     set u5mode target
-    set u6mode core
+    set u6mode target
     set u7mode target
-    set u8mode core
+    set u8mode target
     set u9mode target
     set u10mode target
     boot2:
     jump on2 strictEqual target null
-    set prevscale scale
     set prevconfig config
     sensor config sorter1 @config
-    sensor scale @this @timescale
-    jump unbind notEqual config prevconfig
-    jump u_type notEqual scale prevscale
+    jump type notEqual config prevconfig
     sensor shit core @dead
     jump boot equal shit true
     jump start always x false
-    unbind:
+    type:
     set u1 null
     set u2 null
     set u3 null
@@ -49,8 +48,7 @@
     set u7 null
     set u8 null
     set u9 null 
-    set u10 null
-    u_type:
+    set u10 null 
     jump boot2 strictEqual config null
     jump flare equal config @copper
     jump mono equal config @lead
@@ -63,38 +61,32 @@
     flare:
     set unit_type @flare
     set u_cap 20
-    set units 9
-    op mul units units scale
+    set units 10
     jump start always x false
     mono:
     set unit_type @mono
     set u_cap 20
-    set units 9
-    op mul units units scale
+    set units 10
     jump start always x false
     horizon:
     set unit_type @horizon
     set u_cap 30
-    set units 6
-    op mul units units scale
+    set units 10
     jump start always x false
     poly:
     set unit_type @poly
     set u_cap 30
-    set units 6
-    op mul units units scale
+    set units 10
     jump start always x false
     mega:
     set unit_type @mega
     set u_cap 60
-    set units 4
-    op mul units units scale
+    set units 10
     jump start always x false
     zenith:
     set unit_type @zenith
     set u_cap 80
-    set units 4
-    op mul units units scale
+    set units 10
     jump start always x false
 
     boot:
@@ -105,7 +97,7 @@
     jump boot notEqual f 0
     nxt:
     ucontrol flag @time
-    jump u_type strictEqual unit_type null
+    jump type strictEqual unit_type null
     sensor dead @unit @dead
     ucontrol move @thisx @thisy 0 0 0
     ucontrol within @thisx @thisy 3 here
