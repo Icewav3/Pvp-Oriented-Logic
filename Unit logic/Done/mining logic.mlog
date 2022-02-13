@@ -2,7 +2,6 @@ on:
     jump on equal sorter1 null
     sensor config sorter1 @config
     jump on strictEqual config null
-    set prevconfig config
     sensor config sorter1 @config
     jump type equal u_type null
     jump type notEqual config prevconfig
@@ -82,6 +81,7 @@ bind:
     jump bind notEqual f 0
 
 start:
+    set prevconfig config
     sensor ded core @dead
     jump core strictEqual cx null
     jump resource notEqual ded true

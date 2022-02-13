@@ -1,5 +1,6 @@
 constants:
-    set creator "[SG] Визя and Icewave#0394"
+    set creator "[SG] Визя"
+    set assistby "Icewave#0394"
     set attempt_amount 73
     set unit_amount 8
     set time_between_bind 3000
