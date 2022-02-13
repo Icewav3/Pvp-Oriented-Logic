@@ -45,7 +45,7 @@
     set u6item @lead
     set u7item @copper
     set u8item @silicon
-    set u9item @titanium
+    set u9item @lead
     set u10item @surge-alloy
     set u1mode target
     set u2mode target
