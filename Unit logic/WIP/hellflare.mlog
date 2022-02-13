@@ -8,20 +8,38 @@ bind:
 start:
     set unit @unit
     sensor dead @unit @dead
-    sensor item @unit @firstItem
     ucontrol flag @time
     jump locate notEqual dead true
     set unit null
     end
     locate:
-        ulocate building factory true youmom fx fy found fac
-        jump approach equal found true
-        ulocate building core true youmom fx fy found co
+        ulocate building core false youmom cx cy found core
+        ulocate building core true youmom x y found ecore
 
+        sensing:
+            sensor u_item @unit @firstItem
+            jump approach equal u_item @spore-pod
+            jump approach equal u_item @pyratite
+            sensor cs core @spore-pod
+            sensor cp core @pyratite
+            jump check2 lessThan cp 20
+            set item @pyratite
+            jump getitem always
+            check2:
+                jump approach lessThan cs 20
+                set item @spore-pod
+            
+            getitem:
+                ucontrol move cx cy
+                ucontrol itemTake core item 9999
+                end
             approach:
                 ulocate building turret true youmom tx ty found tr
+                ulocate building factory true youmom x y found fy
                 ucontrol within tx ty panic shit
                 jump circle equal shit true
+                ucontrol within fx fy 50 trglck
+
                 ucontrol move fx fy
                 ucontrol target fx fy 1
                 circle:
@@ -39,5 +57,8 @@ start:
                     op add y dy ty
                 movement:
                     ucontrol move x y
+                attack:
+                    ucontrol move x y
+                    ucontrol target x y 1
 
 
