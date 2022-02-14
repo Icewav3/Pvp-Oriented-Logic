@@ -38,8 +38,8 @@ start:
                 ulocate building factory true youmom x y found fy
                 ucontrol within tx ty panic shit
                 jump circle equal shit true
-                ucontrol within fx fy 50 trglck
-
+                ucontrol within fx fy 50 attack
+                jump attack equal attack true
                 ucontrol move fx fy
                 ucontrol target fx fy 1
                 circle:
@@ -57,6 +57,7 @@ start:
                     op add y dy ty
                 movement:
                     ucontrol move x y
+                    end
                 attack:
                     ucontrol move x y
                     ucontrol target x y 1
