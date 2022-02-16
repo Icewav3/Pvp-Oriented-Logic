@@ -1,3 +1,4 @@
+"issue with units sitting waiting for otehrs to deposit before going back to mining"
 on:
     jump on equal sorter1 null
     sensor config sorter1 @config

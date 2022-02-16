@@ -1,5 +1,5 @@
 set r 30
-set panic 29
+set panic 25
 jump start notEqual unit false
 bind:
     ubind @flare
@@ -34,14 +34,14 @@ start:
                 ucontrol itemTake core item 9999
                 end
             approach:
-                ulocate building turret true youmom tx ty found tr
-                ulocate building factory true youmom x y found fy
+                ulocate building turret true youmom tx ty found
+                ulocate building factory true youmom x y found
                 ucontrol within tx ty panic shit
                 jump circle equal shit true
                 ucontrol within fx fy 50 attack
                 jump attack equal attack true
-                ucontrol move fx fy
-                ucontrol target fx fy 1
+                ucontrol move x y
+                ucontrol target x y 1
                 circle:
                     sensor ux @unit @x
                     sensor uy @unit @y

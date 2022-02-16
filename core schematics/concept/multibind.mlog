@@ -28,6 +28,8 @@ work:
     ucontrol move @thisx @thisy
     ucontrol target @thisx @thisy 1
     end
+work2:
+work3:
 binding:
     ubind unit_type
     sensor flag @unit @flag
