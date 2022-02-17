@@ -1,4 +1,7 @@
-"issue with units sitting waiting for otehrs to deposit before going back to mining"
+jump on notEqual seconds false
+set seconds 10
+op mul interval seconds 1000
+
 on:
     jump on equal sorter1 null
     sensor config sorter1 @config
@@ -96,25 +99,11 @@ start:
 
 resource:
     op sub timer mining_timer @time
-    op div percent timer 50
-    op sub percent 100 percent
-    op floor percent percent
-    print "[green]Current unit: "
-    print icon
-    print "\n[orange]Mining: "
-    print item
-    print "[red]\nPercentage: "
-    print percent
-    print "%\n[white]"
-    print "By: [cyan]Ice[blue]wave[sky]#0394"
-    print " [white] and WiZeR1233#9336"
-    printflush
-
     jump lowres strictEqual item null
     jump mine greaterThan timer 0
 
 lowres:
-    op add mining_timer @time 5000
+    op add mining_timer @time interval
     sensor copper core @copper
     sensor lead core @lead
     sensor sand core @sand
