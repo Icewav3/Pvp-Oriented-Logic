@@ -1,0 +1,113 @@
+    set creator Icewave
+    op add current current 1
+    jump u1 lessThan current 2
+    jump u2 lessThan current 3
+    jump u3 lessThan current 4
+    jump u4 lessThan current 5
+    jump u5 lessThan current 6
+    set current 0
+    end
+
+        u1:
+        set unit_type @mono
+        set current_unit u1
+        jump checks always
+
+        u2:
+        set current_unit u2
+        jump checks always
+
+        u3:
+        set current_unit u3
+        jump checks always
+
+        u4:
+        set current_unit u4
+        jump checks always
+
+        u5:
+        set current_unit u5
+        jump checks always
+
+    checks:
+        ubind current_unit
+        sensor dead @unit @dead
+        jump binding greaterThan dead 0
+        ucontrol flag @time
+        sensor items @unit @totalItems
+        sensor type @unit @firstItem
+        jump miner2 lessThan current 5
+        jump transport greaterThan current 8
+    miner1:
+        jump work3 greaterThan items 10
+        jump null1 strictEqual type null
+        jump work3 notEqual type @lead
+        null1:
+        ulocate ore core false @lead lx ly
+        ucontrol approach lx ly 3
+        ucontrol mine lx ly 3
+        end
+    miner2:
+        jump work3 greaterThan items 10
+        jump null2 strictEqual type null
+        jump work3 notEqual type @sand
+        null2:
+        ulocate ore core true @sand sx sy found
+        jump v6 strictEqual sx null
+        ucontrol approach sx sy 3
+        ucontrol mine sx sy 3
+        end
+
+        v6:
+            sensor ax arc1 @shootX
+            sensor ay arc1 @shootY
+            sensor s arc1 @shooting
+            jump v6 notEqual s true
+            set sx ax
+            set sy ay
+            end
+    work3:
+        ucontrol approach @thisx @thisy 3
+        ucontrol itemDrop container1 999
+        end
+    transport:
+        sensor items @unit @totalItems
+        jump take lessThan items 1
+        ulocate building core false Icewave cx cy found core
+        ucontrol approach cx cy 6
+        ucontrol itemDrop core 999
+        end
+        take:
+            ucontrol approach @thisx @thisy 6
+            ucontrol itemTake container1 @metaglass 999
+            end
+        
+
+    binding:
+        ubind unit_type
+        sensor flag @unit @flag
+        sensor controlled @unit @controlled
+        jump found equal controlled 0
+        jump binding notEqual flag 0
+
+        found:
+            set current_unit @unit
+                u1set:
+                    jump u2set notEqual u1 null
+                    set u1 @unit
+                    end
+                u2set:
+                    jump u3set notEqual u2 null
+                    set u2 @unit
+                    end
+                u3set:
+                    jump u4set notEqual u3 null
+                    set u3 @unit
+                    end
+                u4set:
+                    jump u5set notEqual u4 null
+                    set u4 @unit
+                    end
+                u5set:
+                    set u5 @unit
+                    end

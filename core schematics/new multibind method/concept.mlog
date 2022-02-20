@@ -1,0 +1,50 @@
+    set creator Icewave
+    op add current current 1
+    jump u1 lessThan current 2
+    jump u2 lessThan current 3
+    jump u3 lessThan current 4
+    set current 0
+    end
+
+        u1:
+        set unit_type @flare
+        set current_unit u1
+        jump checks always
+
+        u2:
+        set current_unit u2
+        jump checks always
+
+        u3:
+        set current_unit u3
+        jump checks always
+
+    checks:
+        ubind current_unit
+        sensor dead @unit @dead
+        jump binding greaterThan dead 0
+        ucontrol flag @time
+    work:
+        ucontrol move @thisx @thisy
+        ucontrol target @thisx @thisy 1
+        end
+    binding:
+        ubind unit_type
+        sensor flag @unit @flag
+        sensor controlled @unit @controlled
+        jump found equal controlled 0
+        jump binding notEqual flag 0
+
+        found:
+            set current_unit @unit
+                u1set:
+                    jump u2set notEqual u1 null
+                    set u1 @unit
+                    end
+                u2set:
+                    jump u3set notEqual u2 null
+                    set u2 @unit
+                    end
+                u3set:
+                    set u3 @unit
+                    end
