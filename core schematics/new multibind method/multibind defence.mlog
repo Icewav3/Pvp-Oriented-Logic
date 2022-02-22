@@ -1,4 +1,10 @@
+start:
+    jump boot greaterThan bootseq 0
+    set bootseq 1
     set creator Icewave
+    op mul mx @thisx 1000
+    op add key mx @thisy
+    boot:
     op add current current 1
     jump u1 lessThan current 2
     jump u2 lessThan current 3
@@ -12,49 +18,83 @@
         set unit_type @flare
         set current_unit u1
         set block conveyor1
-        set item @metaglass
+        set item1 @metaglass
         set item2 @lead
         jump checks always
 
         u2:
         set current_unit u2
         set block conveyor2
-        set item @metaglass
+        set item1 @metaglass
         set item2 @lead
         jump checks always
 
         u3:
         set current_unit u3
         set block conveyor3
-        set item @metaglass
+        set item1 @metaglass
         set item2 @lead
         jump checks always
 
         u4:
         set current_unit u4
         set block hail1
-        set item @pyraite
+        set item1 @pyratite
         set item2 @silicon
         jump checks always
 
         u5:
         set current_unit u5
         set block hail2
-        set item @pyraite
-        set item2 @silcion
+        set item1 @pyratite
+        set item2 @silicon
         jump checks always
 
     checks:
-        ubind current_unit
-        sensor dead @unit @dead
-        jump binding greaterThan dead 0
-        ucontrol flag @time
-        sensor items @unit @totalItems
+        sensor gone block @dead
+        jump start equal gone true
+        sensor blocktype block @type 
+        jump ammocheck notEqual blocktype @bridge-conveyor
+        sensor fill block @totalItems
+            jump isbindneeded always
+
+        ammocheck:
+            sensor fill block @ammo
+            jump isbindneeded always
+
+        isbindneeded:
+            jump unbind greaterThan fill 9
+            ubind current_unit
+            sensor dead @unit @dead
+            sensor f @unit @flag
+            jump binding greaterThan dead 0
+            ucontrol flag key
+            ulocate building core false @copper cx cy found core
+            sensor res core item1
+
         sensor type @unit @firstItem
+        jump drop equal type item1
+        jump drop equal type item2
+        set get item1
+        jump itemdone greaterThan res 100
+        set get item2
+        itemdone:
+            sensor type @unit @firstItem
+            jump drop equal type get
+
 
     take:
+        ucontrol approach cx cy 5
+        ucontrol itemDrop core 999
+        ucontrol itemTake core get 999
+        end
 
     drop:
+        sensor x block @x
+        sensor y block @y
+        ucontrol move x y
+        ucontrol itemDrop block 999
+        end
         
     binding:
         ubind unit_type
@@ -84,3 +124,30 @@
                 u5set:
                     set u5 @unit
                     end
+unbind:
+    jump start strictEqual current_unit null
+    ubind current_unit
+        u1r:
+            jump u2r notEqual u1 @unit
+            ucontrol flag 0
+            set u1 null
+            end
+        u2r:
+            jump u3r notEqual u2 @unit
+            ucontrol flag 0
+            set u2 null
+            end
+        u3r:
+            jump u4r notEqual u3 @unit
+            ucontrol flag 0
+            set u3 null
+            end
+        u4r:
+            jump u5r notEqual u4 @unit
+            ucontrol flag 0
+            set u4 null
+            end
+        u5r:
+            ucontrol flag 0
+            set u5 null
+            end
