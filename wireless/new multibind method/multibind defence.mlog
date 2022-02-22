@@ -1,3 +1,22 @@
+radar enemy flying any distance hail1 1 result
+jump shoot notEqual result null
+radar enemy flying any distance hail2 1 result
+jump shoot notEqual result null
+radar enemy ground any distance hail1 1 result
+jump quasar notEqual result null
+radar enemy ground any distance hail2 1 result
+quasar:
+    sensor e_type result @type
+    jump shoot equal e_type @quasar
+    set result null
+shoot:
+    control shootp scatter1 result result
+    control shootp scatter2 result result
+    control shootp scatter3 result result
+    control shootp scatter4 result result
+    control shootp scatter5 result result
+    control shootp scatter6 result result
+
 start:
     jump boot greaterThan bootseq 0
     set bootseq 1
@@ -110,18 +129,22 @@ start:
                     set u1 @unit
                     end
                 u2set:
+                    jump unbind equal current_unit u1
                     jump u3set notEqual u2 null
                     set u2 @unit
                     end
                 u3set:
+                    jump unbind equal current_unit u2
                     jump u4set notEqual u3 null
                     set u3 @unit
                     end
                 u4set:
+                    jump unbind equal current_unit u3
                     jump u5set notEqual u4 null
                     set u4 @unit
                     end
                 u5set:
+                    jump unbind equal current_unit u4
                     set u5 @unit
                     end
 unbind:
