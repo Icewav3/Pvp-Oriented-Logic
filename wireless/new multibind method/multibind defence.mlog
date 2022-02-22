@@ -1,3 +1,4 @@
+rangextnd:
 radar enemy flying any distance hail1 1 result
 jump shoot notEqual result null
 radar enemy flying any distance hail2 1 result
@@ -71,7 +72,7 @@ start:
 
     checks:
         sensor gone block @dead
-        jump start equal gone true
+        jump rangextnd equal gone true
         sensor blocktype block @type 
         jump ammocheck notEqual blocktype @bridge-conveyor
         sensor fill block @totalItems
@@ -148,7 +149,7 @@ start:
                     set u5 @unit
                     end
 unbind:
-    jump start strictEqual current_unit null
+    jump rangextnd strictEqual current_unit null
     ubind current_unit
         u1r:
             jump u2r notEqual u1 @unit
