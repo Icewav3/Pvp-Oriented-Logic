@@ -1,14 +1,16 @@
-op mod t @time 500
-jump start greaterThan t 250
-jump start 
+delay:
+    set fails 0
+    op mod t @time 500
+    jump start greaterThan t 250
+    jump start 
 rangextnd:
-radar enemy flying any distance hail1 1 result
-jump shoot notEqual result null
-radar enemy flying any distance hail2 1 result
-jump shoot notEqual result null
-radar enemy ground any distance hail1 1 result
-jump quasar notEqual result null
-radar enemy ground any distance hail2 1 result
+    radar enemy flying any distance hail1 1 result
+    jump shoot notEqual result null
+    radar enemy flying any distance hail2 1 result
+    jump shoot notEqual result null
+    radar enemy ground any distance hail1 1 result
+    jump quasar notEqual result null
+    radar enemy ground any distance hail2 1 result
 quasar:
     sensor e_type result @type
     jump shoot equal e_type @quasar
@@ -75,7 +77,7 @@ start:
 
     checks:
         sensor gone block @dead
-        jump rangextnd equal gone true
+        jump delay equal gone true
         sensor fill block @ammo
         jump isbindneeded notEqual fill null
         sensor fill block @totalItems
@@ -86,7 +88,6 @@ start:
             sensor dead @unit @dead
             sensor f @unit @flag
             jump binding greaterThan dead 0
-            ucontrol flag key
             ulocate building core false @copper cx cy found core
             sensor res core item1
 
@@ -115,9 +116,12 @@ start:
         sensor flag @unit @flag
         sensor controlled @unit @controlled
         jump found equal controlled 0
-        jump binding notEqual flag 0
+        op add fails fails 1
+        jump delay greaterThan fails 5
+        jump binding notEqual flag false
 
         found:
+            ucontrol flag key
             set current_unit @unit
                 u1set:
                     jump u2set notEqual current 1
@@ -140,11 +144,11 @@ start:
                     end
                 u5set:
                     jump unbind equal current_unit u4
-                    jump rangextnd notEqual current 5
+                    jump delay notEqual current 5
                     set u5 @unit
                     end
 unbind:
-    jump rangextnd strictEqual current_unit null
+    jump delay strictEqual current_unit null
     ubind current_unit
         u1r:
             jump u2r notEqual u1 @unit
