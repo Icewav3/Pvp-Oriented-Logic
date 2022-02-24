@@ -73,14 +73,9 @@ start:
     checks:
         sensor gone block @dead
         jump rangextnd equal gone true
-        sensor blocktype block @type 
-        jump ammocheck notEqual blocktype @bridge-conveyor
+        sensor fill block @ammo
+        jump isbindneeded notEqual fill null
         sensor fill block @totalItems
-            jump isbindneeded always
-
-        ammocheck:
-            sensor fill block @ammo
-            jump isbindneeded always
 
         isbindneeded:
             jump unbind greaterThan fill 9
@@ -96,12 +91,8 @@ start:
         jump drop equal type item1
         jump drop equal type item2
         set get item1
-        jump itemdone greaterThan res 100
+        jump take greaterThan res 100
         set get item2
-        itemdone:
-            sensor type @unit @firstItem
-            jump drop equal type get
-
 
     take:
         ucontrol approach cx cy 5
@@ -126,26 +117,27 @@ start:
         found:
             set current_unit @unit
                 u1set:
-                    jump u2set notEqual u1 null
+                    jump u2set notEqual current 1
                     set u1 @unit
                     end
                 u2set:
                     jump unbind equal current_unit u1
-                    jump u3set notEqual u2 null
+                    jump u3set notEqual current 2
                     set u2 @unit
                     end
                 u3set:
                     jump unbind equal current_unit u2
-                    jump u4set notEqual u3 null
+                    jump u4set notEqual current 3
                     set u3 @unit
                     end
                 u4set:
                     jump unbind equal current_unit u3
-                    jump u5set notEqual u4 null
+                    jump u5set notEqual current 4
                     set u4 @unit
                     end
                 u5set:
                     jump unbind equal current_unit u4
+                    jump rangextnd notEqual current 5
                     set u5 @unit
                     end
 unbind:
