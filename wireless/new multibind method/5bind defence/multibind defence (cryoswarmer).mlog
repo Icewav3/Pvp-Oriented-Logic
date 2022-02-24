@@ -75,6 +75,7 @@ start:
             sensor dead @unit @dead
             sensor f @unit @flag
             jump binding greaterThan dead 0
+            jump unbind notEqual f key
             ulocate building core false @copper cx cy found core
             sensor res core item1
 
