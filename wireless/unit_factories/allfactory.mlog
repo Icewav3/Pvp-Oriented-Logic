@@ -1,0 +1,30 @@
+getlink link num
+op add num num 1
+jump reset strictEqual link null
+sensor type link @type
+jump t1_fact equal type @air-factory
+jump t1_fact equal type @ground-factory
+jump t1_fact equal type @naval-factory
+end
+reset:
+    set num 0
+    set silicon_get 0
+    set lead_get 0
+t1_fact:
+    sensor config link @config
+    jump flare equal config @flare
+    jump mono equal config @mono
+    end
+    flare:
+        sensor sili link @silicon
+        op sub silicon_needed 60 sili
+        op add silicon_get silicon_get silicon_needed
+        end
+    mono:
+        sensor sili link @silicon
+        sensor lead link @lead
+        op sub silicon_needed 60 sili
+        op sub lead_needed 30 lead
+        op add silicon_get silicon_get silicon_needed
+        op add lead_get lead_get lead_needed
+        end

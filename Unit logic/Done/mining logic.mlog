@@ -1,3 +1,4 @@
+"make sync with other mining logic"
 jump on notEqual seconds false
 set seconds 10
 op mul interval seconds 1000
