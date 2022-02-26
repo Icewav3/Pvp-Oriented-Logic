@@ -1,15 +1,22 @@
 getlink link num
 op add num num 1
-jump reset strictEqual link null
 sensor type link @type
 jump t1_fact equal type @air-factory
 jump t1_fact equal type @ground-factory
 jump t1_fact equal type @naval-factory
+jump t2_fact equal type @additive-reconstructor
+jump t3_fact equal type @multiplicative-reconstructor
+jump reset strictEqual link null
 end
 reset:
     set num 0
+    "MULTIBIND GOES HERE"
     set silicon_get 0
     set lead_get 0
+    set metaglass_get 0
+    set graphite_get 0
+    set titanium_get 0
+    end
 t1_fact:
     sensor config link @config
     jump flare equal config @flare
@@ -28,3 +35,22 @@ t1_fact:
         op add silicon_get silicon_get silicon_needed
         op add lead_get lead_get lead_needed
         end
+t2_fact:
+    sensor sili link @silicon
+    op sub silicon_needed 80 sili
+    op add silicon_get silicon_get silicon_needed
+    sensor graph link @graphite
+    op sub graphite_needed 80 graph
+    op add graphite_get graphite_get graphite_needed
+    end
+t3_fact:
+    sensor sili link @silicon
+    op sub silicon_needed 260 sili
+    op add silicon_get silicon_get silicon_needed
+    sensor glass link @metaglass
+    op sub metaglass_needed 80 glass
+    op add metaglass_get metaglass_get metaglass_needed
+    sensor titan link @titanium
+    op sub titanium_needed 160 titan
+    op add titanium_get titanium_get titanium_needed
+    end
