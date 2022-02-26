@@ -1,0 +1,162 @@
+delay:
+    set fails 0
+rangextnd:
+    radar enemy any any distance hail1 1 result
+shoot:
+    control shootp salvo1 result result
+    control shootp salvo2 result result
+    control shootp salvo3 result result
+    control shootp salvo4 result result
+
+start:
+    jump boot greaterThan bootseq 0
+    set bootseq 1
+    set creator Icewave
+    op mul mx @thisx 1000
+    op add key mx @thisy
+    boot:
+    op add current current 1
+    jump u1 lessThan current 2
+    jump u2 lessThan current 3
+    jump u3 lessThan current 4
+    jump u4 lessThan current 5
+    jump u5 lessThan current 6
+    set current 0
+    end
+
+        u1:
+        set unit_type @flare
+        set current_unit u1
+        set block conveyor1
+        set item1 @thorium
+        set item2 @thorium
+        jump checks always
+
+        u2:
+        set current_unit u2
+        set block conveyor2
+        set item1 @thorium
+        set item2 @thorium
+        jump checks always
+
+        u3:
+        set current_unit u3
+        set block mixer1
+        set item1 @titanium
+        set item2 @titanium
+        jump checks always
+
+        u4:
+        set current_unit u4
+        set block hail1
+        set item1 @pyratite
+        set item2 @silicon
+        jump checks always
+
+        u5:
+        set current_unit u5
+        set block null
+        set item1 null
+        set item2 null
+        jump checks always
+
+    checks:
+        sensor gone block @dead
+        jump delay equal gone true
+        sensor fill block @ammo
+        jump isbindneeded notEqual fill null
+        sensor fill block @totalItems
+
+        isbindneeded:
+            jump unbind greaterThan fill 9
+            ubind current_unit
+            sensor dead @unit @dead
+            sensor f @unit @flag
+            jump binding greaterThan dead 0
+            jump unbind notEqual f key
+            ulocate building core false @copper cx cy found core
+            sensor res core item1
+
+        sensor type @unit @firstItem
+        jump drop equal type item1
+        jump drop equal type item2
+        set get item1
+        jump take greaterThan res 100
+        set get item2
+
+    take:
+        ucontrol approach cx cy 5
+        ucontrol itemDrop core 999
+        ucontrol itemTake core get 999
+        end
+
+    drop:
+        sensor x block @x
+        sensor y block @y
+        ucontrol move x y
+        ucontrol itemDrop block 999
+        end
+        
+    binding:
+        ubind unit_type
+        sensor flag @unit @flag
+        sensor controlled @unit @controlled
+        jump found equal controlled 0
+        op add fails fails 1
+        jump delay greaterThan fails 5
+        jump binding notEqual flag false
+
+        found:
+            ucontrol flag key
+            set current_unit @unit
+                u1set:
+                    jump u2set notEqual current 1
+                    set u1 @unit
+                    end
+                u2set:
+                    jump unbind equal current_unit u1
+                    jump u3set notEqual current 2
+                    set u2 @unit
+                    end
+                u3set:
+                    jump unbind equal current_unit u2
+                    jump u4set notEqual current 3
+                    set u3 @unit
+                    end
+                u4set:
+                    jump unbind equal current_unit u3
+                    jump u5set notEqual current 4
+                    set u4 @unit
+                    end
+                u5set:
+                    jump unbind equal current_unit u4
+                    jump delay notEqual current 5
+                    set u5 @unit
+                    end
+unbind:
+    jump delay strictEqual current_unit null
+    ubind current_unit
+        u1r:
+            jump u2r notEqual u1 @unit
+            ucontrol flag 0
+            set u1 null
+            end
+        u2r:
+            jump u3r notEqual u2 @unit
+            ucontrol flag 0
+            set u2 null
+            end
+        u3r:
+            jump u4r notEqual u3 @unit
+            ucontrol flag 0
+            set u3 null
+            end
+        u4r:
+            jump u5r notEqual u4 @unit
+            ucontrol flag 0
+            set u4 null
+            end
+        u5r:
+            ucontrol flag 0
+            set u5 null
+            end
