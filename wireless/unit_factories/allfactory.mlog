@@ -6,17 +6,29 @@ jump t1_fact equal type @ground-factory
 jump t1_fact equal type @naval-factory
 jump t2_fact equal type @additive-reconstructor
 jump t3_fact equal type @multiplicative-reconstructor
-jump reset strictEqual link null
+jump multibind strictEqual link null
 end
-reset:
-    set num 0
-    "MULTIBIND GOES HERE"
-    set silicon_get 0
-    set lead_get 0
-    set metaglass_get 0
-    set graphite_get 0
-    set titanium_get 0
-    end
+multibind:
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    reset:
+        set num 0
+        set silicon_get 0
+        set lead_get 0
+        set metaglass_get 0
+        set graphite_get 0
+        set titanium_get 0
+        end
+
 t1_fact:
     sensor config link @config
     jump flare equal config @flare
