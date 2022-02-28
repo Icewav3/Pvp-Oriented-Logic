@@ -1,7 +1,5 @@
 delay:
     set fails 0
-    op mod t @time 500
-    jump start greaterThan t 250
 rangextnd:
 radar enemy any any distance hail1 1 result
 shoot:
