@@ -1,0 +1,72 @@
+top:
+jump check notEqual boot null
+jump calibrated strictEqual calibrated true
+start:
+    set u_type @retusa
+    set memory_cap 64
+    set boot 1
+    set lowhp 0.75
+check:
+    jump pathfind equal initiate true
+    ubind u_type
+    sensor mhp @unit @health
+    op mul min mhp lowhp
+    ulocate building repair false Icewave rx ry found building
+    ucontrol within rx ry 7 start
+    jump check notEqual start true
+    set initiate true
+pathfind:
+    sensor dead @unit @dead
+    jump checks strictEqual dead false
+        ubind u_type
+        set initiate false
+        end
+
+    checks:
+        ucontrol pathfind
+        sensor r @unit @rotation
+        op sub Δ r last_r
+        op abs Δ Δ
+
+        jump write greaterThan Δ 20
+            set last_r r
+            end
+write:
+    set last_r r
+    sensor x @unit @x
+    sensor y @unit @y
+    write x cell1 num
+    op add num num 1
+    write y cell1 num
+    op add num num 1
+    jump top lessThan num memory_cap
+    set calibrated true
+calibrated:
+    ubind u_type
+    sensor hp @unit @health
+    sensor f @unit @flag
+    uradar enemy any any distance 0 1 result
+    jump retreat equal f -1
+    jump retreat lessThan hp min
+        ucontrol pathfind
+        jump engage strictEqual result null
+        end
+    engage:
+        ucontrol stop
+        ucontrol targetp result result
+        end
+    retreat:
+        jump maxhp equal hp mhp
+        op add flagger f -2
+        op abs num f
+        ucontrol flag flagger
+        read x cell1 num
+        op add num num 1
+        read y cell1 num
+        ucontrol move x y
+        ucontrol targetp result result
+        end
+
+    maxhp:
+        ucontrol flag 0
+        end
