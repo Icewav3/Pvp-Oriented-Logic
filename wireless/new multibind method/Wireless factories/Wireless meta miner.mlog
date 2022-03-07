@@ -2,16 +2,16 @@ delay:
     sensor cx container1 @x
     sensor cy container1 @y
     jump delay strictEqual container1 null
-    sensor c_config unloader1 @configure 
+    sensor c_config unloader1 @config
     jump lead notEqual c_config @lead
 sand:
-    control config unloader1 @sand
-    control config unloader2 @sand
+    control configure unloader1 @sand
+    control configure unloader2 @sand
     jump start always
 
 lead:
-    control config unloader1 @lead
-    control config unloader2 @lead
+    control configure unloader1 @lead
+    control configure unloader2 @lead
 
 start:
     jump boot greaterThan bootseq 0
@@ -112,7 +112,8 @@ start:
         ucontrol within cx cy 6.5 close
         jump closer notEqual close true
         ulocate ore core false get x y found core
-        jump v6 strictEqual x null
+        jump v6 notEqual found true
+        v6end:
         ucontrol approach x y 7.5
         ucontrol mine x y
         ucontrol itemDrop block 999
@@ -125,7 +126,7 @@ start:
             sensor ay arc1 @shootY
             set x ax
             set y ay
-            end
+            jump v6end always
     binding:
         ubind unit_type
         sensor flag @unit @flag
