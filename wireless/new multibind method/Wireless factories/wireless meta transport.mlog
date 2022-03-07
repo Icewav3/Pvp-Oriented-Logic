@@ -1,0 +1,172 @@
+delay:
+sensor c_config unloader1 @configure 
+jump lead notEqual c_config @lead
+sand:
+    control config unloader1 @sand
+    control config unloader2 @sand
+    jump start always
+
+lead:
+    control config unloader1 @lead
+    control config unloader2 @lead
+
+start:
+    jump boot greaterThan bootseq 0
+    set bootseq 1
+    set creator Icewave
+    op mul mx @thisx 1000
+    op add key mx @thisy
+    boot:
+    op add current current 1
+    jump u1 lessThan current 2
+    jump u2 lessThan current 3
+    jump u3 lessThan current 4
+    jump u4 lessThan current 5
+    jump u5 lessThan current 6
+    set current 0
+    end
+
+        u1:
+        set unit_type @flare
+        set current_unit u1
+        set block container1
+        set item1 @metaglass
+        set item2 @metaglass
+        set low 50
+        jump checks always
+
+        u2:
+        set current_unit u2
+        set block container1
+        set item1 @metaglass
+        set item2 @metaglass
+        set low 100
+        jump checks always
+
+        u3:
+        set current_unit u3
+        set block container1
+        set item1 @metaglass
+        set item2 @metaglass
+        set low 150
+        jump checks always
+
+        u4:
+        set current_unit u4
+        set block container1
+        set item1 @metaglass
+        set item2 @metaglass
+        set low 200
+        jump checks always
+
+        u5:
+        set current_unit u5
+        set block container1
+        set item1 @metaglass
+        set item2 @metaglass
+        set low 250
+        jump checks always
+
+    checks:
+        sensor gone block @dead
+        jump delay equal gone true
+        sensor fill block item1
+
+        isbindneeded:
+            jump unbind lessThan fill low
+            ubind current_unit
+            sensor dead @unit @dead
+            sensor f @unit @flag
+            sensor t @unit @type
+            jump binding greaterThan dead 0
+            jump unbind notEqual t unit_type
+            jump unbind notEqual f key
+            jump mine notEqual unit_type @flare
+            
+    take:
+        sensor items @unit @totalItems
+        jump drop greaterThan items 1
+        ucontrol approach @thisx @thisy 3
+        ucontrol itemDrop block 999
+        ucontrol itemTake block item1 999
+        end
+
+    drop:  
+        ulocate building core false Icewave cx cy found core
+        ucontrol approach cx cy 5
+        ucontrol itemDrop core 999
+        end
+    mine:
+        ucontrol within @thisx @thisy 7 close
+        jump closer notEqual close true
+        ulocate ore core false item1 x y found core
+        ucontrol approach x y 7
+        ucontrol mine x y
+        ucontrol itemDrop block 999
+        end
+    closer:
+        ucontrol move @thisx @thisy
+        end
+    binding:
+        ubind unit_type
+        sensor flag @unit @flag
+        sensor controlled @unit @controlled
+        jump found equal controlled 0
+        jump found equal flag false
+        op add fails fails 1
+        jump delay greaterThan fails 5
+
+        found:
+            ucontrol flag key
+            set current_unit @unit
+                u1set:
+                    jump u2set notEqual current 1
+                    set u1 @unit
+                    end
+                u2set:
+                    jump unbind equal current_unit u1
+                    jump u3set notEqual current 2
+                    set u2 @unit
+                    end
+                u3set:
+                    jump unbind equal current_unit u2
+                    jump u4set notEqual current 3
+                    set u3 @unit
+                    end
+                u4set:
+                    jump unbind equal current_unit u3
+                    jump u5set notEqual current 4
+                    set u4 @unit
+                    end
+                u5set:
+                    jump unbind equal current_unit u4
+                    jump delay notEqual current 5
+                    set u5 @unit
+                    end
+unbind:
+    jump delay strictEqual current_unit null
+    ubind current_unit
+        u1r:
+            jump u2r notEqual u1 @unit
+            ucontrol flag 0
+            set u1 null
+            end
+        u2r:
+            jump u3r notEqual u2 @unit
+            ucontrol flag 0
+            set u2 null
+            end
+        u3r:
+            jump u4r notEqual u3 @unit
+            ucontrol flag 0
+            set u3 null
+            end
+        u4r:
+            jump u5r notEqual u4 @unit
+            ucontrol flag 0
+            set u4 null
+            end
+        u5r:
+            ucontrol flag 0
+            set u5 null
+            end

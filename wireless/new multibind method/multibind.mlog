@@ -1,5 +1,11 @@
-    set creator Icewave
+jump boot notEqual creator null
+    op mul mx @thisx 1000
+    op add key mx @thisy
+    set creator "Icewave"
+    set maxunit 8
+    boot:
     op add current current 1
+    jump continue greaterThan current maxunit
     jump u1 lessThan current 2
     jump u2 lessThan current 3
     jump u3 lessThan current 4
@@ -10,7 +16,7 @@
     jump u8 lessThan current 9
     jump u9 lessThan current 10
     jump u10 lessThan current 11
-
+continue:
     set current 0
     sensor mode unloader1 @config 
     jump unloaderb notEqual mode @sand
@@ -68,30 +74,34 @@
     checks:
         ubind current_unit
         sensor dead @unit @dead
+        sensor flag @unit @flag
         jump binding greaterThan dead 0
-        ucontrol flag @time
+        jump binding notEqual flag key
+        ucontrol flag key
         sensor items @unit @totalItems
         sensor type @unit @firstItem
         jump miner2 lessThan current 5
-        jump transport greaterThan current 8
+        jump transport equal unit_type @flare
     miner1:
-        jump work3 greaterThan items 10
+        jump work3 greaterThan items 15
         jump null1 strictEqual type null
         jump work3 notEqual type @lead
         null1:
         ulocate ore core false @lead lx ly
-        ucontrol approach lx ly 3
-        ucontrol mine lx ly 3
+        ucontrol approach lx ly 7
+        ucontrol mine lx ly 7
+        ucontrol itemDrop container1 999
         end
     miner2:
-        jump work3 greaterThan items 10
+        jump work3 greaterThan items 15
         jump null2 strictEqual type null
         jump work3 notEqual type @sand
         null2:
         ulocate ore core true @sand sx sy found
         jump v6 strictEqual sx null
-        ucontrol approach sx sy 3
-        ucontrol mine sx sy 3
+        ucontrol approach sx sy 7
+        ucontrol mine sx sy 7
+        ucontrol itemDrop container1 999
         end
 
         v6:
@@ -110,11 +120,11 @@
         sensor items @unit @totalItems
         jump take lessThan items 1
         ulocate building core false Icewave cx cy found core
-        ucontrol approach cx cy 6
+        ucontrol approach cx cy 3
         ucontrol itemDrop core 999
         end
         take:
-            ucontrol approach @thisx @thisy 6
+            ucontrol approach @thisx @thisy 3
             ucontrol itemTake container1 @metaglass 999
             end
         
@@ -125,8 +135,8 @@
         sensor controlled @unit @controlled
         jump found equal controlled 0
         jump binding notEqual flag 0
-
         found:
+        ucontrol flag key
             set current_unit @unit
                 u1set:
                     jump u2set notEqual u1 null
