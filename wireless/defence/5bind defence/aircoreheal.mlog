@@ -1,0 +1,161 @@
+delay:
+start:
+    jump boot greaterThan bootseq 0
+    set bootseq 1
+    set creator Icewave
+    op mul mx @thisx 1000
+    op add key mx @thisy
+    boot:
+    op add current current 1
+    jump u1 lessThan current 2
+    jump u2 lessThan current 3
+    jump u3 lessThan current 4
+    jump u4 lessThan current 5
+    jump u5 lessThan current 6
+    jump u6 lessThan current 7
+    jump u7 lessThan current 8
+    jump u8 lessThan current 9
+    set current 0
+    end
+
+        u1:
+        set unit_type @poly
+        set current_unit u1
+        jump checks always
+
+        u2:
+        set current_unit u2
+        jump checks always
+
+        u3:
+        set current_unit u3
+        jump checks always
+
+        u4:
+        set current_unit u4
+        jump checks always
+
+        u5:
+        set current_unit u5
+        jump checks always
+
+        u6:
+        set current_unit u6
+        jump checks always
+
+        u7:
+        set current_unit u7
+        jump checks always
+
+        u8:
+        set current_unit u8
+        jump checks always
+
+    checks:
+        sensor gone mycore @dead
+        ubind current_unit
+            sensor dead @unit @dead
+            sensor f @unit @flag
+            jump binding greaterThan dead 0
+            jump unbind notEqual f key
+        jump heal notEqual gone 1
+        ulocate building core false @copper x y found mycore
+
+            heal:
+                sensor hp mycore @health
+                sensor mhp mycore @maxHealth
+                op notEqual shoot mhp hp
+                ucontrol target x y shoot
+                ucontrol move x y
+                end
+
+    binding:
+        ubind unit_type
+        sensor flag @unit @flag
+        sensor controlled @unit @controlled
+        jump found equal controlled 0
+        jump found equal flag false
+        op add fails fails 1
+        jump delay greaterThan fails 5
+
+        found:
+            ucontrol flag key
+            set current_unit @unit
+                u1set:
+                    jump u2set notEqual current 1
+                    set u1 @unit
+                    end
+                u2set:
+                    jump unbind equal current_unit u1
+                    jump u3set notEqual current 2
+                    set u2 @unit
+                    end
+                u3set:
+                    jump unbind equal current_unit u2
+                    jump u4set notEqual current 3
+                    set u3 @unit
+                    end
+                u4set:
+                    jump unbind equal current_unit u3
+                    jump u5set notEqual current 4
+                    set u4 @unit
+                    end
+                u5set:
+                    jump unbind equal current_unit u4
+                    jump u6set notEqual current 5
+                    set u5 @unit
+                    end
+                u6set:
+                    jump unbind equal current_unit u5
+                    jump u7set notEqual current 6
+                    set u6 @unit
+                    end
+                u7set:
+                    jump unbind equal current_unit u6
+                    jump u8set notEqual current 7
+                    set u7 @unit
+                    end
+                u8set:
+                    jump unbind equal current_unit u7
+                    jump delay notEqual current 8
+                    set u8 @unit
+                    end
+unbind:
+    jump delay strictEqual current_unit null
+    ubind current_unit
+        u1r:
+            jump u2r notEqual u1 @unit
+            ucontrol flag 0
+            set u1 null
+            end
+        u2r:
+            jump u3r notEqual u2 @unit
+            ucontrol flag 0
+            set u2 null
+            end
+        u3r:
+            jump u4r notEqual u3 @unit
+            ucontrol flag 0
+            set u3 null
+            end
+        u4r:
+            jump u5r notEqual u4 @unit
+            ucontrol flag 0
+            set u4 null
+            end
+        u5r:
+            ucontrol flag 0
+            set u5 null
+            end
+        u6r:
+            ucontrol flag 0
+            set u6 null
+            end
+        u7r:
+            ucontrol flag 0
+            set u7 null
+            end
+        u8r:
+            ucontrol flag 0
+            set u8 null
+            end

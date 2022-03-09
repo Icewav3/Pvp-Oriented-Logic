@@ -2,7 +2,7 @@ jump boot notEqual creator null
     op mul mx @thisx 1000
     op add key mx @thisy
     set creator "Icewave"
-    set maxunit 8
+    set maxunit 10
     boot:
     op add current current 1
     jump continue greaterThan current maxunit
