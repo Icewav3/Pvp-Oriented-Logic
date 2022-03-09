@@ -2,11 +2,13 @@ delay:
 start:
     jump boot greaterThan bootseq 0
     set bootseq 1
+    set maxunit 3
     set creator Icewave
     op mul mx @thisx 1000
     op add key mx @thisy
     boot:
     op add current current 1
+    jump continue greaterThan current maxunit
     jump u1 lessThan current 2
     jump u2 lessThan current 3
     jump u3 lessThan current 4
@@ -15,6 +17,7 @@ start:
     jump u6 lessThan current 7
     jump u7 lessThan current 8
     jump u8 lessThan current 9
+    continue:
     set current 0
     end
 
