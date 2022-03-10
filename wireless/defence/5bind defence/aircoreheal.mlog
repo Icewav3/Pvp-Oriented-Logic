@@ -1,11 +1,65 @@
 delay:
 start:
+    set prevconfig config
+    sensor config sorter1 @config
+    jump type notEqual config prevconfig
     jump boot greaterThan bootseq 0
     set bootseq 1
-    set maxunit 3
+    set shootall 0
     set creator Icewave
+    printflush
+    print "Created by [cyan]Ice[blue]wave[sky]#0394[white] "
+    print "\n[green]"
+    print "Core healing logic."
+    print "\n"
+    print "[forest]First row in sorter for poly, 2nd for megas. Resource determines amount of units."
+    printflush
     op mul mx @thisx 1000
     op add key mx @thisy
+
+        type:
+            jump p1 equal config @copper
+            jump p3 equal config @lead
+            jump p5 equal config @metaglass
+            jump p8 equal config @graphite
+            jump m1 equal config @sand
+            jump m3 equal config @coal
+            jump m5 equal config @titanium
+            jump m8 equal config @thorium
+            jump delay always x false
+        p1:
+            set unit_type @poly
+            set maxunit 1
+            end
+        p3:
+            set unit_type @poly
+            set maxunit 3
+            end
+        p5:
+            set unit_type @poly
+            set maxunit 5
+            end
+        p8:
+            set unit_type @poly
+            set maxunit 8
+            end
+        m1:
+            set unit_type @mega
+            set maxunit 1
+            end
+        m3:
+            set unit_type @mega
+            set maxunit 3
+            end
+        m5:
+            set unit_type @mega
+            set maxunit 5
+            end
+        m8:
+            set unit_type @mega
+            set maxunit 8
+            end
+
     boot:
     op add current current 1
     jump continue greaterThan current maxunit
@@ -22,7 +76,6 @@ start:
     end
 
         u1:
-        set unit_type @poly
         set current_unit u1
         jump checks always
 
@@ -57,17 +110,22 @@ start:
     checks:
         sensor gone mycore @dead
         ubind current_unit
+            sensor u_type @unit @type
             sensor dead @unit @dead
             sensor f @unit @flag
             jump binding greaterThan dead 0
+            jump unbind notEqual u_type unit_type
             jump unbind notEqual f key
         jump heal notEqual gone 1
         ulocate building core false @copper x y found mycore
 
             heal:
+                jump shootall equal shootall 1
                 sensor hp mycore @health
                 sensor mhp mycore @maxHealth
-                op notEqual shoot mhp hp
+                op notEqual chp mhp hp
+                shootall:
+                op or shoot chp shootall
                 ucontrol target x y shoot
                 ucontrol move x y
                 end
