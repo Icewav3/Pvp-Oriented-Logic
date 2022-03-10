@@ -26,7 +26,7 @@ start:
             jump m3 equal config @coal
             jump m5 equal config @titanium
             jump m8 equal config @thorium
-            jump delay always x false
+            jump unbind always x false
         p1:
             set unit_type @poly
             set maxunit 1
@@ -117,8 +117,11 @@ start:
             jump unbind notEqual u_type unit_type
             jump unbind notEqual f key
         jump heal notEqual gone 1
-        ulocate building core false @copper x y found mycore
-
+        locate:
+            ucontrol move @thisx @thisy
+            ucontrol within @thisx @thisy 3 here
+            jump locate notEqual here true
+            ulocate building core false @copper x y found mycore
             heal:
                 ucontrol flag key
                 jump shootall equal shootall 1
