@@ -5,7 +5,6 @@ start:
     jump type notEqual config prevconfig
     jump boot greaterThan bootseq 0
     set bootseq 1
-    set shootall 0
     set creator Icewave
     printflush
     print "Created by [cyan]Ice[blue]wave[sky]#0394[white] "
@@ -124,13 +123,7 @@ start:
             ulocate building core false @copper x y found mycore
             heal:
                 ucontrol flag key
-                jump shootall equal shootall 1
-                sensor hp mycore @health
-                sensor mhp mycore @maxHealth
-                op notEqual chp mhp hp
-                shootall:
-                op or shoot chp shootall
-                ucontrol target x y shoot
+                ucontrol target x y 1
                 ucontrol move x y
                 end
 
