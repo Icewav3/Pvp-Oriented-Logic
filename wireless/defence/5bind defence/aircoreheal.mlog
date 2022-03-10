@@ -120,6 +120,7 @@ start:
         ulocate building core false @copper x y found mycore
 
             heal:
+                ucontrol flag key
                 jump shootall equal shootall 1
                 sensor hp mycore @health
                 sensor mhp mycore @maxHealth
