@@ -28,7 +28,7 @@ type:
         set u_cap 40
         set ground true
         set maxmine @coal
-        jump bind always x false
+        jump printflush always x false
 
     mono:
         set u_type @mono
@@ -36,7 +36,7 @@ type:
         set u_cap 20
         set ground false
         set maxmine @sand
-        jump bind always x false
+        jump printflush always x false
 
     poly:
         set u_type @poly
@@ -44,7 +44,7 @@ type:
         set u_cap 30
         set ground false
         set maxmine @coal
-        jump bind always x false
+        jump printflush always x false
 
     mega:
         set u_type @mega
@@ -52,7 +52,7 @@ type:
         set u_cap 60
         set ground false
         set maxmine @titanium
-        jump bind always x false
+        jump printflush always x false
 
     quasar:
         set u_type @quasar
@@ -60,7 +60,7 @@ type:
         set u_cap 50
         set ground true
         set maxmine @titanium
-        jump bind always x false
+        jump printflush always x false
 
     rankedpoly: 
         set u_type @poly
@@ -68,7 +68,7 @@ type:
         set u_cap 30
         set ground true
         set maxmine @titanium
-        jump bind always x false
+        jump printflush always x false
 
     rankedmega: 
         set u_type @mega
@@ -76,6 +76,12 @@ type:
         set u_cap 60
         set ground true
         set maxmine @thorium
+        jump printflush always x false
+
+    printflush:
+        printflush message1
+        print icon
+        printflush message1
         jump bind always x false
 
 bind:
@@ -90,7 +96,30 @@ start:
     sensor ded core @dead
     jump core strictEqual cx null
     jump resource notEqual ded true
-
+    init:
+        jump core notEqual init true
+        set init true
+        mapcheckcopper:
+            ulocate ore factory true @copper outx outy found
+            set mapcopper found
+        mapchecklead:
+            ulocate ore factory true @lead outx outy found
+            set maplead found
+        mapchecksand:
+            ulocate ore factory true @sand outx outy found
+            set mapsand found
+        mapcheckcoal:
+            ulocate ore factory true @coal outx outy found
+            set mapcoal found
+        mapchecktitan:
+            ulocate ore factory true @titanium outx outy found
+            set maptitan found
+        mapcheckthor:
+            ulocate ore factory true @thorium outx outy found
+            set mapthor found
+        mapcheckscrap:
+            ulocate ore factory true @scrap outx outy found
+            set mapscrap found
     core:
         ucontrol boost 1 
         ucontrol move @thisx @thisy 0 0 0
@@ -107,6 +136,7 @@ lowres:
     op add mining_timer @time interval
     sensor copper core @copper
     sensor lead core @lead
+    sensor scrap core @scrap
     sensor sand core @sand
     sensor coal core @coal
     sensor titan core @titanium
@@ -115,6 +145,7 @@ lowres:
 
     checkcopper:
         jump boot strictEqual last null
+        jump checklead equal mapcopper false
         jump checklead lessThan item_amount copper
 
         boot:
@@ -122,32 +153,41 @@ lowres:
             set item @copper
 
     checklead:
+        jump checksand equal maplead false
         jump checksand lessThan item_amount lead
         set item @lead
         set item_amount lead
 
     checksand:
+        jump checkcoal equal mapsand false
         jump checkcoal lessThan item_amount sand
         set item @sand
         set item_amount sand
 
     checkcoal:
+        jump checktitan equal mapcoal false
         jump mine equal maxmine @sand
         jump checktitan lessThan item_amount coal
         set item @coal
         set item_amount coal
 
     checktitan:
+        jump checkthor equal maptitan false
         jump mine equal maxmine @coal
         jump checkthor lessThan item_amount titan
         set item @titanium
         set item_amount titanium
 
     checkthor:
-        jump mine equal maxmine @titanium
+        jump checkscrap equal mapthor false
         jump mine lessThan item_amount thor
         set item @thorium
         set item_amount thorium
+
+    checkscrap:
+        jump mine lessThan item_amount scrap
+        set item @scrap
+        set item_amount scrap
 
 mine:
     jump locate strictEqual last item
