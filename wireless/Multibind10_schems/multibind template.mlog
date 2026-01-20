@@ -1,14 +1,8 @@
     on:
-    jump boot2 notEqual a null
+    jump boot2 notEqual init null
     on2:
     printflush message1
-    print "[red]AdaptiveModularMultibind[]\n"
-    print "By: [cyan]Ice[blue]wave[sky]#0394\n"
-    print "[green]V3.1 v8 + atrax support\n"
-    print "[orange][STATUS] Currently binding: "
-    print unit_type
-    printflush message1
-    set a 1
+    set init 1
     set target container1
     set u1item @lead
     set u2item @sand
@@ -64,42 +58,42 @@
 
     flare:
     set unit_type @flare
-    set unit_icon 
+    set unit_icon ""
     set u_cap 10
     set units 9
     op mul units units scale
     jump start always x false
     mono:
     set unit_type @mono
-    set unit_icon 
+    set unit_icon ""
     set u_cap 20
     set units 9
     op mul units units scale
     jump start always x false
     atrax:
     set unit_type @atrax
-    set unit_icon 
+    set unit_icon ""
     set u_cap 50
     set units 4
     op mul units units scale
     jump start always x false
     poly:
     set unit_type @poly
-    set unit_icon 
+    set unit_icon ""
     set u_cap 30
     set units 6
     op mul units units scale
     jump start always x false
     mega:
     set unit_type @mega
-    set unit_icon 
+    set unit_icon ""
     set u_cap 60
     set units 4
     op mul units units scale
     jump start always x false
     zenith:
     set unit_type @zenith
-    set unit_icon 
+    set unit_icon ""
     set u_cap 80
     set units 4
     op mul units units scale
@@ -509,6 +503,7 @@
     found:
     set key @time
     ucontrol flag key
+    # sequential unit binding
         u1set:
         jump u2set notEqual u1 null
         set u1 @unit
@@ -571,4 +566,11 @@
         ubind_end:
         end
     done:
+    print "[red]AdaptiveModularMultibind[]\n"
+    print "By: [cyan]Ice[blue]wave[sky]#0394\n"
+    print "[green]V3.1 v8 + atrax support\n"
+    print "[orange][STATUS] Currently binding: [white]"
+    print units
+    print unit_icon
+    printflush message1
     end
