@@ -13,7 +13,7 @@
     set u7item @coal
     set u8item @silicon
     set u9item @sand
-    set u10item @null
+    set u10item @silicon
     set u1mode target
     set u2mode target
     set u3mode core
@@ -23,7 +23,7 @@
     set u7mode target
     set u8mode core
     set u9mode target
-    set u10mode target
+    set u10mode core
     boot2:
     jump on2 strictEqual target null
     set prevscale scale
@@ -569,6 +569,7 @@
     jump logging notEqual message1 null
     end
     logging:
+    op min units units 10
     print "[red]AdaptiveModularMultibind\n"
     print "[orange][STATUS] [white]"
     print units
