@@ -1,25 +1,28 @@
     on:
     jump boot2 notEqual a null
     on2:
+    print:
     printflush message1
-    print "[red]AdaptiveModularMultibind[]\n"
-    print "By: [cyan]Ice[blue]wave[sky]#0394\n"
-    print "[green]V3.1 v8 + atrax support\n"
-    print "[orange][STATUS] Currently binding: "
-    print unit_type
+    print "[red]Modular 10 Multibind[white]"
+    print "\n"
+    print "By: [cyan]Ice[blue]wave[sky]#0394"
+    print "\n"
+    print "[green]V3 V7Patch"
+    print "\n"
+    print "Currently binding "
     printflush message1
     set a 1
     set target container1
-    set u1item @lead
-    set u2item @sand
-    set u3item @silicon
-    set u4item @coal
-    set u5item @sand
-    set u6item @silicon
-    set u7item @coal
-    set u8item @silicon
-    set u9item @sand
-    set u10item @null
+    set u1item @thorium
+    set u2item @thorium
+    set u3item @phase-fabric
+    set u4item @thorium
+    set u5item @thorium
+    set u6item @phase-fabric
+    set u7item @thorium
+    set u8item @thorium
+    set u9item @phase-fabric
+    set u10item @phase-fabric
     set u1mode target
     set u2mode target
     set u3mode core
@@ -27,9 +30,9 @@
     set u5mode target
     set u6mode core
     set u7mode target
-    set u8mode core
-    set u9mode target
-    set u10mode target
+    set u8mode target
+    set u9mode core
+    set u10mode core
     boot2:
     jump on2 strictEqual target null
     set prevscale scale
@@ -56,7 +59,7 @@
     jump boot2 strictEqual config null
     jump flare equal config @copper
     jump mono equal config @lead
-    jump atrax equal config @metaglass
+    jump horizon equal config @metaglass
     jump poly equal config @graphite
     jump mega equal config @thorium
     jump zenith equal config @titanium
@@ -64,42 +67,36 @@
 
     flare:
     set unit_type @flare
-    set unit_icon 
     set u_cap 10
     set units 9
     op mul units units scale
     jump start always x false
     mono:
     set unit_type @mono
-    set unit_icon 
     set u_cap 20
     set units 9
     op mul units units scale
     jump start always x false
-    atrax:
-    set unit_type @atrax
-    set unit_icon 
-    set u_cap 50
-    set units 4
+    horizon:
+    set unit_type @horizon
+    set u_cap 30
+    set units 6
     op mul units units scale
     jump start always x false
     poly:
     set unit_type @poly
-    set unit_icon 
     set u_cap 30
     set units 6
     op mul units units scale
     jump start always x false
     mega:
     set unit_type @mega
-    set unit_icon 
     set u_cap 60
     set units 4
     op mul units units scale
     jump start always x false
     zenith:
     set unit_type @zenith
-    set unit_icon 
     set u_cap 80
     set units 4
     op mul units units scale

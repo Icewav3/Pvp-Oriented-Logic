@@ -1,0 +1,165 @@
+# Initialize and check config
+sensor config sorter1 @config
+jump 3 notEqual config last
+jump 41 always config last
+
+# Config type checks
+jump 11 strictEqual config @surge-alloy
+jump 35 strictEqual config @metaglass
+jump 17 strictEqual config @plastanium
+jump 23 strictEqual config @pyratite
+jump 29 strictEqual config @coal
+
+# Unbind units and end
+ubind @u2
+ucontrol flag 1 9999 0 0 0
+end
+
+# Surge Alloy Configuration
+set res @surge-alloy
+set turret @swarmer
+set mine false
+set last config
+set u1mode null
+end
+
+# Plastanium Configuration
+set res @plastanium
+set turret @ripple
+set mine false
+set last config
+set u1mode null
+end
+
+# Pyratite Configuration
+set res @pyratite
+set turret @scorch
+set mine false
+set last config
+set u1mode null
+end
+
+# Coal Configuration
+set res @coal
+set turret @combustion-generator
+set mine false
+set last config
+set u1mode null
+end
+
+# Metaglass Configuration
+set res @metaglass
+set turret @scatter
+set mine false
+set last config
+set u1mode null
+end
+
+# Boot sequence
+set last config
+jump 49 equal boot 1
+set boot 1
+set enabled 1
+
+# Find and bind to player
+radar player any any distance @this 1 player
+ubind player
+sensor name @unit @name
+sensor type @unit @type
+ubind player
+jump 52 notEqual player null
+end
+
+# Check unit status and get position/shooting info
+sensor dead @unit @dead
+jump 57 notEqual dead true
+ubind type
+sensor unitname @unit @name
+jump 54 notEqual unitname name
+sensor ux @unit @x
+sensor uy @unit @y
+sensor x @unit @shootX
+sensor y @unit @shootY
+sensor shooting @unit @shooting
+
+# Main unit control logic
+jump 114 strictEqual u1 null
+ubind u1
+sensor dead @unit @dead
+jump 114 equal dead true
+
+# Check u1 mode
+jump 95 strictEqual u1mode "busy"
+jump 86 strictEqual u1mode "mining"
+jump 76 strictEqual u1mode "picking"
+
+# Free mode - approach and mine
+sensor item @unit res
+jump 75 lessThan item 5
+ucontrol mine 99999 9999 0 0 0
+ucontrol approach ux uy 7 0 0
+jump 93 strictEqual shooting true
+end
+
+# Picking mode - get items from core
+jump 84 equal mine true
+ulocate building core false @lead cx cy found core
+ucontrol approach cx cy 7 0 0
+ucontrol itemDrop core 9999999 99999 0 0
+ucontrol itemTake core res 99999 0 0
+set u1mode "picking"
+sensor item @unit res
+jump 91 greaterThan item 25
+end
+
+# Mining mode - locate and mine ore
+ulocate ore core true res lx ly found building
+set u1mode "mining"
+ucontrol approach lx ly 7 0 0
+ucontrol mine lx ly 0 0 0
+sensor item @unit res
+jump 91 greaterThan item 25
+end
+
+# Return to free mode
+set u1mode "free"
+end
+
+# Busy mode - build turret and supply ammo
+set scat1x x
+set scat1y y
+ucontrol move scat1x scat1y 0 0 0
+set u1mode "busy"
+ucontrol build scat1x scat1y turret 0 0
+ucontrol getBlock scat1x scat1y null scat1 0
+ucontrol itemDrop scat1 99999 null scat 0
+
+# Check ammo levels
+jump 103 notEqual res @coal
+sensor ammo scat1 @coal
+jump 104 always res @coal
+sensor ammo scat1 @ammo
+jump 111 notEqual ammo 0
+end
+
+# Build mender below turret
+op sub scat1ay scat1y 1
+ucontrol build scat1x scat1ay @mender 0 0
+ucontrol getBlock scat1x scat1ay null mender 0
+jump 112 notEqual mender null
+end
+
+# Finish busy mode
+jump 106 equal res @coal
+set u1mode "free"
+end
+
+# Find and bind poly unit
+ubind @poly
+sensor ctrl @unit @controlled
+jump 118 equal ctrl 0
+jump 114 notEqual flag 0
+ucontrol flag @time y 0 0 0
+sensor flag @unit @flag
+set u1 @unit
+end

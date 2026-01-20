@@ -82,7 +82,6 @@ type:
         printflush message1
         print icon
         printflush message1
-        jump bind always x false
 
 bind:
     ubind u_type
