@@ -4,26 +4,26 @@
     printflush message1
     set init 1
     set target container1
-    set u1item @lead
-    set u2item @sand
-    set u3item @silicon
-    set u4item @coal
-    set u5item @sand
-    set u6item @silicon
+    set u1item @coal
+    set u2item @lead
+    set u3item @sand
+    set u4item @titanium
+    set u5item @lead
+    set u6item @sand
     set u7item @coal
-    set u8item @silicon
+    set u8item @titanium
     set u9item @sand
-    set u10item @silicon
+    set u10item @lead
     set u1mode target
     set u2mode target
-    set u3mode core
+    set u3mode target
     set u4mode target
     set u5mode target
-    set u6mode core
+    set u6mode target
     set u7mode target
-    set u8mode core
+    set u8mode target
     set u9mode target
-    set u10mode core
+    set u10mode target
     boot2:
     jump on2 strictEqual target null
     set prevscale scale
@@ -60,14 +60,14 @@
     set unit_type @flare
     set unit_icon ""
     set u_cap 10
-    set units 9
+    set units 4
     op mul units units scale
     jump start always x false
     mono:
     set unit_type @mono
     set unit_icon ""
     set u_cap 20
-    set units 9
+    set units 4
     op mul units units scale
     jump start always x false
     atrax:
@@ -81,7 +81,7 @@
     set unit_type @poly
     set unit_icon ""
     set u_cap 30
-    set units 6
+    set units 4
     op mul units units scale
     jump start always x false
     mega:

@@ -4,22 +4,22 @@
     printflush message1
     set init 1
     set target container1
-    set u1item @lead
-    set u2item @sand
-    set u3item @silicon
-    set u4item @coal
-    set u5item @sand
-    set u6item @silicon
-    set u7item @coal
-    set u8item @silicon
-    set u9item @sand
-    set u10item @silicon
+    set u1item @titanium
+    set u2item @plastanium
+    set u3item @titanium
+    set u4item @titanium
+    set u5item @plastanium
+    set u6item @titanium
+    set u7item @titanium
+    set u8item @plastanium
+    set u9item @titanium
+    set u10item @null
     set u1mode target
-    set u2mode target
-    set u3mode core
+    set u2mode core
+    set u3mode target
     set u4mode target
-    set u5mode target
-    set u6mode core
+    set u5mode core
+    set u6mode target
     set u7mode target
     set u8mode core
     set u9mode target
@@ -60,42 +60,42 @@
     set unit_type @flare
     set unit_icon ""
     set u_cap 10
-    set units 9
+    set units 3
     op mul units units scale
     jump start always x false
     mono:
     set unit_type @mono
     set unit_icon ""
     set u_cap 20
-    set units 9
+    set units 3
     op mul units units scale
     jump start always x false
     atrax:
     set unit_type @atrax
     set unit_icon ""
     set u_cap 50
-    set units 4
+    set units 3
     op mul units units scale
     jump start always x false
     poly:
     set unit_type @poly
     set unit_icon ""
     set u_cap 30
-    set units 6
+    set units 3
     op mul units units scale
     jump start always x false
     mega:
     set unit_type @mega
     set unit_icon ""
     set u_cap 60
-    set units 4
+    set units 2
     op mul units units scale
     jump start always x false
     zenith:
     set unit_type @zenith
     set unit_icon ""
     set u_cap 80
-    set units 4
+    set units 2
     op mul units units scale
     jump start always x false
 
@@ -570,6 +570,7 @@
     end
     logging:
     op min units units 10
+    op ceil units units
     print "[red]Adaptive Modular Multibind\n"
     print "[orange][STATUS] [white]"
     print units
