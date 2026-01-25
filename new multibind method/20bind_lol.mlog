@@ -1,0 +1,201 @@
+    op add current current 1
+    jump u1 lessThan current 2
+    jump u2 lessThan current 3
+    jump u3 lessThan current 4
+    jump u4 lessThan current 5
+    jump u5 lessThan current 6
+    jump u6 lessThan current 7
+    jump u7 lessThan current 8
+    jump u8 lessThan current 9
+    jump u9 lessThan current 10
+    jump u10 lessThan current 11
+    jump u11 lessThan current 12
+    jump u12 lessThan current 13
+    jump u13 lessThan current 14
+    jump u14 lessThan current 15
+    jump u15 lessThan current 16
+    jump u16 lessThan current 17
+    jump u17 lessThan current 18
+    jump u18 lessThan current 19
+    jump u19 lessThan current 20
+    set current 0
+    end
+
+        u1:
+        set unit_type @flare
+        set current_unit u1
+        jump checks always
+
+        u2:
+        set current_unit u2
+        jump checks always
+
+        u3:
+        set current_unit u3
+        jump checks always
+
+        u4:
+        set current_unit u4
+        jump checks always
+
+        u5:
+        set current_unit u5
+        jump checks always
+
+        u6:
+        set current_unit u6
+        jump checks always
+
+        u7:
+        set current_unit u7
+        jump checks always
+
+        u8:
+        set current_unit u8
+        jump checks always
+
+        u9:
+        set current_unit u9
+        jump checks always
+
+        u10:
+        set current_unit u10
+        jump checks always
+
+        u11:
+        set current_unit u11
+        jump checks always
+
+        u12:
+        set current_unit u12
+        jump checks always
+
+        u13:
+        set current_unit u13
+        jump checks always
+
+        u14:
+        set current_unit u14
+        jump checks always
+
+        u15:
+        set current_unit u15
+        jump checks always
+
+        u16:
+        set current_unit u16
+        jump checks always
+
+        u17:
+        set current_unit u17
+        jump checks always
+
+        u18:
+        set current_unit u18
+        jump checks always
+
+        u19:
+        set current_unit u19
+        jump checks always
+
+        u20:
+        set current_unit u20
+        jump checks always
+
+    checks:
+        ubind current_unit
+        sensor dead @unit @dead
+        jump binding greaterThan dead 0
+        ucontrol flag @time
+    work:
+        ucontrol move @thisx @thisy
+        ucontrol target @thisx @thisy 1
+        end
+    binding:
+        ubind unit_type
+        sensor flag @unit @flag
+        sensor controlled @unit @controlled
+        jump found equal controlled 0
+        jump binding notEqual flag 0
+
+        found:
+            set current_unit @unit
+                u1set:
+                    jump u2set notEqual u1 null
+                    set u1 @unit
+                    end
+                u2set:
+                    jump u3set notEqual u2 null
+                    set u2 @unit
+                    end
+                u3set:
+                    jump u4set notEqual u3 null
+                    set u3 @unit
+                    end
+                u4set:
+                    jump u5set notEqual u4 null
+                    set u4 @unit
+                    end
+                u5set:
+                    jump u6set notEqual u5 null
+                    set u5 @unit
+                    end
+                u6set:
+                    jump u7set notEqual u6 null
+                    set u6 @unit
+                    end
+                u7set:
+                    jump u8set notEqual u7 null
+                    set u7 @unit
+                    end
+                u8set:
+                    jump u9set notEqual u8 null
+                    set u8 @unit
+                    end
+                u9set:
+                    jump u10set notEqual u9 null
+                    set u9 @unit
+                    end
+                u10set:
+                    jump u11set notEqual u10 null
+                    set u10 @unit
+                    end
+                u11set:
+                    jump u12set notEqual u11 null
+                    set u11 @unit
+                    end
+                u12set:
+                    jump u13set notEqual u12 null
+                    set u12 @unit
+                    end
+                u13set:
+                    jump u14set notEqual u13 null
+                    set u13 @unit
+                    end
+                u14set:
+                    jump u15set notEqual u14 null
+                    set u14 @unit
+                    end
+                u15set:
+                    jump u16set notEqual u15 null
+                    set u15 @unit
+                    end
+                u16set:
+                    jump u17set notEqual u16 null
+                    set u16 @unit
+                    end
+                u17set:
+                    jump u18set notEqual u17 null
+                    set u17 @unit
+                    end
+                u18set:
+                    jump u19set notEqual u18 null
+                    set u18 @unit
+                    end
+                u19set:
+                    jump u20set notEqual u19 null
+                    set u19 @unit
+                    end
+                u20set:
+                    set u20 @unit
+                    end
