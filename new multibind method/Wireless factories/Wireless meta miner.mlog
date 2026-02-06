@@ -16,6 +16,7 @@ lead:
 start:
     jump boot greaterThan bootseq 0
     set bootseq 1
+    set dist 1
     set creator Icewave
     op mul mx @thisx 1000
     op add key mx @thisy
@@ -112,21 +113,14 @@ start:
         ucontrol within cx cy 6.5 close
         jump closer notEqual close true
         ulocate ore core false get x y found core
-        jump v6 notEqual found true
-        v6end:
-        ucontrol approach x y 7.5
+        ucontrol approach x y dist
         ucontrol mine x y
         ucontrol itemDrop block 999
         end
     closer:
+        op add dist dist 1
         ucontrol move cx cy
         end
-    v6:
-            sensor ax arc1 @shootX
-            sensor ay arc1 @shootY
-            set x ax
-            set y ay
-            jump v6end always
     binding:
         ubind unit_type
         sensor flag @unit @flag

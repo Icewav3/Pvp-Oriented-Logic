@@ -1,0 +1,110 @@
+
+jump 8 strictEqual bootseq 1
+set boostseq 0
+ubind @quasar
+sensor ac @unit @ammoCapacity
+sensor a @unit @ammo
+sensor range @unit @range
+op sub range range 1
+sensor mhp @unit @maxHealth
+ubind @quasar
+sensor flag @unit @flag
+jump 87 equal flag -1
+sensor hp @unit @health
+uradar enemy any any distance 0 1 target
+op mul lowh mhp 0.5
+op mul lowa ac 0.25
+jump 98 lessThan a lowa
+jump 87 lessThan hp lowh
+jump 24 strictEqual target null
+sensor x target @x
+sensor y target @y
+ucontrol boost 0 1 22 0 0
+ucontrol approach x y range 0 0
+ucontrol targetp target 1 22 0 0
+end
+sensor set sorter1 @config
+jump 29 notEqual bootseq 1
+jump 76 strictEqual set @copper
+jump 43 strictEqual set @lead
+end
+ubind @alpha    
+sensor alpha @unit @name
+jump 39 equal alpha "[cyan]Ice[blue]wave"
+ubind @beta
+sensor beta @unit @name
+jump 39 equal beta "[cyan]Ice[blue]wave"
+ubind @gamma
+sensor gamma @unit @name
+jump 39 equal gamma "[cyan]Ice[blue]wave"
+jump 29 always found false
+set bootseq 1
+end
+ulocate building core false @copper x y found core
+jump 46 always found false
+ulocate damaged core true @copper x y found damaged
+jump 41 strictEqual found false
+print "Approach sequence"
+ucontrol boost 1 y 0 0 0
+ucontrol approach x y dist 0 0
+ucontrol within x y range here 0
+jump 67 strictEqual dist null
+jump 56 equal here true
+jump 54 notEqual sorter @lead
+jump 67 greaterThan dist range
+end
+jump 67 lessThan dist range
+end
+ucontrol boost 0 y 0 0 0
+sensor error @unit @boosting
+jump 62 strictEqual error true
+ucontrol stop x y 0 0 0
+ucontrol target x y 1 0 0
+end
+jump 65 notEqual sorter @lead
+op add dist dist 1
+end
+op sub dist dist 1
+end
+jump 70 notEqual sorter @lead
+set dist 0
+end
+set dist range
+end
+ucontrol boost 1 y 0 0 0
+ucontrol approach @thisx @thisy range 0 0
+ucontrol targetp unit 0 0 0 0
+end
+ulocate building turret true @copper x y found building
+jump 79 equal found false
+jump 45 always x false
+ulocate building factory true @copper x y found building
+jump 82 equal found false
+jump 45 always x false
+ulocate building generator true @copper x y found building
+jump 85 equal found false
+jump 45 always x false
+ulocate building core true @copper x y found building
+jump 45 always x false
+ulocate building repair false @copper x y found building
+ucontrol boost 1 y 5 0 0
+ucontrol flag -1 y 5 0 0
+ucontrol move x y 7 0 0
+sensor error @unit @boosting
+sensor hp @unit @health
+jump 96 equal hp mhp
+jump 100 always a 0
+end
+ucontrol flag 0 y 5 0 0
+end
+ulocate building battery false @copper x y found building
+ucontrol approach x y 5 0 0
+jump 106 equal a 0
+uradar enemy any any distance 0 1 target
+jump 106 strictEqual target null
+ucontrol targetp target 1 0 0 0
+ucontrol boost 0 0 0 0 0
+end
+ucontrol boost 1 y 5 0 0
+end
+print "Icewave#0394"

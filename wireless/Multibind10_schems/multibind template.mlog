@@ -54,6 +54,7 @@
     jump poly equal config @graphite
     jump mega equal config @thorium
     jump zenith equal config @titanium
+    jump unbind equal config @null
     end
 
     flare:

@@ -105,7 +105,7 @@
     checks:
         ubind current_unit
         sensor dead @unit @dead
-        jump binding greaterThan dead 0
+        jump binding greaterThan dead 0 #TODO fix this
         ucontrol flag @time
     work:
         ucontrol move @thisx @thisy

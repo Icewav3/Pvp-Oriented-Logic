@@ -33,7 +33,7 @@
     printflush message1
     print "By: [cyan]Ice[blue]wave[sky]#0394"
     print "\n"
-    print "[green]V2.5 Auto Overdrive"
+    print "[green]V3.3 Auto Overdrive"
     printflush message1
     set a 1 
     set target container1
@@ -87,11 +87,12 @@
     jump poly equal config @graphite
     jump mega equal config @thorium
     jump zenith equal config @titanium
+    jump unbind equal config @null
     end
 
     flare:
     set unit_type @flare
-    set u_cap 20
+    set u_cap 10
     set units 10
     op mul units units scale
     jump start always x false

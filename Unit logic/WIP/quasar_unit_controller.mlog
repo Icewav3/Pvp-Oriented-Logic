@@ -1,0 +1,249 @@
+# Quasar Unit Controller Script
+# Manages Quasar units for combat, repair, and support operations
+# Author: Icewave#0394
+# TODO
+
+# NOTES TO SELF
+# can access @shield quasar has max of 400, could take advantage of this to offset units without sheild to allow them a chance to recharge
+
+init:
+    jump main_loop equal bootseq 1
+    jump get_unit_values
+    # bootseq is anti theft
+    set bootseq 0
+    set creator "[cyan]Ice[blue]wave"
+    set init 1
+    set u_type @quasar
+    # all values below converted to percentage
+    # retreat (obviously)
+    set retreat_hp 0.8
+    # will attack units that try to kill on the way to healing
+    set defend_hp 0.65
+    # ignore enemies and move to heal
+    set flee_hp 0.3
+get_unit_values:
+    # Skip initialization if already booted
+    jump main_loop strictEqual init 1
+    # Get unit stats
+    ubind u_type
+    # deprecated ammo cuz no one use it ever
+    # sensor u_ammocap @unit @ammoCapacity
+    sensor u_range @unit @range
+    sensor u_mhp @unit @maxHealth
+    jump get_unit_values equal @unit null
+    set init 0
+    
+main_loop:
+    # Check if unit is already flagged for repair
+    ubind @quasar
+    sensor flag @unit @flag
+    jump repair_mode equal flag -1
+    
+    # Get current health and find enemies
+    sensor hp @unit @health
+    uradar enemy any any distance 0 1 target
+    
+    # Calculate health and ammo thresholds
+    op mul lowh mhp 0.5          # 50% health threshold
+    op mul lowa ac 0.25          # 25% ammo threshold
+    
+    # Check if low on ammo or health
+    jump recharge lessThan a lowa
+    jump repair_mode lessThan hp lowh
+    
+    # Combat mode - engage target if found
+    jump check_sorter strictEqual target null
+    sensor x target @x
+    sensor y target @y
+    ucontrol boost 0 1 22 0 0
+    ucontrol approach x y range 0 0
+    ucontrol targetp target 1 22 0 0
+    end
+
+check_sorter:
+    # Check sorter configuration for unit assignment
+    sensor set sorter1 @config
+    #jump bind_units notEqual bootseq 1
+    jump attack strictEqual set @copper
+    jump defend strictEqual set @lead
+
+    end
+
+check_if_stolen:
+    # Define authorized users
+    set user "[cyan]Ice[blue]wave"
+    set user2 "[cyan]Ice[blue]wave[lightgrey]123149"
+    set player_check_index 0
+    
+    player_type_loop:
+        # Select unit type based on current index
+        jump check_alpha equal player_check_index 0
+        jump check_beta equal player_check_index 1
+        jump check_gamma equal player_check_index 2
+        jump check_evoke equal player_check_index 3
+        jump check_incite equal player_check_index 4
+        jump check_emanate equal player_check_index 5
+        # All types checked, continue to main logic
+        jump check_sorter always
+        
+        check_alpha:
+            set curr_player_type @alpha
+            jump bind_and_check always
+        check_beta:
+            set curr_player_type @beta
+            jump bind_and_check always
+        check_gamma:
+            set curr_player_type @gamma
+            jump bind_and_check always
+        check_evoke:
+            set curr_player_type @evoke
+            jump bind_and_check always
+        check_incite:
+            set curr_player_type @incite
+            jump bind_and_check always
+        check_emanate:
+            set curr_player_type @emanate
+            jump bind_and_check always
+    
+    bind_and_check:
+        # Bind to current player type and check name
+        ubind curr_player_type
+        sensor name @unit @name
+        # Check if name matches any authorized user
+        jump mark_booted equal name user
+        jump mark_booted equal name user2
+        # No match, move to next unit type
+        op add player_check_index player_check_index 1
+        jump player_type_loop always
+
+mark_booted:
+    set bootseq 1
+    end
+
+    # done work till here
+locate_core:
+    # Locate core building
+    ulocate building core false @copper cx cy found core
+    jump approach_sequence always
+
+defend:
+    # Find damaged buildings
+    ulocate damaged core true @copper x y found damaged
+    jump approach_sequence strictEqual found false
+    
+approach_sequence:
+    print "Approach sequence"
+    ucontrol boost 1 y 0 0 0
+    ucontrol approach x y dist 0 0
+    ucontrol within x y range here 0
+    
+    # Skip if no distance calculated
+    jump setup_repair strictEqual dist null
+    
+    # Check if we're at target
+    jump repair_target equal here true
+    
+    # Adjust distance based on sorter
+    jump check_distance notEqual sorter @lead
+    jump setup_repair greaterThan dist range
+    end
+
+repair_target:
+    jump setup_repair lessThan dist range
+    end
+    
+    # Stop and target building for repair
+    ucontrol boost 0 y 0 0 0
+    sensor error @unit @boosting
+    jump target_building strictEqual error true
+    ucontrol stop x y 0 0 0
+
+target_building:
+    ucontrol target x y 1 0 0
+    end
+
+check_distance:
+    jump adjust_dist_up notEqual sorter @lead
+    op add dist dist 1
+    end
+
+adjust_dist_up:
+    op sub dist dist 1
+    end
+
+setup_repair:
+    jump set_max_dist notEqual sorter @lead
+    set dist 0
+    end
+
+set_max_dist:
+    set dist range
+    end
+    
+    # Return to base position
+    ucontrol boost 1 y 0 0 0
+    ucontrol approach @thisx @thisy range 0 0
+    ucontrol targetp unit 0 0 0 0
+    end
+
+attack:
+    # Find turret buildings
+    ulocate building turret true @copper x y found building
+    jump locate_factory equal found false
+    jump locate_core always x false
+
+locate_factory:
+    # Find factory buildings
+    ulocate building factory true @copper x y found building
+    jump locate_generator equal found false
+    jump locate_core always x false
+
+locate_generator:
+    # Find generator buildings
+    ulocate building generator true @copper x y found building
+    jump locate_core_2 equal found false
+    jump locate_core always x false
+
+locate_core_2:
+    # Fallback core location
+    ulocate building core true @copper x y found building
+    jump locate_core always x false
+
+repair_mode:
+    # Repair mode - go to repair point and heal
+    ulocate building repair false @copper x y found building
+    ucontrol boost 1 y 5 0 0
+    ucontrol flag -1 y 5 0 0
+    ucontrol move x y 7 0 0
+    
+    # Check health status
+    sensor error @unit @boosting
+    sensor hp @unit @health
+    jump check_healed equal hp mhp
+    jump recharge always a 0
+    end
+
+check_healed:
+    # Clear repair flag when healed
+    ucontrol flag 0 y 5 0 0
+    end
+
+recharge:
+    # Recharge at battery
+    ulocate building battery false @copper x y found building
+    ucontrol approach x y 5 0 0
+    
+    # Continue combat if we have ammo
+    jump boost_enabled equal a 0
+    uradar enemy any any distance 0 1 target
+    jump boost_enabled strictEqual target null
+    ucontrol targetp target 1 0 0 0
+    ucontrol boost 0 0 0 0 0
+    end
+
+boost_enabled:
+    ucontrol boost 1 y 5 0 0
+    end
+
+# Script signature
+print "Icewave#0394"

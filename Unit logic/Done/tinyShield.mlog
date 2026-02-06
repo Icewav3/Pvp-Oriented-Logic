@@ -1,0 +1,35 @@
+radar enemy any any distance hail1 1 unit
+jump 3 strictEqual unit null
+jump 21 always unit null
+op add counter counter 1
+jump 3 lessThan counter 120
+set counter 0
+control enabled projector1 0 0 0 0
+sensor powerin projector1 @powerNetIn
+sensor powerout projector1 @powerNetOut
+op sub net powerin powerout
+jump 16 greaterThan net 0
+control enabled battery1 0 0 0 0
+control enabled battery2 0 0 0 0
+control enabled battery3 0 0 0 0
+control enabled battery4 0 0 0 0
+end
+control enabled battery1 1 0 0 0
+control enabled battery2 1 0 0 0
+control enabled battery3 1 0 0 0
+control enabled battery4 1 0 0 0
+end
+control enabled projector1 1
+control enabled battery1 1
+control enabled battery2 1
+control enabled battery3 1
+control enabled battery4 1
+sensor heat projector1 @heat
+op floor heat heat heat
+jump 31 greaterThan heat 500
+control enabled projector1 1 0 0 0
+end
+control enabled projector1 0 0 0 0
+sensor heat projector1 @heat
+op ceil heat heat heat
+jump 31 lessThanEq heat 0

@@ -1,0 +1,224 @@
+# ==========================================
+# Multi-Unit Resource Supply System
+# Created by: Icewave
+# ==========================================
+# Manages up to 5 units to supply resources from core to designated blocks
+# Units are flagged with unique key based on processor position
+
+delay:
+rangextnd:
+shoot:
+
+# ==========================================
+# INITIALIZATION & MAIN LOOP
+# ==========================================
+start:
+    # Skip boot if already initialized
+    jump boot greaterThan bootseq 0
+    set bootseq 1
+    set creator Icewave
+    
+    # Create unique key from processor position
+    op mul mx @thisx 1000
+    op add key mx @thisy
+
+boot:
+    # Cycle through 5 unit slots
+    op add current current 1
+    jump u1 lessThan current 2
+    jump u2 lessThan current 3
+    jump u3 lessThan current 4
+    jump u4 lessThan current 5
+    jump u5 lessThan current 6
+    set current 0
+    end
+
+# ==========================================
+# UNIT CONFIGURATIONS
+# ==========================================
+u1:
+    # Unit 1: Flare getting titanium for mixer
+    set unit_type @flare
+    set current_unit u1
+    set block mixer1
+    set item1 @titanium
+    set item2 @titanium
+    jump checks always
+
+u2:
+    # Unit 2: Getting thorium/titanium for fuse1
+    set current_unit u2
+    set block fuse1
+    set item1 @thorium
+    set item2 @titanium
+    jump checks always
+
+u3:
+    # Unit 3: Getting thorium/titanium for fuse2
+    set current_unit u3
+    set block fuse2
+    set item1 @thorium
+    set item2 @titanium
+    jump checks always
+
+u4:
+    # Unit 4: Getting thorium/titanium for fuse3
+    set current_unit u4
+    set block fuse3
+    set item1 @thorium
+    set item2 @titanium
+    jump checks always
+
+u5:
+    # Unit 5: Reserved slot (currently unused)
+    set current_unit u5
+    set block null
+    set item1 @null
+    set item2 @null
+    jump checks always
+
+# ==========================================
+# UNIT STATUS CHECKS
+# ==========================================
+checks:
+    # Check if target block is destroyed
+    sensor gone block @dead
+    jump delay equal gone true
+    
+    # Check block ammo/item levels
+    sensor fill block @ammo
+    jump isbindneeded notEqual fill null
+    sensor fill block @totalItems
+
+isbindneeded:
+    # Release unit if block is full (>9 items)
+    jump unbind greaterThan fill 9
+    
+    # Bind to current unit slot
+    ubind current_unit
+    sensor dead @unit @dead
+    sensor f @unit @flag
+    
+    # Rebind if unit is dead or has wrong flag
+    jump binding greaterThan dead 0
+    jump unbind notEqual f key
+    
+    # Locate core for resource pickup
+    ulocate building core false @copper cx cy found core
+    sensor res core item1
+
+    # Check what item unit is carrying
+    sensor type @unit @firstItem
+    jump drop equal type item1
+    jump drop equal type item2
+    
+    # Determine which item to get
+    set get item1
+    jump take greaterThan res 100
+    set get item2
+
+# ==========================================
+# ITEM PICKUP & DELIVERY
+# ==========================================
+take:
+    # Go to core, drop current items, pick up needed items
+    ucontrol approach cx cy 5
+    ucontrol itemDrop core 999
+    ucontrol itemTake core get 999
+    end
+
+drop:
+    # Deliver items to target block
+    sensor x block @x
+    sensor y block @y
+    ucontrol move x y
+    ucontrol itemDrop block 999
+    end
+
+# ==========================================
+# UNIT BINDING SYSTEM
+# ==========================================
+binding:
+    # Find available unit of specified type
+    ubind unit_type
+    sensor flag @unit @flag
+    sensor controlled @unit @controlled
+    jump found equal controlled 0
+    
+    # Retry logic if no unit found
+    op add fails fails 1
+    jump delay greaterThan fails 5
+    jump binding notEqual flag false
+
+found:
+    # Flag unit with unique key and assign to slot
+    ucontrol flag key
+    set current_unit @unit
+    
+    u1set:
+        jump u2set notEqual current 1
+        set u1 @unit
+        end
+    
+    u2set:
+        jump unbind equal current_unit u1
+        jump u3set notEqual current 2
+        set u2 @unit
+        end
+    
+    u3set:
+        jump unbind equal current_unit u2
+        jump u4set notEqual current 3
+        set u3 @unit
+        end
+    
+    u4set:
+        jump unbind equal current_unit u3
+        jump u5set notEqual current 4
+        set u4 @unit
+        end
+    
+    u5set:
+        jump unbind equal current_unit u4
+        jump delay notEqual current 5
+        set u5 @unit
+        end
+
+# ==========================================
+# UNIT RELEASE SYSTEM
+# ==========================================
+unbind:
+    # Skip if no unit assigned
+    jump delay strictEqual current_unit null
+    
+    ubind current_unit
+    
+    # Check which slot and unflag the unit
+    u1r:
+        jump u2r notEqual u1 @unit
+        ucontrol flag 0
+        set u1 null
+        end
+    
+    u2r:
+        jump u3r notEqual u2 @unit
+        ucontrol flag 0
+        set u2 null
+        end
+    
+    u3r:
+        jump u4r notEqual u3 @unit
+        ucontrol flag 0
+        set u3 null
+        end
+    
+    u4r:
+        jump u5r notEqual u4 @unit
+        ucontrol flag 0
+        set u4 null
+        end
+    
+    u5r:
+        ucontrol flag 0
+        set u5 null
+        end

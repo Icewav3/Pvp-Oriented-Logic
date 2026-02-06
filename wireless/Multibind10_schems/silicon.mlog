@@ -54,6 +54,7 @@
     jump poly equal config @graphite
     jump mega equal config @thorium
     jump zenith equal config @titanium
+    jump unbind equal config @null
     end
 
     flare:
@@ -577,6 +578,6 @@
     print unit_icon
     print "\nBy: [cyan]Ice[blue]wave[sky]\n"
     print "[grey]Send bugs to real_icewave on discord\n"
-    print "[green]V3.2 made messages [pink]pretty[white]\n"
+    print "[green]V3.3 made messages [pink]pretty[white]\n"
     printflush message1
     end
