@@ -1,3 +1,47 @@
+#pyra
+sensor m1_sa mixer1 @sand
+sensor m1_co mixer1 @coal
+sensor m1_le mixer1 @lead
+sensor m2_sa mixer2 @sand
+sensor m2_co mixer2 @coal
+sensor m2_le mixer2 @lead
+#cruc
+sensor c1_sa crucible1 @sand
+sensor c1_co crucible1 @coal
+sensor c2_sa crucible2 @sand
+sensor c2_co crucible2 @coal
+#min calc cruc (top) unloader 3-4
+op min c_sa c1_sa c2_sa
+op min c_co c1_co c2_co
+#min calc mix (bottom) unloader 1-2
+op min m_sa m1_sa m2_sa
+op min m_co m1_co m2_co
+op min m_le m1_le m2_le
+
+jump top_co lessThan c_co 22
+
+top_sa:
+    control configure unloader3 @sand
+    control configure unloader4 @sand
+    jump bottom always
+top_co:
+    control configure unloader3 @coal
+    control configure unloader4 @coal
+bottom:
+    jump bottom_co lessThan m_co 8
+    jump bottom_le lessThan m_le 6
+bottom_sa:
+    control configure unloader1 @sand
+    control configure unloader2 @sand
+    jump on always
+bottom_co:
+    control configure unloader1 @coal
+    control configure unloader2 @coal
+    jump on always
+bottom_le:
+    control configure unloader1 @lead
+    control configure unloader2 @lead
+
     on:
     jump boot2 notEqual init null
     on2:
@@ -579,6 +623,6 @@
     print unit_icon
     print "\nBy: [cyan]Ice[blue]wave[sky]\n"
     print "[grey]Send bugs to real_icewave on discord\n"
-    print "[green]V3.4 bugfix[white]\n"
+    print "[green]V3.3 bugfix[white]\n"
     printflush message1
     end

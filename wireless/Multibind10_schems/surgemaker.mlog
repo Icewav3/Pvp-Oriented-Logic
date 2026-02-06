@@ -1,3 +1,5 @@
+#TODO UPDATE    
+    
     sensor ti smelter1 @titanium
     sensor si smelter1 @silicon
     sensor co smelter1 @copper
@@ -526,7 +528,8 @@
     sensor c @unit @controlled
     sensor f @unit @flag
     jump found strictEqual c 0
-    jump bind notEqual f 0
+    #update to make not rely on finding units
+    jump done notEqual f 0
 
     found:
     set key @time
@@ -592,5 +595,19 @@
         end
         ubind_end:
         end
-    done:
+done:
+    jump logging notEqual message1 null
+    end
+logging:
+    op min units units 10
+    op ceil units units
+    print "[red]Adaptive Modular Multibind\n"
+    print "[orange][STATUS] [white]"
+    print units
+    print " "
+    print unit_icon
+    print "\nBy: [cyan]Ice[blue]wave[sky]\n"
+    print "[grey]Send bugs to real_icewave on discord\n"
+    print "[green]V3.4 minor bugfix [white]\n"
+    printflush message1
     end

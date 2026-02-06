@@ -3,7 +3,9 @@
 # Author: Icewave#0394
 # TODO
 
+
 # NOTES TO SELF
+# ong need a build system to abstract parts of ts
 # can access @shield quasar has max of 400, could take advantage of this to offset units without sheild to allow them a chance to recharge
 
 init:
@@ -44,19 +46,22 @@ main_loop:
     uradar enemy any any distance 0 1 target
     
     # Calculate health and ammo thresholds
-    op mul lowh mhp 0.5          # 50% health threshold
-    op mul lowa ac 0.25          # 25% ammo threshold
+    #TODO seems to not take into account flee HP
+    op mul lowh mhp 0.5
+    op mul lowa ac 0.25
     
     # Check if low on ammo or health
     jump recharge lessThan a lowa
     jump repair_mode lessThan hp lowh
+    jump 
+    # otherwise defend self
     
     # Combat mode - engage target if found
     jump check_sorter strictEqual target null
     sensor x target @x
     sensor y target @y
     ucontrol boost 0 1 22 0 0
-    ucontrol approach x y range 0 0
+    ucontrol approach x y u_range 0 0
     ucontrol targetp target 1 22 0 0
     end
 
@@ -66,7 +71,7 @@ check_sorter:
     #jump bind_units notEqual bootseq 1
     jump attack strictEqual set @copper
     jump defend strictEqual set @lead
-
+    jump idle strictEqual set @null
     end
 
 check_if_stolen:
@@ -135,7 +140,7 @@ approach_sequence:
     print "Approach sequence"
     ucontrol boost 1 y 0 0 0
     ucontrol approach x y dist 0 0
-    ucontrol within x y range here 0
+    ucontrol within x y u_range here 0
     
     # Skip if no distance calculated
     jump setup_repair strictEqual dist null
@@ -145,11 +150,11 @@ approach_sequence:
     
     # Adjust distance based on sorter
     jump check_distance notEqual sorter @lead
-    jump setup_repair greaterThan dist range
+    jump setup_repair greaterThan dist u_range
     end
 
 repair_target:
-    jump setup_repair lessThan dist range
+    jump setup_repair lessThan dist u_range
     end
     
     # Stop and target building for repair
@@ -177,12 +182,12 @@ setup_repair:
     end
 
 set_max_dist:
-    set dist range
+    set dist u_range
     end
     
     # Return to base position
     ucontrol boost 1 y 0 0 0
-    ucontrol approach @thisx @thisy range 0 0
+    ucontrol approach @thisx @thisy u_range 0 0
     ucontrol targetp unit 0 0 0 0
     end
 
@@ -222,6 +227,12 @@ repair_mode:
     jump check_healed equal hp mhp
     jump recharge always a 0
     end
+
+idle:
+    # Temp - prolly change to be stackable later
+    sensor x @this @x
+    sensor y @this @y
+    jump approach_sequence always x false
 
 check_healed:
     # Clear repair flag when healed

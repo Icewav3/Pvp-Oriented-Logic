@@ -500,7 +500,8 @@
     sensor c @unit @controlled
     sensor f @unit @flag
     jump found strictEqual c 0
-    jump bind notEqual f 0
+    #update to make not rely on finding units
+    jump done notEqual f 0
 
     found:
     set key @time
@@ -578,6 +579,6 @@
     print unit_icon
     print "\nBy: [cyan]Ice[blue]wave[sky]\n"
     print "[grey]Send bugs to real_icewave on discord\n"
-    print "[green]V3.3 made messages [pink]pretty[white]\n"
+    print "[green]V3.4 minor bugfix [white]\n"
     printflush message1
     end
