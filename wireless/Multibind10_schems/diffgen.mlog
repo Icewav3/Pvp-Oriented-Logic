@@ -1,6 +1,23 @@
+    #Diffgen code
+
+    getlink link i
+    op add i i 1
+    sensor cryo link @cryofluid
+    jump on strictEqual cryo null
+    sensor pwr_val link @powerNetStored
+    sensor pwr_cap link @powerNetCapacity
+    op div pwr pwr_val pwr_cap
+    op lessThan pwr_ready pwr power_on
+    op greaterThanEq cry_ready cryo 5
+    op land on pwr_ready cry_ready
+    control enabled link on
+    op mod i i @links
+
+    #Main code
     on:
     jump boot2 notEqual init null
     on2:
+    set power_on 0.95
     printflush message1
     set init 1
     set target container1

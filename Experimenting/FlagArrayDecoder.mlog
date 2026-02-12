@@ -1,0 +1,56 @@
+# COORDINATE DECODER
+# Purpose: Extract 6 coordinates from a single @unit @flag
+
+# --- Data Acquisition ---
+main:
+ubind @mono
+sensor packed @unit @flag
+
+# --- Extraction Logic ---
+
+# P1.X: packed % 1000
+op mod rx1 packed 1000
+op floor rx1 rx1
+
+# P1.Y: (packed / 10^3) % 1000
+op div tmp packed 1e3
+op floor tmp tmp
+op mod ry1 tmp 1000
+
+# P2.X: (packed / 10^6) % 1000
+op div tmp packed 1e6
+op floor tmp tmp
+op mod rx2 tmp 1000
+
+# P2.Y: (packed / 10^9) % 1000
+op div tmp packed 1e9
+op floor tmp tmp
+op mod ry2 tmp 1000
+
+# P3.X: (packed / 10^12) % 1000
+op div tmp packed 1e12
+op floor tmp tmp
+op mod rx3 tmp 1000
+
+# P3.Y: (packed / 10^15) % 1000
+op div tmp packed 1e15
+op floor tmp tmp
+op mod ry3 tmp 1000
+
+# --- Output ---
+print "Point 1: "
+print rx1
+print ", "
+print ry1
+print "\nPoint 2: "
+print rx2
+print ", "
+print ry2
+print "\nPoint 3: "
+print rx3
+print ", "
+print ry3
+printflush message1
+
+# Loop back to keep reading
+jump main always

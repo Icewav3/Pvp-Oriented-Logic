@@ -1,0 +1,46 @@
+# COORDINATE ENCODER
+# Purpose: Pack (x1,y1, x2,y2, x3,y3) into one unit flag
+# Limit: Max value per coordinate is 999
+
+# --- Input Data ---
+set x1 125
+set y1 42
+set x2 888
+set y2 12
+set x3 500
+set y3 999
+
+# --- Packing Logic ---
+# Base 1000 Shift: flag = x1 + y1*10^3 + x2*10^6 + ...
+op mul t1 y1 1e3
+op mul t2 x2 1e6
+op mul t3 y2 1e9
+op mul t4 x3 1e12
+op mul t5 y3 1e15
+
+op add flag x1 t1
+op add flag flag t2
+op add flag flag t3
+op add flag flag t4
+op add flag flag t5
+
+# --- Unit Binding ---
+ubind @mono
+ucontrol flag flag 0 0 0 0
+
+# --- Feedback ---
+print "Encoded Coordinates:\n"
+print x1
+print ", "
+print y1
+print "\n"
+print x2
+print ", "
+print y2
+print "\n"
+print x3
+print ", "
+print y3
+print "\nFlag: "
+print flag
+printflush message1

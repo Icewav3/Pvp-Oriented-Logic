@@ -18,16 +18,16 @@ op min m_sa m1_sa m2_sa
 op min m_co m1_co m2_co
 op min m_le m1_le m2_le
 
-jump top_co lessThan c_co 22
+jump cruc_co lessThan c_co 22
 
-top_sa:
+cruc_sa:
     control configure unloader3 @sand
     control configure unloader4 @sand
-    jump bottom always
-top_co:
+    jump mixer_start always
+cruc_co:
     control configure unloader3 @coal
     control configure unloader4 @coal
-bottom:
+mixer_start:
     jump bottom_co lessThan m_co 8
     jump bottom_le lessThan m_le 6
 bottom_sa:
@@ -149,7 +149,7 @@ bottom_le:
     sensor c @unit @controlled
     sensor f @unit @flag
     jump nxt strictEqual c 0
-    jump boot notEqual f 0
+    end
     nxt:
     ucontrol flag @time
     jump u_type strictEqual unit_type null
@@ -623,6 +623,6 @@ bottom_le:
     print unit_icon
     print "\nBy: [cyan]Ice[blue]wave[sky]\n"
     print "[grey]Send bugs to real_icewave on discord\n"
-    print "[green]V3.3 bugfix[white]\n"
+    print "[green]V3.5 bugfix[white]\n"
     printflush message1
     end

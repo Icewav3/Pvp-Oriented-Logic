@@ -138,6 +138,7 @@ defend:
     
 approach_sequence:
     print "Approach sequence"
+    sensor curr_dist @unit @flag
     ucontrol boost 1 y 0 0 0
     ucontrol approach x y dist 0 0
     ucontrol within x y u_range here 0
