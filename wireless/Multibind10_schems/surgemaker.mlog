@@ -134,7 +134,8 @@
     sensor c @unit @controlled
     sensor f @unit @flag
     jump nxt strictEqual c 0
-    jump boot notEqual f 0
+    jump nxt strictEqual f 0
+    end
     nxt:
     ucontrol flag @time
     jump u_type strictEqual unit_type null
@@ -608,6 +609,6 @@ logging:
     print unit_icon
     print "\nBy: [cyan]Ice[blue]wave[sky]\n"
     print "[grey]Send bugs to real_icewave on discord\n"
-    print "[green]V3.4 minor bugfix [white]\n"
+    print "[green]V3.5 minor bugfix [white]\n"
     printflush message1
     end

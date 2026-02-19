@@ -149,6 +149,7 @@ bottom_le:
     sensor c @unit @controlled
     sensor f @unit @flag
     jump nxt strictEqual c 0
+    jump nxt strictEqual f 0
     end
     nxt:
     ucontrol flag @time
