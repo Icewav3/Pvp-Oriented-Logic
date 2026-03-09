@@ -1,224 +1,172 @@
-# ==========================================
-# Multi-Unit Resource Supply System
-# Created by: Icewave
-# ==========================================
-# Manages up to 5 units to supply resources from core to designated blocks
-# Units are flagged with unique key based on processor position
+# ============================================================
+# GROUND UNIT LOGIC V0.8 — by Icywave#0394
+# Controls dagger units to locate and attack enemy buildings.
+# ============================================================
 
-delay:
-rangextnd:
-shoot:
 
-# ==========================================
-# INITIALIZATION & MAIN LOOP
-# ==========================================
-start:
-    # Skip boot if already initialized
-    jump boot greaterThan bootseq 0
-    set bootseq 1
-    set creator Icewave
-    
-    # Create unique key from processor position
-    op mul mx @thisx 1000
-    op add key mx @thisy
+# --- SECTION: INIT ---
+# Reads the enable state from switch1 each cycle.
+init:
+    sensor on switch1 @enabled
 
-boot:
-    # Cycle through 5 unit slots
-    op add current current 1
-    jump u1 lessThan current 2
-    jump u2 lessThan current 3
-    jump u3 lessThan current 4
-    jump u4 lessThan current 5
-    jump u5 lessThan current 6
-    set current 0
+
+# --- SECTION: BIND ---
+# Attempts to bind a dagger unit. If the controller switch is
+# off, the unit is halted in place and the script ends early.
+bind_loop:
+    ubind @dagger
+    jump check_unit equal on true
+    ucontrol stop
+    ucontrol targetp @unit 0
     end
 
-# ==========================================
-# UNIT CONFIGURATIONS
-# ==========================================
-u1:
-    # Unit 1: Flare getting titanium for mixer
-    set unit_type @flare
-    set current_unit u1
-    set block mixer1
-    set item1 @titanium
-    set item2 @titanium
-    jump checks always
 
-u2:
-    # Unit 2: Getting thorium/titanium for fuse1
-    set current_unit u2
-    set block fuse1
-    set item1 @thorium
-    set item2 @titanium
-    jump checks always
-
-u3:
-    # Unit 3: Getting thorium/titanium for fuse2
-    set current_unit u3
-    set block fuse2
-    set item1 @thorium
-    set item2 @titanium
-    jump checks always
-
-u4:
-    # Unit 4: Getting thorium/titanium for fuse3
-    set current_unit u4
-    set block fuse3
-    set item1 @thorium
-    set item2 @titanium
-    jump checks always
-
-u5:
-    # Unit 5: Reserved slot (currently unused)
-    set current_unit u5
-    set block null
-    set item1 @null
-    set item2 @null
-    jump checks always
-
-# ==========================================
-# UNIT STATUS CHECKS
-# ==========================================
-checks:
-    # Check if target block is destroyed
-    sensor gone block @dead
-    jump delay equal gone true
-    
-    # Check block ammo/item levels
-    sensor fill block @ammo
-    jump isbindneeded notEqual fill null
-    sensor fill block @totalItems
-
-isbindneeded:
-    # Release unit if block is full (>9 items)
-    jump unbind greaterThan fill 9
-    
-    # Bind to current unit slot
-    ubind current_unit
-    sensor dead @unit @dead
-    sensor f @unit @flag
-    
-    # Rebind if unit is dead or has wrong flag
-    jump binding greaterThan dead 0
-    jump unbind notEqual f key
-    
-    # Locate core for resource pickup
-    ulocate building core false @copper cx cy found core
-    sensor res core item1
-
-    # Check what item unit is carrying
-    sensor type @unit @firstItem
-    jump drop equal type item1
-    jump drop equal type item2
-    
-    # Determine which item to get
-    set get item1
-    jump take greaterThan res 100
-    set get item2
-
-# ==========================================
-# ITEM PICKUP & DELIVERY
-# ==========================================
-take:
-    # Go to core, drop current items, pick up needed items
-    ucontrol approach cx cy 5
-    ucontrol itemDrop core 999
-    ucontrol itemTake core get 999
-    end
-
-drop:
-    # Deliver items to target block
-    sensor x block @x
-    sensor y block @y
-    ucontrol move x y
-    ucontrol itemDrop block 999
-    end
-
-# ==========================================
-# UNIT BINDING SYSTEM
-# ==========================================
-binding:
-    # Find available unit of specified type
-    ubind unit_type
+# --- SECTION: CHECK_UNIT ---
+# Validates the bound unit. Skips units already flagged or
+# controlled by another processor. Re-binds if unit is null.
+check_unit:
     sensor flag @unit @flag
-    sensor controlled @unit @controlled
-    jump found equal controlled 0
-    
-    # Retry logic if no unit found
-    op add fails fails 1
-    jump delay greaterThan fails 5
-    jump binding notEqual flag false
+    sensor ctrl @unit @controlled
+    jump claim_unit equal ctrl 0
+    jump bind_loop notEqual flag 0
+    jump bind_loop strictEqual @unit null
 
-found:
-    # Flag unit with unique key and assign to slot
-    ucontrol flag key
-    set current_unit @unit
-    
-    u1set:
-        jump u2set notEqual current 1
-        set u1 @unit
-        end
-    
-    u2set:
-        jump unbind equal current_unit u1
-        jump u3set notEqual current 2
-        set u2 @unit
-        end
-    
-    u3set:
-        jump unbind equal current_unit u2
-        jump u4set notEqual current 3
-        set u3 @unit
-        end
-    
-    u4set:
-        jump unbind equal current_unit u3
-        jump u5set notEqual current 4
-        set u4 @unit
-        end
-    
-    u5set:
-        jump unbind equal current_unit u4
-        jump delay notEqual current 5
-        set u5 @unit
-        end
 
-# ==========================================
-# UNIT RELEASE SYSTEM
-# ==========================================
-unbind:
-    # Skip if no unit assigned
-    jump delay strictEqual current_unit null
-    
-    ubind current_unit
-    
-    # Check which slot and unflag the unit
-    u1r:
-        jump u2r notEqual u1 @unit
-        ucontrol flag 0
-        set u1 null
-        end
-    
-    u2r:
-        jump u3r notEqual u2 @unit
-        ucontrol flag 0
-        set u2 null
-        end
-    
-    u3r:
-        jump u4r notEqual u3 @unit
-        ucontrol flag 0
-        set u3 null
-        end
-    
-    u4r:
-        jump u5r notEqual u4 @unit
-        ucontrol flag 0
-        set u4 null
-        end
-    
-    u5r:
-        ucontrol flag 0
-        set u5 null
-        end
+# --- SECTION: CLAIM_UNIT ---
+# Resets the unit flag to 0 to claim ownership.
+# If the `boot` variable is true, skip type detection and go
+# straight to combat (used for hot-reloading / quick restart).
+claim_unit:
+    ucontrol flag 0
+    jump combat_mode equal boot true
+
+
+# --- SECTION: DETECT_TYPE ---
+# Reads unit type and range. Sets atk_type based on the unit:
+#   atk_type 0 = ground-only radar (fortress, bryde, atrax)
+#   atk_type 1 = all-target radar   (other unit types)
+detect_type:
+    sensor range @unit @range
+    op add approach_range range 5
+    sensor type @unit @type
+    jump set_ground_atk equal type @fortress
+    jump set_ground_atk equal type @bryde
+    jump set_ground_atk equal type @atrax
+    jump set_air_atk always
+
+set_ground_atk:
+    set atk_type 0
+    jump combat_mode always
+
+set_air_atk:
+    set atk_type 1
+
+
+# --- SECTION: COMBAT_MODE ---
+# Runs uradar to find nearest enemy. Ground units (atk_type 0)
+# scan for ground enemies only; others scan all enemy types.
+# Result stored in `atk`.
+combat_mode:
+    jump radar_ground equal atk_type 0
+    uradar enemy any any distance 0 1 atk
+    jump attack always
+
+radar_ground:
+    uradar enemy ground any distance 0 1 atk
+
+
+# --- SECTION: ATTACK ---
+# Targets the detected enemy unit. If no enemy found (atk null),
+# jump to navigate. Otherwise, stop and engage in place.
+# NOTE: `atk` is passed as both unit and shoot — non-null unit
+# evaluates as truthy, so the unit shoots while targeting.
+attack:
+    ucontrol targetp atk atk 0
+    jump navigate strictEqual atk null
+    ucontrol stop
+    end
+
+
+# --- SECTION: NAVIGATE ---
+# No nearby enemy unit. Hold at current position with shoot=1,
+# then begin scanning for enemy buildings to move toward.
+navigate:
+    print 
+
+
+# --- SECTION: SCAN_BUILDINGS ---
+# Iterates through enemy building categories using ulocate.
+# For each found building, checks if the unit is within attack
+# range (`shoot` flag). Jumps to attack_target if in range.
+# NOTE: The double turret check below appears to be intentional
+# (possibly scanning for a second turret before moving on).
+scan_buildings:
+    ulocate building turret true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ucontrol within x y approach_range shoot     # second turret proximity check
+    jump attack_target equal shoot true
+    ulocate building generator true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building reactor true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building factory true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building battery true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building repair true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building drill true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building shield true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building core true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+
+
+# --- SECTION: IDLE ---
+# No buildings in range. Autopatfind to origin (0,0) to wander,
+# then print controller status to message1 and end the cycle.
+idle:
+    ucontrol autoPathfind 0 0 0
+    print "[green]Ground unit logic V 0.8"
+    print "[yellow] controlling:[red] "
+    print type
+    print "[white] "
+    print "By: [cyan]Ice[blue]wave[sky]#0394"
+    printflush message1
+    end
+
+
+# --- SECTION: ATTACK_TARGET ---
+# A building target is in range. Autopatfind toward it,
+# then calculate an offset intercept point (sx, sy) at the
+# edge of attack range using trig, and issue approach + target.
+#
+# FIX: op angle takes (dx, dy) — east-origin atan2(dy, dx).
+# Previous code passed (dy, dx) which swapped the trig components,
+# reflecting the prefire point across the diagonal and putting it
+# in the wrong direction (out of range or behind the unit).
+attack_target:
+    ucontrol autoPathfind x y shoot
+    sensor ux @unit @x
+    sensor uy @unit @y
+    op sub dx x ux
+    op sub dy y uy
+    op angle ang dx dy      # FIXED: was (dy, dx) — correct east-origin angle
+    op cos rx ang           # x component: cos(ang) = dx/hyp ✓
+    op sin ry ang           # y component: sin(ang) = dy/hyp ✓
+    op mul rx rx range      # scale by range to get x offset
+    op mul ry ry range      # scale by range to get y offset
+    op add sx rx ux         # prefire point = unit pos + offset
+    op add sy ry uy
+    ucontrol approach x y approach_range
+    ucontrol target sx sy 1
