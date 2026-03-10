@@ -1,29 +1,53 @@
 # ============================================================
 # GROUND UNIT LOGIC V0.8 — by Icywave#0394
 # Controls dagger units to locate and attack enemy buildings.
+#
+# EXECUTION FLOW (every processor tick):
+#   read_switch → bind_loop → check_unit → [claim_unit]
+#     → [BOOT: detect_type → set atk_type] → combat_mode
+#       → if enemy found: stop + shoot + end
+#       → if no enemy: navigate → scan_buildings
+#           → if building in range: attack_target + end
+#           → if nothing found: idle + end
+#
+# CONFIGURATION VARIABLES (set once at top):
+#   rangeadjust — extra tiles added to weapon range to form
+#                 approach_range. Tune this to control how close
+#                 units get before engaging.
 # ============================================================
 
 
-# --- SECTION: INIT ---
-# Reads the enable state from switch1 each cycle.
-init:
+# --- SECTION: CONFIGURATION ---
+# Tunable constants. Edit these to adjust unit behaviour.
+set rangeadjust 5
+
+
+# --- SECTION: READ_SWITCH ---
+# Runs every tick. Reads the @enabled state of switch1 into
+# `on`. Re-checks each cycle so the controller can be toggled
+# at runtime without restarting the processor.
+read_switch:
     sensor on switch1 @enabled
 
 
-# --- SECTION: BIND ---
-# Attempts to bind a dagger unit. If the controller switch is
-# off, the unit is halted in place and the script ends early.
+# --- SECTION: BIND_LOOP ---
+# Attempts to bind the next available dagger unit (round-robin).
+# If the controller switch is off (`on` is false/0), the
+# currently bound unit is halted and the script ends — nothing
+# runs until the switch is re-enabled.
 bind_loop:
     ubind @dagger
     jump check_unit equal on true
     ucontrol stop
-    ucontrol targetp @unit 0
+    ucontrol targetp @unit 0     # clear any previous target
     end
 
 
 # --- SECTION: CHECK_UNIT ---
-# Validates the bound unit. Skips units already flagged or
-# controlled by another processor. Re-binds if unit is null.
+# Guards against binding a unit we shouldn't control:
+#   - If ctrl == 0, the unit is uncontrolled → we can claim it.
+#   - If flag != 0, the unit is owned by another processor → skip.
+#   - If @unit is null, ubind found nothing → keep trying.
 check_unit:
     sensor flag @unit @flag
     sensor ctrl @unit @controlled
@@ -33,21 +57,30 @@ check_unit:
 
 
 # --- SECTION: CLAIM_UNIT ---
-# Resets the unit flag to 0 to claim ownership.
-# If the `boot` variable is true, skip type detection and go
-# straight to combat (used for hot-reloading / quick restart).
+# Stamp our ownership by setting the unit's flag to 0.
+# (Other processors check flag != 0 to detect claimed units,
+# so 0 means "claimed by this processor".)
+# If boot has already run for this unit, skip straight to
+# combat — type and range were already resolved last cycle.
 claim_unit:
     ucontrol flag 0
     jump combat_mode equal boot true
 
 
-# --- SECTION: DETECT_TYPE ---
-# Reads unit type and range. Sets atk_type based on the unit:
-#   atk_type 0 = ground-only radar (fortress, bryde, atrax)
-#   atk_type 1 = all-target radar   (other unit types)
-detect_type:
+# --- SECTION: BOOT (runs once per newly bound unit) ---
+# Reads the unit's weapon range and type, then classifies it
+# into one of two radar modes. Only runs on the first tick
+# after a unit is claimed; `boot` is set to true at the end
+# so all future ticks skip directly from claim_unit to combat_mode.
+#
+# atk_type 0 — ground-only radar  (fortress, bryde, atrax)
+# atk_type 1 — all-target radar   (all other unit types)
+#
+# approach_range = weapon range + rangeadjust, giving a small
+# buffer so the unit enters weapon range before stopping.
+boot_sequence:
     sensor range @unit @range
-    op add approach_range range 5
+    op add approach_range range rangeadjust
     sensor type @unit @type
     jump set_ground_atk equal type @fortress
     jump set_ground_atk equal type @bryde
@@ -56,16 +89,20 @@ detect_type:
 
 set_ground_atk:
     set atk_type 0
-    jump combat_mode always
+    jump boot_end always
 
 set_air_atk:
     set atk_type 1
 
+boot_end:
+    set boot true
+
 
 # --- SECTION: COMBAT_MODE ---
-# Runs uradar to find nearest enemy. Ground units (atk_type 0)
-# scan for ground enemies only; others scan all enemy types.
-# Result stored in `atk`.
+# Scans for the nearest enemy unit using uradar.
+# Ground-type units (atk_type 0) filter to ground enemies only,
+# avoiding wasted movement toward unreachable air units.
+# Result is stored in `atk`; null means no enemy in radar range.
 combat_mode:
     jump radar_ground equal atk_type 0
     uradar enemy any any distance 0 1 atk
@@ -73,13 +110,14 @@ combat_mode:
 
 radar_ground:
     uradar enemy ground any distance 0 1 atk
+    # falls through to attack
 
 
 # --- SECTION: ATTACK ---
-# Targets the detected enemy unit. If no enemy found (atk null),
-# jump to navigate. Otherwise, stop and engage in place.
-# NOTE: `atk` is passed as both unit and shoot — non-null unit
-# evaluates as truthy, so the unit shoots while targeting.
+# If `atk` is non-null, a unit is in radar range:
+#   - targetp aims and shoots at it (non-null unit = truthy = shoot)
+#   - ucontrol stop halts movement so we don't overshoot
+# If `atk` is null, no enemy unit is visible → fall through to navigate.
 attack:
     ucontrol targetp atk atk 0
     jump navigate strictEqual atk null
@@ -88,23 +126,23 @@ attack:
 
 
 # --- SECTION: NAVIGATE ---
-# No nearby enemy unit. Hold at current position with shoot=1,
-# then begin scanning for enemy buildings to move toward.
+# Reached when radar found no enemy unit.
+# BUG: this section is empty — falls straight through to
+# scan_buildings with no holding behaviour.
 navigate:
-    print 
 
 
 # --- SECTION: SCAN_BUILDINGS ---
-# Iterates through enemy building categories using ulocate.
-# For each found building, checks if the unit is within attack
-# range (`shoot` flag). Jumps to attack_target if in range.
-# NOTE: The double turret check below appears to be intentional
-# (possibly scanning for a second turret before moving on).
+# Sequentially searches for enemy buildings by category using
+# ulocate. For each found location, tests whether the unit is
+# already within approach_range
+# Jumps to attack_target as soon as any in-range building is found.
+#
+# Priority order: turret → generator → reactor → factory →
+#                 battery → repair → drill → shield → core
 scan_buildings:
     ulocate building turret true @copper x y found building
     ucontrol within x y approach_range shoot
-    jump attack_target equal shoot true
-    ucontrol within x y approach_range shoot     # second turret proximity check
     jump attack_target equal shoot true
     ulocate building generator true @copper x y found building
     ucontrol within x y approach_range shoot
@@ -130,43 +168,53 @@ scan_buildings:
     ulocate building core true @copper x y found building
     ucontrol within x y approach_range shoot
     jump attack_target equal shoot true
+    # falls through to idle if no buildings found in range
 
 
 # --- SECTION: IDLE ---
-# No buildings in range. Autopatfind to origin (0,0) to wander,
-# then print controller status to message1 and end the cycle.
+# No enemy units or buildings found this tick.
+# Autopatfinds to origin (0,0) as a wander/rally point,
+# then prints controller status to message1 and ends the cycle.
 idle:
-    ucontrol autoPathfind 0 0 0
     print "[green]Ground unit logic V 0.8"
     print "[yellow] controlling:[red] "
     print type
     print "[white] "
     print "By: [cyan]Ice[blue]wave[sky]#0394"
     printflush message1
+    jump attack_target always
     end
 
 
 # --- SECTION: ATTACK_TARGET ---
-# A building target is in range. Autopatfind toward it,
-# then calculate an offset intercept point (sx, sy) at the
-# edge of attack range using trig, and issue approach + target.
+# A building has been located and is within approach_range.
+# Autopatfinds toward it, then calculates a prefire point (sx, sy)
+# at exactly `range` tiles from the unit toward the target, so the
+# unit fires from the edge of its weapon range rather than walking
+# into the building.
 #
-# FIX: op angle takes (dx, dy) — east-origin atan2(dy, dx).
-# Previous code passed (dy, dx) which swapped the trig components,
-# reflecting the prefire point across the diagonal and putting it
-# in the wrong direction (out of range or behind the unit).
+# Trig breakdown:
+#   ang = atan2(dy, dx)  — angle from unit to target (east = 0°)
+#   rx  = cos(ang)       — normalised x component
+#   ry  = sin(ang)       — normalised y component
+#   sx  = ux + rx*range  — prefire x
+#   sy  = uy + ry*range  — prefire y
+#
+# NOTE: op angle in mlog is east-origin atan2(dy,dx). The previous
+# version passed (dy,dx) in the wrong order, mirroring the prefire
+# point across the diagonal and sending the unit out of range.
 attack_target:
     ucontrol autoPathfind x y shoot
     sensor ux @unit @x
     sensor uy @unit @y
     op sub dx x ux
     op sub dy y uy
-    op angle ang dx dy      # FIXED: was (dy, dx) — correct east-origin angle
-    op cos rx ang           # x component: cos(ang) = dx/hyp ✓
-    op sin ry ang           # y component: sin(ang) = dy/hyp ✓
-    op mul rx rx range      # scale by range to get x offset
-    op mul ry ry range      # scale by range to get y offset
-    op add sx rx ux         # prefire point = unit pos + offset
+    op angle ang dx dy
+    op cos rx ang
+    op sin ry ang
+    op mul rx rx range
+    op mul ry ry range
+    op add sx rx ux
     op add sy ry uy
     ucontrol approach x y approach_range
     ucontrol target sx sy 1
