@@ -1,0 +1,150 @@
+# GROUND UNIT LOGIC V0.8 — by Icywave#0394
+# Controls dagger units to locate and attack enemy buildings.
+#
+# CONFIGURATION:
+#   rangeadjust — extra tiles added to weapon range for approach_range
+
+set rangeadjust 5
+
+read_switch:
+    sensor on switch1 @enabled
+
+bind_loop:
+    ubind @dagger
+    jump check_unit equal on true
+    ucontrol stop
+    ucontrol targetp @unit 0
+    end
+
+# ctrl==0: unclaimed. flag!=0: owned by another processor.
+check_unit:
+    sensor flag @unit @flag
+    sensor ctrl @unit @controlled
+    jump claim_unit equal ctrl 0
+    jump bind_loop notEqual flag 0
+    jump bind_loop strictEqual @unit null
+
+claim_unit:
+    ucontrol flag 0
+    jump combat_mode equal boot true
+
+# Runs once per newly bound unit.
+# atk_type 0 = ground-only radar (fortress, bryde, atrax)
+# atk_type 1 = all-target radar
+boot_sequence:
+    sensor range @unit @range
+    op add approach_range range rangeadjust
+    sensor type @unit @type
+    jump set_ground_atk equal type @fortress
+    jump set_ground_atk equal type @bryde
+    jump set_ground_atk equal type @atrax
+    jump set_air_atk always
+
+set_ground_atk:
+    set atk_type 0
+    jump boot_end always
+
+set_air_atk:
+    set atk_type 1
+
+boot_end:
+    set boot true
+
+combat_mode:
+    jump radar_ground equal atk_type 0
+    uradar enemy any any distance 0 1 atk
+    jump attack always
+
+radar_ground:
+    uradar enemy ground any distance 0 1 atk
+
+# If enemy unit found: stop and shoot. Otherwise fall through to navigate.
+attack:
+    ucontrol targetp atk atk 0
+    jump navigate strictEqual atk null
+    ucontrol stop
+    end
+
+# use later
+navigate:
+
+# Priority: turret → generator → reactor → factory → battery → repair → drill → shield → core
+scan_buildings:
+    ulocate building turret true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building generator true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building reactor true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building factory true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building battery true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building repair true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building drill true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building shield true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+    ulocate building core true @copper x y found building
+    ucontrol within x y approach_range shoot
+    jump attack_target equal shoot true
+
+idle:
+    print "[green]Ground unit logic V 0.8"
+    print "[yellow] controlling:[red] "
+    print type
+    print "[white] "
+    print "By: [cyan]Ice[blue]wave[sky]#0394"
+    printflush message1
+    jump attack_target always
+    end
+
+# Moves toward building. Calculates prefire point (sx, sy) at exactly
+# `range` tiles from unit toward target, so unit fires from weapon range edge.
+# ang = atan2(dy, dx), (rx, ry) = normalised direction, scaled by range.
+attack_target:
+    ucontrol autoPathfind x y shoot
+    sensor ux @unit @x
+    sensor uy @unit @y
+    op sub dx x ux
+    op sub dy y uy
+    op angle ang dx dy
+    op cos rx ang
+    op sin ry ang
+    op mul rx rx range
+    op mul ry ry range
+    op add sx rx ux
+    op add sy ry uy
+
+    # --- STRAFE BLOCK (new) ---
+    # Perpendicular to (rx,ry) is (-ry, rx)
+    # Oscillate direction every 40 ticks
+    op mod phase @tick 40
+    op lessThan sdir phase 20     # 0 or 1
+    op mul sdir sdir 2
+    op sub sdir sdir 1            # now -1 or 1
+
+    # Scale perpendicular by strafe width (3 tiles feels good for daggers)
+    op mul sox ry -1
+    op mul soy rx 1
+    op mul sox sox sdir
+    op mul soy soy sdir
+    op mul sox sox 3
+    op mul soy soy 3
+
+    # Final move target = prefire point + strafe offset
+    op add strafex sx sox
+    op add strafey sy soy
+    # --- END STRAFE BLOCK ---
+
+    ucontrol approach strafex strafey approach_range   # was: x y
+    ucontrol target sx sy 1                            # still aims at prefire point
