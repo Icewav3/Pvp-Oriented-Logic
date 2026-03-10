@@ -2,7 +2,6 @@
 jump on notEqual seconds false
 set seconds 10
 op mul interval seconds 1000
-
 on:
     jump on equal sorter1 null
     sensor config sorter1 @config
@@ -11,7 +10,6 @@ on:
     jump type equal u_type null
     jump type notEqual config prevconfig
     jump bind always x false
-
 type:
     jump pulsar equal config @copper
     jump mono equal config @lead
@@ -20,83 +18,82 @@ type:
     jump quasar equal config @coal
     jump rankedpoly equal config @titanium
     jump rankedmega equal config @thorium
-    jump type always x false
-
+    print "None"
+    printflush message1
+    jump on always x false
     pulsar:
         set u_type @pulsar
         set icon "Pulsar"
         set u_cap 40
         set ground true
         set maxmine @coal
-        jump printflush always x false
-
+        jump printicon always x false
     mono:
         set u_type @mono
         set icon "Mono"
         set u_cap 20
         set ground false
         set maxmine @sand
-        jump printflush always x false
-
+        jump printicon always x false
     poly:
         set u_type @poly
         set icon "Poly"
         set u_cap 30
         set ground false
         set maxmine @coal
-        jump printflush always x false
-
+        jump printicon always x false
     mega:
         set u_type @mega
         set icon "Mega"
         set u_cap 60
         set ground false
         set maxmine @titanium
-        jump printflush always x false
-
+        jump printicon always x false
     quasar:
         set u_type @quasar
         set icon "Quasar"
         set u_cap 50
         set ground true
         set maxmine @titanium
-        jump printflush always x false
-
-    rankedpoly: 
+        jump printicon always x false
+    rankedpoly:
         set u_type @poly
         set icon "Ranked Poly"
         set u_cap 30
         set ground true
         set maxmine @titanium
-        jump printflush always x false
-
-    rankedmega: 
+        jump printicon always x false
+    rankedmega:
         set u_type @mega
         set icon "Ranked Mega"
         set u_cap 60
         set ground true
         set maxmine @thorium
-        jump printflush always x false
-
-    printflush:
+        jump printicon always x false
+    printicon:
         printflush message1
         print icon
         printflush message1
-
 bind:
     ubind u_type
+    jump on strictEqual @unit null
     sensor c @unit @controlled
     sensor f @unit @flag
     jump start strictEqual c 0
     jump bind notEqual f 0
-
 start:
     set prevconfig config
     sensor ded core @dead
+    uradar enemy any any distance 0 1 tar
+    sensor mhp @unit @maxHealth
+    sensor hp @unit @health
+    jump combat notEqual tar null
+    jump repair notEqual hp mhp
+    ucontrol flag 0 0 0 0 0
     jump core strictEqual cx null
     jump resource notEqual ded true
     init:
-        jump core notEqual init true
+        jump core equal init true
         set init true
         mapcheckcopper:
             ulocate ore factory true @copper outx outy found
@@ -120,17 +117,15 @@ start:
             ulocate ore factory true @scrap outx outy found
             set mapscrap found
     core:
-        ucontrol boost 1 
+        ucontrol boost 1 0 0 0 0
         ucontrol move @thisx @thisy 0 0 0
         ucontrol within @thisx @thisy 3 here 0
         jump on notEqual here true
         ulocate building core false @copper cx cy found core
-
 resource:
     op sub timer mining_timer @time
     jump lowres strictEqual item null
     jump mine greaterThan timer 0
-
 lowres:
     op add mining_timer @time interval
     sensor copper core @copper
@@ -141,53 +136,45 @@ lowres:
     sensor titan core @titanium
     sensor thor core @thorium
     sensor item_amount core last
-
     checkcopper:
         jump boot strictEqual last null
         jump checklead equal mapcopper false
         jump checklead lessThan item_amount copper
-
         boot:
             set item_amount copper
             set item @copper
-
     checklead:
         jump checksand equal maplead false
         jump checksand lessThan item_amount lead
         set item @lead
         set item_amount lead
-
     checksand:
         jump checkcoal equal mapsand false
         jump checkcoal lessThan item_amount sand
         set item @sand
         set item_amount sand
-
     checkcoal:
         jump checktitan equal mapcoal false
         jump mine equal maxmine @sand
         jump checktitan lessThan item_amount coal
         set item @coal
         set item_amount coal
-
     checktitan:
         jump checkthor equal maptitan false
         jump mine equal maxmine @coal
         jump checkthor lessThan item_amount titan
         set item @titanium
         set item_amount titanium
-
     checkthor:
         jump checkscrap equal mapthor false
         jump mine lessThan item_amount thor
         set item @thorium
         set item_amount thorium
-
     checkscrap:
+        jump mine notEqual mapsand false
         jump mine lessThan item_amount scrap
         set item @scrap
         set item_amount scrap
-
 mine:
     jump locate strictEqual last item
     set last item
@@ -195,7 +182,6 @@ mine:
     jump locate equal found true
     op add y @thisy 1
     set x @thisx
-
 locate:
     sensor items @unit item
     jump empty strictEqual items u_cap
@@ -203,16 +189,30 @@ locate:
     sensor total @unit @totalItems
     jump dig strictEqual total 0
     jump empty notEqual type item
-
     dig:
-        ucontrol boost 1
-        ucontrol approach x y 7
-        ucontrol mine x y
+        ucontrol boost 1 0 0 0 0
+        ucontrol approach x y 7 0 0
+        ucontrol mine x y 0 0 0
         end
-
 empty:
-    ucontrol boost 1
-    ucontrol approach cx cy 7
-    ucontrol itemDrop core u_cap
-    ucontrol mine 0 0
+    ucontrol boost 1 0 0 0 0
+    ucontrol approach cx cy 7 0 0
+    ucontrol itemDrop core u_cap 0 0 0
+    ucontrol mine 0 0 0 0 0
+    end
+repair:
+    ulocate building repair false @copper repx repy found rep
+    jump start notEqual found true
+    ucontrol flag -1 1 0 0 0
+    sensor rx rep @x
+    sensor ry rep @y
+    ucontrol approach rx ry 5 0 0
+    end
+combat:
+    ucontrol boost 0 0 0 0 0
+    ucontrol targetp tar 1 0 0 0
+    sensor tarx tar @x
+    sensor tary tar @y
+    sensor rng @unit @range
+    ucontrol approach tarx tary rng 0 0
     end

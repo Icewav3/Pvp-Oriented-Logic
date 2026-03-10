@@ -65,7 +65,7 @@ attack:
     ucontrol stop
     end
 
-# BUG: empty — falls straight through to scan_buildings.
+# use later
 navigate:
 
 # Priority: turret → generator → reactor → factory → battery → repair → drill → shield → core

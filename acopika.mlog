@@ -1,0 +1,257 @@
+jump 114 greaterThan nexttime @time
+print "\template by JohnTing"
+print "\code by acopika"
+print '\edited_by_Icewave
+sensor sort sorter1 @config
+sensor button switch1 @enabled
+jump 10 strictEqual sort @copper
+jump 13 strictEqual sort @lead
+jump 16 strictEqual sort @metaglass
+jump 19 always x false
+set unittype @flare
+set ucap 10
+jump 20 always x false
+set unittype @mono
+set ucap 20
+jump 20 always x false
+set unittype @poly
+set ucap 30
+jump 20 always x false
+set unittype null
+jump 37 strictEqual unittype preunit
+set preunit unittype
+ubind u1
+ucontrol flag 0 0 0 0 0
+ubind u2
+ucontrol flag 0 0 0 0 0
+ubind u3
+ucontrol flag 0 0 0 0 0
+ubind u4
+ucontrol flag 0 0 0 0 0
+ubind u5
+ucontrol flag 0 0 0 0 0
+set u1 0
+set u2 0
+set u3 0
+set u4 0
+set u5 0
+jump 44 equal button 1
+ubind u4
+ucontrol flag 0 0 0 0 0
+ubind u5
+ucontrol flag 0 0 0 0 0
+set u4 0
+set u5 0
+op add nexttime @time 5000
+op add timeout @time 500
+op mul myflag @thisx 1000
+op add myflag @thisy myflag
+op add f1 myflag 10000000
+op add f2 myflag 20000000
+op add f3 myflag 30000000
+op add f4 myflag 40000000
+op add f5 myflag 50000000
+ubind u1
+sensor dead @unit @dead
+jump 59 notEqual dead false
+sensor flag @unit @flag
+jump 65 equal flag f1
+set u1 0
+ubind unittype
+jump 65 greaterThan @time timeout
+sensor flag @unit @flag
+jump 59 notEqual flag false
+ucontrol flag f1 0 0 0 0
+set u1 @unit
+ubind u2
+sensor dead @unit @dead
+jump 71 notEqual dead false
+sensor flag @unit @flag
+jump 77 equal flag f2
+set u2 0
+ubind unittype
+jump 77 greaterThan @time timeout
+sensor flag @unit @flag
+jump 71 notEqual flag false
+ucontrol flag f2 0 0 0 0
+set u2 @unit
+ubind u3
+sensor dead @unit @dead
+jump 83 notEqual dead false
+sensor flag @unit @flag
+jump 89 equal flag f3
+set u3 0
+ubind unittype
+jump 89 greaterThan @time timeout
+sensor flag @unit @flag
+jump 83 notEqual flag false
+ucontrol flag f3 0 0 0 0
+set u3 @unit
+jump 114 notEqual button 1
+ubind u4
+sensor dead @unit @dead
+jump 96 notEqual dead false
+sensor flag @unit @flag
+jump 102 equal flag f4
+set u4 0
+ubind unittype
+jump 102 greaterThan @time timeout
+sensor flag @unit @flag
+jump 96 notEqual flag false
+ucontrol flag f4 0 0 0 0
+set u4 @unit
+ubind u5
+sensor dead @unit @dead
+jump 108 notEqual dead false
+sensor flag @unit @flag
+jump 114 equal flag f5
+set u5 0
+ubind unittype
+jump 114 greaterThan @time timeout
+sensor flag @unit @flag
+jump 108 notEqual flag false
+ucontrol flag f5 0 0 0 0
+set u5 @unit
+print "\nunit bind end"
+sensor f1silicon fabricator1 @silicon
+sensor f1beryllium fabricator1 @beryllium
+sensor f2tungsten refabricator1 @tungsten
+sensor f2silicon refabricator1 @silicon
+sensor f3silicon refabricator2 @silicon
+sensor f3thorium refabricator2 @thorium
+set f1item null
+jump 124 greaterThanEq f1silicon 60
+set f1item @silicon
+jump 126 greaterThanEq f1f1beryllium 40
+set f1item @beryllium
+jump 128 greaterThanEq f1titanium 40
+set f1item @titanium
+set f2item null
+jump 131 greaterThanEq f2graphite 80
+set f2item @graphite
+jump 133 greaterThanEq f2silicon 80
+set f2item @silicon
+set f3item null
+jump 136 greaterThanEq f3metaglass 80
+set f3item @metaglass
+jump 138 greaterThanEq f3titanium 160
+set f3item @titanium
+jump 140 greaterThanEq f3silicon 260
+set f3item @silicon
+ubind u1
+ulocate building core false @copper corex corey found core
+sensor u1item u1 @firstItem
+set u1target core
+set u1targetitem @silicon
+jump 148 equal f3item null
+set u1target refabricator1
+set u1targetitem f3item
+jump 151 equal f2item null
+set u1target refabricator1
+set u1targetitem f2item
+jump 154 equal f1item null
+set u1target refabricator1
+set u1targetitem f1item
+jump 159 strictEqual u1item u1targetitem
+ucontrol approach corex corey 6 0 0
+ucontrol itemDrop core 999 4 0 0
+ucontrol itemTake core u1targetitem ucap 0 0
+jump 161 always x false
+ucontrol approach @thisx @thisy 2 0 0
+ucontrol itemDrop u1target ucap 0 0 0
+ubind u2
+ulocate building core false @copper corex corey found core
+sensor u2item u2 @firstItem
+set u2target core
+set u2targetitem @silicon
+jump 172 equal f1item null
+set u2target refabricator1
+set u2targetitem f1item
+jump 172 equal f2item null
+set u2target refabricator1
+set u2targetitem f2item
+jump 175 equal f3item null
+set u2target refabricator2
+set u2targetitem f3item
+jump 180 strictEqual u2item u2targetitem
+ucontrol approach corex corey 6 0 0
+ucontrol itemDrop core 999 4 0 0
+ucontrol itemTake core u2targetitem ucap 0 0
+jump 182 always x false
+ucontrol approach @thisx @thisy 2 0 0
+ucontrol itemDrop u2target ucap 0 0 0
+ubind u3
+ulocate building core false @copper corex corey found core
+sensor u3item u3 @firstItem
+set u3target core
+set u3targetitem @silicon
+jump 190 equal f1item null
+set u3target fabricator1
+set u3targetitem f1item
+jump 193 equal f2item null
+set u3target refabricator1
+set u3targetitem f2item
+jump 196 equal f3item null
+set u3target refabricator2
+set u3targetitem f3item
+jump 201 strictEqual u3item u3targetitem
+ucontrol approach corex corey 6 0 0
+ucontrol itemDrop core 999 4 0 0
+ucontrol itemTake core u3targetitem ucap 0 0
+jump 203 always x false
+ucontrol approach @thisx @thisy 2 0 0
+ucontrol itemDrop u3target ucap 0 0 0
+jump 256 notEqual button 1
+sensor f3silicon refabricator2 @silicon
+sensor f3titanium refabricator2 @titanium
+sensor f3metaglass refabricator2 @metaglass
+set f3item null
+jump 210 greaterThanEq f3silicon 260
+set f3item @silicon
+jump 212 greaterThanEq f3titanium 160
+set f3item @titanium
+jump 214 greaterThanEq f3metaglass 80
+set f3item @metaglass
+ubind u4
+ulocate building core false @copper corex corey found core
+sensor u4item u4 @firstItem
+set u4target core
+set u4targetitem @metaglass
+jump 222 equal f1item null
+set u4target fabricator1
+set u4targetitem f1item
+jump 225 equal f2item null
+set u4target refabricator1
+set u4targetitem f2item
+jump 228 equal f3item null
+set u4target refabricator2
+set u4targetitem f3item
+jump 233 strictEqual u4item u4targetitem
+ucontrol approach corex corey 6 0 0
+ucontrol itemDrop core 999 4 0 0
+ucontrol itemTake core u4targetitem ucap 0 0
+jump 235 always x false
+ucontrol approach @thisx @thisy 2 0 0
+ucontrol itemDrop u4target ucap 0 0 0
+ubind u5
+ulocate building core false @copper corex corey found core
+sensor u5item u5 @firstItem
+set u5target core
+set u5targetitem @metaglass
+jump 243 equal f1item null
+set u5target fabricator1
+set u5targetitem f1item
+jump 246 equal f2item null
+set u5target refabricator1
+set u5targetitem f2item
+jump 249 equal f3item null
+set u5target refabricator2
+set u5targetitem f3item
+jump 254 strictEqual u5item u5targetitem
+ucontrol approach corex corey 6 0 0
+ucontrol itemDrop core 999 4 0 0
+ucontrol itemTake core u5targetitem ucap 0 0
+jump 256 always x false
+ucontrol approach @thisx @thisy 2 0 0
+ucontrol itemDrop u5target ucap 0 0 0
+end

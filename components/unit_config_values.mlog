@@ -1,0 +1,40 @@
+getlink link n
+
+sensor factoryType link @type
+print result
+printflush message1
+
+jump erekir_mech strictEqual factoryType "mech-fabricator"
+jump erekir_t2mech strictEqual factoryType "mech-refabricator"
+jump erekir_tank strictEqual factoryType "tank-fabricator"
+jump erekir_t2tank strictEqual factoryType "tank-refabricator"
+jump erekir_ship strictEqual factoryType "ship-fabricator"
+jump erekir_t2ship strictEqual factoryType "ship-refabricator"
+jump erekir_t3fab strictEqual factoryType "prime-refabricator"
+jump serpulo_
+
+erekir_mech:
+    set BerylliumNeeded  50
+    set SiliconNeeded 70
+erekir_t2mech:
+    set TungstenNeeded  40
+    set SiliconNeeded 50
+erekir_tank:
+    set BerylliumNeeded  40
+    set SiliconNeeded 50
+erekir_t2tank:
+    set TungstenNeeded 30
+    set SiliconNeeded 40
+erekir_ship:
+    set GraphiteNeeded 50
+    set SiliconNeeded 70
+erekir_t2ship:
+    set TungstenNeeded 40
+    set SiliconNeeded 60
+
+
+
+
+erekir_t3fab:
+    set ThoriumNeeded 80
+    set SiliconNeeded 100
