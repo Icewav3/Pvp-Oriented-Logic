@@ -1,18 +1,14 @@
-# ============================================================
 # GROUND UNIT LOGIC V0.8 — by Icywave#0394
 # Controls dagger units to locate and attack enemy buildings.
-# ============================================================
+#
+# CONFIGURATION:
+#   rangeadjust — extra tiles added to weapon range for approach_range
 
+set rangeadjust 5
 
-# --- SECTION: INIT ---
-# Reads the enable state from switch1 each cycle.
-init:
+read_switch:
     sensor on switch1 @enabled
 
-
-# --- SECTION: BIND ---
-# Attempts to bind a dagger unit. If the controller switch is
-# off, the unit is halted in place and the script ends early.
 bind_loop:
     ubind @dagger
     jump check_unit equal on true
@@ -20,10 +16,7 @@ bind_loop:
     ucontrol targetp @unit 0
     end
 
-
-# --- SECTION: CHECK_UNIT ---
-# Validates the bound unit. Skips units already flagged or
-# controlled by another processor. Re-binds if unit is null.
+# ctrl==0: unclaimed. flag!=0: owned by another processor.
 check_unit:
     sensor flag @unit @flag
     sensor ctrl @unit @controlled
@@ -31,23 +24,16 @@ check_unit:
     jump bind_loop notEqual flag 0
     jump bind_loop strictEqual @unit null
 
-
-# --- SECTION: CLAIM_UNIT ---
-# Resets the unit flag to 0 to claim ownership.
-# If the `boot` variable is true, skip type detection and go
-# straight to combat (used for hot-reloading / quick restart).
 claim_unit:
     ucontrol flag 0
     jump combat_mode equal boot true
 
-
-# --- SECTION: DETECT_TYPE ---
-# Reads unit type and range. Sets atk_type based on the unit:
-#   atk_type 0 = ground-only radar (fortress, bryde, atrax)
-#   atk_type 1 = all-target radar   (other unit types)
-detect_type:
+# Runs once per newly bound unit.
+# atk_type 0 = ground-only radar (fortress, bryde, atrax)
+# atk_type 1 = all-target radar
+boot_sequence:
     sensor range @unit @range
-    op add approach_range range 5
+    op add approach_range range rangeadjust
     sensor type @unit @type
     jump set_ground_atk equal type @fortress
     jump set_ground_atk equal type @bryde
@@ -56,16 +42,14 @@ detect_type:
 
 set_ground_atk:
     set atk_type 0
-    jump combat_mode always
+    jump boot_end always
 
 set_air_atk:
     set atk_type 1
 
+boot_end:
+    set boot true
 
-# --- SECTION: COMBAT_MODE ---
-# Runs uradar to find nearest enemy. Ground units (atk_type 0)
-# scan for ground enemies only; others scan all enemy types.
-# Result stored in `atk`.
 combat_mode:
     jump radar_ground equal atk_type 0
     uradar enemy any any distance 0 1 atk
@@ -74,37 +58,20 @@ combat_mode:
 radar_ground:
     uradar enemy ground any distance 0 1 atk
 
-
-# --- SECTION: ATTACK ---
-# Targets the detected enemy unit. If no enemy found (atk null),
-# jump to navigate. Otherwise, stop and engage in place.
-# NOTE: `atk` is passed as both unit and shoot — non-null unit
-# evaluates as truthy, so the unit shoots while targeting.
+# If enemy unit found: stop and shoot. Otherwise fall through to navigate.
 attack:
     ucontrol targetp atk atk 0
     jump navigate strictEqual atk null
     ucontrol stop
     end
 
-
-# --- SECTION: NAVIGATE ---
-# No nearby enemy unit. Hold at current position with shoot=1,
-# then begin scanning for enemy buildings to move toward.
+# BUG: empty — falls straight through to scan_buildings.
 navigate:
-    print 
 
-
-# --- SECTION: SCAN_BUILDINGS ---
-# Iterates through enemy building categories using ulocate.
-# For each found building, checks if the unit is within attack
-# range (`shoot` flag). Jumps to attack_target if in range.
-# NOTE: The double turret check below appears to be intentional
-# (possibly scanning for a second turret before moving on).
+# Priority: turret → generator → reactor → factory → battery → repair → drill → shield → core
 scan_buildings:
     ulocate building turret true @copper x y found building
     ucontrol within x y approach_range shoot
-    jump attack_target equal shoot true
-    ucontrol within x y approach_range shoot     # second turret proximity check
     jump attack_target equal shoot true
     ulocate building generator true @copper x y found building
     ucontrol within x y approach_range shoot
@@ -131,42 +98,31 @@ scan_buildings:
     ucontrol within x y approach_range shoot
     jump attack_target equal shoot true
 
-
-# --- SECTION: IDLE ---
-# No buildings in range. Autopatfind to origin (0,0) to wander,
-# then print controller status to message1 and end the cycle.
 idle:
-    ucontrol autoPathfind 0 0 0
     print "[green]Ground unit logic V 0.8"
     print "[yellow] controlling:[red] "
     print type
     print "[white] "
     print "By: [cyan]Ice[blue]wave[sky]#0394"
     printflush message1
+    jump attack_target always
     end
 
-
-# --- SECTION: ATTACK_TARGET ---
-# A building target is in range. Autopatfind toward it,
-# then calculate an offset intercept point (sx, sy) at the
-# edge of attack range using trig, and issue approach + target.
-#
-# FIX: op angle takes (dx, dy) — east-origin atan2(dy, dx).
-# Previous code passed (dy, dx) which swapped the trig components,
-# reflecting the prefire point across the diagonal and putting it
-# in the wrong direction (out of range or behind the unit).
+# Moves toward building. Calculates prefire point (sx, sy) at exactly
+# `range` tiles from unit toward target, so unit fires from weapon range edge.
+# ang = atan2(dy, dx), (rx, ry) = normalised direction, scaled by range.
 attack_target:
     ucontrol autoPathfind x y shoot
     sensor ux @unit @x
     sensor uy @unit @y
     op sub dx x ux
     op sub dy y uy
-    op angle ang dx dy      # FIXED: was (dy, dx) — correct east-origin angle
-    op cos rx ang           # x component: cos(ang) = dx/hyp ✓
-    op sin ry ang           # y component: sin(ang) = dy/hyp ✓
-    op mul rx rx range      # scale by range to get x offset
-    op mul ry ry range      # scale by range to get y offset
-    op add sx rx ux         # prefire point = unit pos + offset
+    op angle ang dx dy
+    op cos rx ang
+    op sin ry ang
+    op mul rx rx range
+    op mul ry ry range
+    op add sx rx ux
     op add sy ry uy
     ucontrol approach x y approach_range
     ucontrol target sx sy 1
