@@ -70,7 +70,7 @@ radar_ground:
     uradar enemy ground any distance 0 1 atk
 
 # If enemy unit found: stop and shoot. Otherwise fall through to navigate.
-attack:
+attack: #TODO consolidate all ucontrol attack and ucontrol movement to one area
     jump navigate strictEqual atk null
     ucontrol targetp atk atk
     jump unit_checks always
@@ -105,21 +105,17 @@ navigate:
     ucontrol within x y approach_range shoot
     jump prefire_calc equal shoot true
 
-fallback:
-    ucontrol autoPathfind x y shoot
-    print "[green]Ground unit logic V 1.2"
-    print "[yellow] controlling:[red] "
-    print type
-    print "[white] "
-    print "By: [cyan]Ice[blue]wave[sky]#0394"
-    printflush message1
-    jump prefire_calc always
-    end
-
 # Moves toward target x, y location. Calculates prefire point (sx, sy) at exactly
 # `range` tiles from unit toward target, so unit fires from weapon range edge.
 # ang = atan2(dy, dx), (rx, ry) = normalised direction, scaled by range.
+# only go to here if there are no targets avaliable
 prefire_calc:
+unit_checks:
+    #fall through
+    sensor hp @unit @health
+    jump flee_check lessThan hp fleehp
+    jump check_repair lessThan hp lowhp
+    jump approach_target equal shoot true
     sensor ux @unit @x
     sensor uy @unit @y
     op sub dx x ux
@@ -133,19 +129,18 @@ prefire_calc:
     op add sy ry uy
     # Always prefire
     ucontrol target sx sy 1
-unit_checks:
-    #fall through
-    sensor hp @unit @health
-    jump flee lessThan hp fleehp
-    jump check_repair lessThan hp lowhp
-    jump approach_target equal shoot true
-    
-    
+    ucontrol autoPathfind
 end
 approach_target:
     ucontrol approach x y approach_range
+    ucontrol target x y 1
 end
-
+flee_check:
+    jump check_repair strictEqual atk null
+    sensor atk_x atk @x
+    sensor atk_y atk @y
+    ucontrol approach atk_x atk_y approach_range
+end
 check_repair:
     ulocate building repair false @copper repx repy can_repair repair
     jump retreat equal can_repair true
@@ -153,7 +148,3 @@ end
 retreat:
     ucontrol pathfind repx repy
 end
-flee:
-    sensor atk_x @x atk
-    sensor atk_y @y atk
-    ucontrol approach atk_x atk_y approach_range

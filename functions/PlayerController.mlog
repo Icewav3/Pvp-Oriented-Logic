@@ -1,0 +1,25 @@
+# === PLAYER ACQUISITION (runs until player found, then cached) ===
+radar player any any distance @this 1 player
+ubind player
+sensor name @unit @name
+sensor type @unit @type
+
+cached_player:                         # boot jumps here — player already cached
+ubind player
+jump player_alive notEqual player null # if player ref valid, skip to alive check
+set boot 0                             # player null — reset boot to re-run config
+end
+
+# === PLAYER DEATH CHECK ===
+player_alive:
+sensor dead @unit @dead
+jump sense_cursor notEqual dead true   # player alive — read cursor
+ubind type                             # player dead — find their ghost unit by type
+sensor unitname @unit @name
+jump player_alive notEqual unitname name  # loop until matching name found
+
+# === READ PLAYER CURSOR ===
+sense_cursor:
+sensor x @unit @shootX
+sensor y @unit @shootY
+sensor shooting @unit @shooting
