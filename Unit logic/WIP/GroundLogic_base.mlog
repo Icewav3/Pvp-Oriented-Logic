@@ -3,26 +3,28 @@
 #
 # CONFIGURATION:
 #   rangeadjust — extra tiles added to weapon range for approach_range
+# Boot sequence:
 
-set rangeadjust 5
+jump start lessThan @time next_time
+op add next_time next_time cache_time
+start:
+jump bind_loop notEqual init null
 
-read_switch:
-    sensor on switch1 @enabled
+initialize:
+set lowhp 0.75
+set fleehp 0.3
+set rangeadjust 7
+set cache_time 500
+set init true
 
 bind_loop:
     ubind @dagger
-    jump check_unit equal on true
-    ucontrol stop
-    ucontrol targetp @unit 0
-    end
-
 # ctrl==0: unclaimed. flag!=0: owned by another processor.
 check_unit:
     sensor flag @unit @flag
     sensor ctrl @unit @controlled
     jump claim_unit equal ctrl 0
     jump bind_loop notEqual flag 0
-    jump bind_loop strictEqual @unit null
 
 claim_unit:
     ucontrol flag 0
@@ -32,8 +34,17 @@ claim_unit:
 # atk_type 0 = ground-only radar (fortress, bryde, atrax)
 # atk_type 1 = all-target radar
 boot_sequence:
+    jump initialize strictEqual @unit null
+    # get range
     sensor range @unit @range
+    # get max hp
+    sensor mhp @unit @maxHealth
+    # calculate hp thresholds
+    op mul lowhp mhp lowhp
+    op mul fleehp mhp fleehp
+    # calculate range offset
     op add approach_range range rangeadjust
+    # get type
     sensor type @unit @type
     jump set_ground_atk equal type @fortress
     jump set_ground_atk equal type @bryde
@@ -60,59 +71,55 @@ radar_ground:
 
 # If enemy unit found: stop and shoot. Otherwise fall through to navigate.
 attack:
-    ucontrol targetp atk atk 0
     jump navigate strictEqual atk null
-    ucontrol stop
-    end
-
-# use later
-navigate:
+    ucontrol targetp atk atk
+    jump unit_checks always
 
 # Priority: turret → generator → reactor → factory → battery → repair → drill → shield → core
-scan_buildings:
+navigate:
     ulocate building turret true @copper x y found building
     ucontrol within x y approach_range shoot
-    jump attack_target equal shoot true
+    jump prefire_calc equal shoot true
     ulocate building generator true @copper x y found building
     ucontrol within x y approach_range shoot
-    jump attack_target equal shoot true
+    jump prefire_calc equal shoot true
     ulocate building reactor true @copper x y found building
     ucontrol within x y approach_range shoot
-    jump attack_target equal shoot true
+    jump prefire_calc equal shoot true
     ulocate building factory true @copper x y found building
     ucontrol within x y approach_range shoot
-    jump attack_target equal shoot true
+    jump prefire_calc equal shoot true
     ulocate building battery true @copper x y found building
     ucontrol within x y approach_range shoot
-    jump attack_target equal shoot true
+    jump prefire_calc equal shoot true
     ulocate building repair true @copper x y found building
     ucontrol within x y approach_range shoot
-    jump attack_target equal shoot true
+    jump prefire_calc equal shoot true
     ulocate building drill true @copper x y found building
     ucontrol within x y approach_range shoot
-    jump attack_target equal shoot true
+    jump prefire_calc equal shoot true
     ulocate building shield true @copper x y found building
     ucontrol within x y approach_range shoot
-    jump attack_target equal shoot true
+    jump prefire_calc equal shoot true
     ulocate building core true @copper x y found building
     ucontrol within x y approach_range shoot
-    jump attack_target equal shoot true
+    jump prefire_calc equal shoot true
 
-idle:
-    print "[green]Ground unit logic V 0.8"
+fallback:
+    ucontrol autoPathfind x y shoot
+    print "[green]Ground unit logic V 1.2"
     print "[yellow] controlling:[red] "
     print type
     print "[white] "
     print "By: [cyan]Ice[blue]wave[sky]#0394"
     printflush message1
-    jump attack_target always
+    jump prefire_calc always
     end
 
-# Moves toward building. Calculates prefire point (sx, sy) at exactly
+# Moves toward target x, y location. Calculates prefire point (sx, sy) at exactly
 # `range` tiles from unit toward target, so unit fires from weapon range edge.
 # ang = atan2(dy, dx), (rx, ry) = normalised direction, scaled by range.
-attack_target:
-    ucontrol autoPathfind x y shoot
+prefire_calc:
     sensor ux @unit @x
     sensor uy @unit @y
     op sub dx x ux
@@ -124,5 +131,29 @@ attack_target:
     op mul ry ry range
     op add sx rx ux
     op add sy ry uy
-    ucontrol approach x y approach_range
+    # Always prefire
     ucontrol target sx sy 1
+unit_checks:
+    #fall through
+    sensor hp @unit @health
+    jump flee lessThan hp fleehp
+    jump check_repair lessThan hp lowhp
+    jump approach_target equal shoot true
+    
+    
+end
+approach_target:
+    ucontrol approach x y approach_range
+end
+
+check_repair:
+    ulocate building repair false @copper repx repy can_repair repair
+    jump retreat equal can_repair true
+end
+retreat:
+    ucontrol pathfind repx repy
+end
+flee:
+    sensor atk_x @x atk
+    sensor atk_y @y atk
+    ucontrol approach atk_x atk_y approach_range
