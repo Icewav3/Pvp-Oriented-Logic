@@ -18,7 +18,7 @@ start:
     ucontrol target dx dy 1
     end
     none:
-        ulocate building core false @copper cx cy found building
+        ulocate building core false @copper cx cy found core
         ucontrol move cx cy 5 0 0
         ucontrol target cx cy 1 0 0
         end
@@ -32,6 +32,7 @@ mine:
     ucontrol mine 9999 9999 0 0 0
     end
 ground_detected:
+    sensor silic core @silicon
     sensor x b @x
     sensor y b @y
     ucontrol approach x y 20 0 0
@@ -73,6 +74,8 @@ repair:
         ucontrol flag 0
         end
         print "Logic by Icewave#0394"
+end:
+end
 u1:
 u2:
 u3:

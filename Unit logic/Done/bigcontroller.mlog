@@ -1,0 +1,136 @@
+# === BOOT CONFIG ===
+jump cached_player equal boot 1       # skip config if already booted
+set utype @zenith
+set multi 0.95
+set boot 1
+set hpmulti 0.75
+set dist 100
+set enabled 1
+
+# === PLAYER ACQUISITION (runs until player found, then cached) ===
+radar player any any distance @this 1 player
+ubind player
+sensor name @unit @name
+sensor type @unit @type
+
+cached_player:                         # boot jumps here — player already cached
+ubind player
+jump player_alive notEqual player null # if player ref valid, skip to alive check
+set boot 0                             # player null — reset boot to re-run config
+end
+
+# === PLAYER DEATH CHECK ===
+player_alive:
+sensor dead @unit @dead
+jump sense_cursor notEqual dead true   # player alive — read cursor
+ubind type                             # player dead — find their ghost unit by type
+sensor unitname @unit @name
+jump player_alive notEqual unitname name  # loop until matching name found
+
+# === READ PLAYER CURSOR ===
+sense_cursor:
+sensor x @unit @shootX
+sensor y @unit @shootY
+sensor shooting @unit @shooting
+
+# === BIND CONTROLLED UNIT ===
+bind_utype:
+ubind utype
+sensor flag @unit @flag
+sensor ctrl @unit @controlled
+jump claim equal ctrl 0                # uncontrolled — claim it
+jump bind_utype notEqual flag 0        # flagged by someone else — skip, next unit
+
+claim:
+ucontrol flag 0 y 0 0 0               # claim unit
+
+# === UNIT STAT CACHE (once per unit) ===
+jump unit_ready equal boot2 1          # already cached stats
+jump bind_utype strictEqual @unit null # null unit — try again
+sensor mhp @unit @maxHealth
+op mul low mhp hpmulti
+set boot2 1
+sensor range @unit @range
+op mul range range multi
+op add r2 range 5
+
+# === MAIN LOGIC ===
+unit_ready:
+ucontrol boost shooting y 0 0 0
+ulocate building core false @copper cx cy found building
+
+# --- Core proximity check (is cursor on friendly core?) ---
+op add cxm cx 1
+jump not_on_core greaterThan x cxm
+op sub cxl cx 1
+jump not_on_core lessThan x cxl
+op add cym cy 1
+jump not_on_core greaterThan y cym
+op sub cyl cy 1
+jump not_on_core lessThan y cyl
+jump cursor_on_core always            # cursor IS on core
+
+# === NOT ON CORE — normal behavior ===
+not_on_core:
+jump shooting_chase equal shooting true  # player firing — chase cursor aggressively
+
+# --- Repair point retreat check ---
+ulocate building repair false @copper repx repy found building
+ucontrol within repx repy dist repair 0
+jump hp_check equal repair false       # not near repair — skip heal check
+sensor hp @unit @health
+jump heal lessThan hp low              # low hp near repair — go heal
+
+# --- Idle / follow cursor at range ---
+hp_check:
+jump at_core_disabled notEqual enabled true  # disabled — go sit at core
+ucontrol approach x y range 0 0
+ucontrol within x y r2 a 0
+op notEqual b a true
+ucontrol boost b y range here 0
+ucontrol target x y 1 0 0
+end
+
+# === SHOOTING — aggressive chase toward cursor ===
+shooting_chase:
+ucontrol approach x y 3 0 0
+ucontrol boost 0 y 0 0 0
+sensor ux @unit @x
+sensor uy @unit @y
+op add vx x ux
+op div vx vx 2
+op add vy y uy
+op div vy vy 2
+ucontrol target vx vy 1 0 0
+end
+
+# === HEAL — retreat to repair point ===
+heal:
+ulocate building repair false @copper rx ry found building
+ucontrol boost 1 y 0 0 0
+ucontrol approach rx ry 3 0 0
+uradar enemy any any distance 0 1 atk
+ucontrol targetp atk atk 0 0 0
+end
+
+# === DISABLED — sit at core, still fight if enemies nearby ===
+at_core_disabled:
+ucontrol approach cx cy 3 0 0
+uradar enemy any any distance 0 1 atk
+jump no_enemy equal atk null
+ucontrol targetp atk atk 0 0 0
+end
+
+no_enemy:
+ucontrol target cx cy 1 0 0
+end
+
+# === CURSOR ON CORE — toggle enabled off/on ===
+cursor_on_core:
+jump re_enable notEqual shooting true
+set enabled 0                          # firing at core — disable units (hold at core)
+end
+
+re_enable:
+set enabled 1                          # stopped firing at core — re-enable
+end

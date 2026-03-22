@@ -1,0 +1,46 @@
+set multi 1
+ubind @horizon
+ucontrol flag 0 0 0 0 0
+sensor flag @unit @flag
+jump 1 notEqual flag false
+jump 25 greaterThan nexttime @time
+op add nexttime @time 500
+sensor p_dead p @dead
+jump 11 strictEqual player null
+jump 15 notEqual p_dead 0
+jump 19 always player null
+radar player ally player distance @this 1 player
+sensor p_name player @name
+sensor p_type player @type
+jump 18 always player null
+ubind p_type
+sensor curr_name @unit @name
+jump 15 notEqual curr_name p_name
+set player @unit
+sensor sx player @shootX
+sensor sy player @shootY
+sensor sh player @shooting
+sensor dead u @dead
+jump 25 equal dead false
+set u @unit
+jump 41 notEqual sh false
+jump 28 notEqual u @unit
+set angle 0
+op mul anglemulti 75 multi
+op mul lenmulti 0.3 multi
+op add angle angle anglemulti
+op pow len angle lenmulti
+op sin ax angle b
+op mul ax ax len
+op cos ay angle b
+op mul ay ay len
+op add tx sx ax
+op add ty sy ay
+ucontrol move tx ty 0 0 0
+ucontrol targetp @unit 1 0 0 0
+end
+ucontrol move sx sy 0 0 0
+ucontrol targetp @unit 1 0 0 0
+end
+print "code by johnting i think"
+print "edited by icewave"
