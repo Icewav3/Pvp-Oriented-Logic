@@ -1,0 +1,55 @@
+#Horribly inneficient but interesting. Main reason it sucks is we have to go thru all units currently.
+jump cached_player equal boot 1
+set boot 1
+set count 4
+set dist 4
+op div rot_interval 360 count
+
+# === PLAYER ACQUISITION (runs until player found, then cached) ===
+radar player any any distance @this 1 player
+ubind player
+sensor name @unit @name
+sensor type @unit @type
+
+cached_player:
+    ubind player
+    jump player_alive notEqual player null
+    set boot 0 
+end
+
+# === PLAYER DEATH CHECK ===
+player_alive:
+    sensor dead @unit @dead
+    jump sense_cursor notEqual dead true
+    ubind type
+    sensor unitname @unit @name
+    jump player_alive notEqual unitname name
+
+# === READ PLAYER CURSOR ===
+sense_cursor:
+sensor pshootx @unit @shootX
+sensor pshooty @unit @shootY
+sensor pshoot @unit @shooting
+sensor px @unit @x
+sensor py @unit @y
+ubind:
+    ubind @poly
+    sensor dead anchor @dead
+    jump runlogic notEqual dead true
+    set anchor @unit
+runlogic:
+    op add rot rot rot_interval
+    op cos dx rot
+    op mul dx dx dist
+    op sin dy rot
+    op mul dy dy dist
+    op add newx px dx
+    op add newy py dy
+    ucontrol move newx newy
+    ucontrol target pshootx pshooty pshoot
+    jump ubind lessThan rot 360
+    set rot 0
+reset_unit: #the bad part
+    ubind @poly
+    jump reset_unit notEqual @unit anchor
+end

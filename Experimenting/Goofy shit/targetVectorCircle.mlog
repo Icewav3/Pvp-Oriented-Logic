@@ -1,0 +1,26 @@
+set dist 10
+set rot_interval 15
+ubind @gamma
+sensor protation @unit @rotation
+sensor px @unit @x
+sensor py @unit @y
+sensor pshoot @unit @shooting
+sensor pshootx @unit @shootX
+sensor pshooty @unit @shootY
+ubind:
+    ubind @flare
+    sensor dead anchor @dead
+    jump runlogic notEqual dead true
+    set anchor @unit
+runlogic:
+    op add protation protation rot_interval
+    op cos dx protation
+    op mul dx dx dist
+    op sin dy protation
+    op mul dy dy dist
+    op add newx px dx
+    op add newy py dy
+    ucontrol move newx newy 0 0 0
+    ucontrol target pshootx pshooty pshoot 0 0
+    jump ubind notEqual @unit anchor
+end

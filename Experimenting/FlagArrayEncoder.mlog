@@ -3,7 +3,7 @@
 # Limit: Max value per coordinate is 999
 
 # --- Input Data ---
-set x1 125
+set x1 834
 set y1 42
 set x2 888
 set y2 12

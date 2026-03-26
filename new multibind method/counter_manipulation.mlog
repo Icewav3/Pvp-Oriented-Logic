@@ -5,8 +5,9 @@
     jump u3 lessThan current 4
     set current 0
     end
-        #Define units here
+        #each unit is 
         u1:
+        set unit_type @flare
         set current_unit u1
         jump checks always
 

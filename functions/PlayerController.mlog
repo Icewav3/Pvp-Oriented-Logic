@@ -1,3 +1,6 @@
+jump cached_player equal boot 1       #Boot seq
+set boot 1
+
 # === PLAYER ACQUISITION (runs until player found, then cached) ===
 radar player any any distance @this 1 player
 ubind player
