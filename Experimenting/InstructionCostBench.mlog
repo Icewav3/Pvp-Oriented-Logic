@@ -1,0 +1,133 @@
+# Instruction-cost microbenchmark.
+# Runs a series of fixed-size op loops back-to-back, records elapsed @time per
+# test, then prints all results on message1. All tests use the same N so
+# per-op cost = delta_ms / N (adjusted by baseline).
+#
+# Unknowns this targets:
+#   - Actual IPT (instructions per tick). Expected ~8 at 480 IPS / 60 TPS.
+#   - Relative cost of sensor / ubind / uradar / radar / ucontrol / printflush
+#     vs plain op/set/jump.
+#   - Whether any op is multi-instruction (stalls) or free.
+#   - Tick-scheduling jitter (run same test twice, diff the results).
+#
+# HOW TO USE: place next to a message1 block + a valid bound-target world.
+# Each test is exactly N iterations via `jump … lessThan i N` counter loop.
+# Change N at the top to trade precision for wall-clock runtime.
+
+start:
+jump halt equal done 1
+jump main equal init 1
+set N 200
+set init 1
+
+main:
+# --- TEST 0: baseline (empty set loop) ---
+set t0 @time
+set i 0
+base_loop:
+    op add i i 1
+    jump base_loop lessThan i N
+set t1 @time
+op sub d_base t1 t0
+
+# --- TEST 1: plain op (add) ---
+set i 0
+op_loop:
+    op add x i 1
+    op add i i 1
+    jump op_loop lessThan i N
+set t2 @time
+op sub d_op t2 t1
+
+# --- TEST 2: jump (always-taken) ---
+set i 0
+jmp_loop:
+    jump jmp_next always
+jmp_next:
+    op add i i 1
+    jump jmp_loop lessThan i N
+set t3 @time
+op sub d_jmp t3 t2
+
+# --- TEST 3: sensor (@time off @this — cheap, no unit needed) ---
+set i 0
+sens_loop:
+    sensor tmp @this @x
+    op add i i 1
+    jump sens_loop lessThan i N
+set t4 @time
+op sub d_sens t4 t3
+
+# --- TEST 4: ubind (@poly) ---
+set i 0
+bind_loop:
+    ubind @poly
+    op add i i 1
+    jump bind_loop lessThan i N
+set t5 @time
+op sub d_bind t5 t4
+
+# --- TEST 5: uradar (assumes a unit is bound from TEST 4) ---
+set i 0
+urad_loop:
+    uradar enemy any any distance 1 1 tgt
+    op add i i 1
+    jump urad_loop lessThan i N
+set t6 @time
+op sub d_urad t6 t5
+
+# --- TEST 6: radar (off @this) ---
+set i 0
+rad_loop:
+    radar enemy any any distance @this 1 tgt
+    op add i i 1
+    jump rad_loop lessThan i N
+set t7 @time
+op sub d_rad t7 t6
+
+# --- TEST 7: ucontrol flag (cheap no-arg-ish control) ---
+set i 0
+uctl_loop:
+    ucontrol flag @time
+    op add i i 1
+    jump uctl_loop lessThan i N
+set t8 @time
+op sub d_uctl t8 t7
+
+# --- TEST 8: printflush cost (print 1 value, flush, per iter) ---
+# NOTE: spams message1 during the test; final report overwrites.
+set i 0
+pflush_loop:
+    print i
+    printflush message1
+    op add i i 1
+    jump pflush_loop lessThan i N
+set t9 @time
+op sub d_pflush t9 t8
+
+# --- REPORT ---
+# Each line: "<label> <ms>" — derive per-op cost as (d_X - d_base) / N offline.
+print "N="
+print N
+print "\nbase  "
+print d_base
+print "\nop    "
+print d_op
+print "\njmp   "
+print d_jmp
+print "\nsens  "
+print d_sens
+print "\nbind  "
+print d_bind
+print "\nurad  "
+print d_urad
+print "\nrad   "
+print d_rad
+print "\nuctl  "
+print d_uctl
+print "\npflush "
+print d_pflush
+printflush message1
+set done 1
+halt:
+end

@@ -1,11 +1,5 @@
-# GROUND UNIT LOGIC V1.0 — by Icywave#0394
-# BROKEN
-#BUGS:
-# Units despite being far away from the frontline will not autopathfind or move at all.
-# Units not staying at max range, moving in to suicide - only properly stay at range against enemy units (not buildings)
-# Once retreating randomly fires in an incorrect direction, not correctly at nearest/last target
-# Units stay beyond max vision range to target units & subsequently lose the target they are aiming at, leading to misses. Happens constantly. Could potentially cache some of the most recent units we are targeting?
-
+# GROUND UNIT LOGIC V1.0 — by Icewave#0394
+# FIXED
 # CONFIGURATION:
 #   rangeadjust — extra tiles added to weapon range for approach_range
 # Boot sequence:
@@ -66,6 +60,7 @@ combat_mode:
 
 # --- PHASE 1: MOVEMENT ---
 
+    set retreating false
     sensor hp @unit @health
 
     jump move_flee lessThan hp fleehp
@@ -79,15 +74,41 @@ move_radar_ground:
     uradar enemy ground any distance 0 1 atk
 
 move_attack:
-    jump target_selection strictEqual atk null
+    # Fresh radar hit — cache the living reference and approach
+    jump move_check_cache strictEqual atk null
+    set atk_cache atk
     sensor atk_x atk @x
     sensor atk_y atk @y
     ucontrol approach atk_x atk_y approach_range
     jump fire_phase always
 
+# Bug 4 fix: radar returned null — check our living cache
+move_check_cache:
+    jump target_selection strictEqual atk_cache null
+    sensor ded atk_cache @dead
+    jump move_cache_clear equal ded true
+    # Cache still alive — keep tracking it even outside radar range
+    sensor atk_x atk_cache @x
+    sensor atk_y atk_cache @y
+    ucontrol approach atk_x atk_y approach_range
+    jump fire_cache always
+
+move_cache_clear:
+    set atk_cache null
+    jump target_selection always
+
 move_flee:
+    set retreating true
     jump move_flee_from_atk notEqual atk null
+    # No radar hit — try fleeing from cached unit if alive
+    jump move_flee_cache notEqual atk_cache null
     jump move_repair always
+
+move_flee_cache:
+    sensor ded atk_cache @dead
+    jump move_repair equal ded true
+    set atk atk_cache
+    jump move_flee_from_atk always
 
 move_flee_from_atk:
     sensor atk_x atk @x
@@ -107,6 +128,7 @@ move_flee_from_atk:
     jump fire_phase always
 
 move_repair:
+    set retreating true
     ulocate building repair false @copper repx repy can_repair repair
     jump move_retreat equal can_repair true
     jump target_selection always
@@ -118,8 +140,8 @@ move_retreat:
 # Navigate: no enemy in radar, healthy — find closest enemy building.
 # Sensor unit pos once, then ulocate each category and track shortest distance.
 target_selection:
-jump fire_phase lessThan @time next_time
-    op add next_time next_time cache_time
+    jump ts_use_cached lessThan @time next_time
+    op add next_time @time cache_time
     sensor ux @unit @x
     sensor uy @unit @y
     set best_dist 99999
@@ -234,10 +256,19 @@ nav_core:
 
 nav_done:
     jump nav_fallback equal best_found false
-    ucontrol autoPathfind
+
+# Used both after a fresh scan and when the time gate blocks (cached bx/by still valid)
+ts_use_cached:
+    jump nav_fallback equal best_found false
+    ucontrol within bx by approach_range in_range
+    jump ts_approach equal in_range true
+    ucontrol pathfind bx by
     jump fire_phase always
 
-#what why is this duplicated also both of these are autopathfind, this does not keep us at max range. do a WITHIN call once you find closest building and if within then approach.
+ts_approach:
+    ucontrol approach bx by approach_range
+    jump fire_phase always
+
 nav_fallback:
     ucontrol autoPathfind
     jump fire_phase always
@@ -246,11 +277,29 @@ nav_fallback:
 
 fire_phase:
     jump fire_at_unit notEqual atk null
+    # No radar hit — try the living cache
+    jump fire_cache notEqual atk_cache null
+    # Bug 3 fix: don't prefire at buildings while retreating (fires backward)
+    jump end equal retreating true
     jump fire_prefire equal best_found true
     jump end always
 
 fire_at_unit:
     ucontrol targetp atk 1
+    jump end always
+
+# Fire at cached unit — still alive, just out of radar range
+fire_cache:
+    sensor ded atk_cache @dead
+    jump fire_cache_clear equal ded true
+    ucontrol targetp atk_cache 1
+    jump end always
+
+fire_cache_clear:
+    set atk_cache null
+    # Fall through: don't prefire buildings while retreating
+    jump end equal retreating true
+    jump fire_prefire equal best_found true
     jump end always
 
 fire_prefire:
