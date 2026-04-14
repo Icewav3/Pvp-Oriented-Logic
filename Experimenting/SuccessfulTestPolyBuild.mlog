@@ -1,0 +1,16 @@
+ubind @gamma
+sensor px @unit @x
+sensor py @unit @y
+sensor buildX @unit @buildX
+sensor buildY @unit @buildY
+sensor decon @unit @breaking
+sensor pBuilding @unit @building
+ubind @poly
+ucontrol approach px py 3
+jump decon notEqual decon null
+sensor pbType pBuilding @building
+ucontrol build buildX buildY pbType
+end
+decon:
+ucontrol deconstruct buildX buildY
+end

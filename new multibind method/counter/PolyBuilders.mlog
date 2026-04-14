@@ -1,0 +1,156 @@
+start:
+jump main equal init 1
+set creator Icewave
+set units 4
+set lines_per_task 2
+set current 0
+# Formation half-spacing. formation_2d = 2 * formation_d (precomputed to save ops).
+set formation_d 6
+set formation_2d 12
+set init 1
+set boot 0
+
+main:
+# === PLAYER ACQUISITION (runs once, then cached) ===
+jump cached_player equal boot 1
+radar player any any distance @this 1 player
+ubind player
+sensor name @unit @name
+sensor type @unit @type
+set boot 1
+
+cached_player:
+ubind player
+jump player_alive notEqual player null
+# Player ref gone — force re-acquire next tick.
+set boot 0
+end
+
+# === PLAYER DEATH / REBIND ===
+player_alive:
+sensor dead @unit @dead
+jump read_pos notEqual dead true
+ubind type
+sensor unitname @unit @name
+jump player_alive notEqual unitname name
+
+read_pos:
+# Sample everything off the player while still bound.
+sensor px @unit @x
+sensor py @unit @y
+sensor shooting @unit @shooting
+sensor shootX @unit @shootX
+sensor shootY @unit @shootY
+sensor buildX @unit @buildX
+sensor buildY @unit @buildY
+sensor breaking @unit @breaking
+sensor pBuilding @unit @building
+# Resolve block type only if actually building.
+jump skip_btype strictEqual pBuilding null
+sensor pbType pBuilding @building
+skip_btype:
+
+booted:
+# COUNTER DISPATCH — select slot `current`.
+# Each dispatch block below MUST be exactly `lines_per_task` lines.
+# To add more slots: bump `units`, add another 2-line block, done.
+op mul skip current lines_per_task
+op add @counter @counter skip
+    set current_unit u1
+    jump checks always
+    set current_unit u2
+    jump checks always
+    set current_unit u3
+    jump checks always
+    set current_unit u4
+    jump checks always
+
+checks:
+# Null slot → go bind fresh. Dead → null the slot and defer rebind to next loop.
+jump binding strictEqual current_unit null
+ubind current_unit
+sensor dead @unit @dead
+jump clear_slot greaterThan dead 0
+jump work always
+
+work:
+# Formation offset from slot index bits:
+#   bit 0 → x sign  (xs=0→-d, xs=1→+d)  via xs*2d - d
+#   bit 1 → y sign  (ys=0→-d, ys=2→+d)  via ys*d  - d
+    op and xs current 1
+    op mul dx xs formation_2d
+    op sub dx dx formation_d
+    op and ys current 2
+    op mul dy ys formation_d
+    op sub dy dy formation_d
+    op add tx px dx
+    op add ty py dy
+    ucontrol flag @time
+    ucontrol move tx ty
+
+build:
+# Mirror player build state. Both decon and build paths fall through to `shoot`.
+    jump do_decon notEqual breaking null
+    jump shoot strictEqual pBuilding null
+    ucontrol build buildX buildY pbType 0 0
+    jump shoot always
+do_decon:
+    ucontrol deconstruct buildX buildY
+    jump shoot always
+
+shoot:
+# Player shooting → fire at their cursor. Otherwise → uradar + targetp.
+    jump shoot_cursor notEqual shooting 0
+    uradar enemy any any distance 1 1 atk
+    ucontrol targetp atk atk
+    jump advance always
+shoot_cursor:
+    ucontrol target shootX shootY 1
+    jump advance always
+
+clear_slot:
+# COUNTER DISPATCH — null the uX matching `current`.
+# Each block below MUST be exactly `lines_per_task` lines.
+op mul skip current lines_per_task
+op add @counter @counter skip
+    set u1 null
+    jump advance always
+    set u2 null
+    jump advance always
+    set u3 null
+    jump advance always
+    set u4 null
+    jump advance always
+
+binding:
+# One bind attempt per tick — non-blocking.
+ubind @poly
+sensor controlled @unit @controlled
+# Free unit (controlled==0) → bind regardless of flag.
+# Already controlled → only steal if flag==0 (convention: active processors flag their units).
+jump do_bind equal controlled 0
+sensor flag @unit @flag
+jump advance notEqual flag 0
+
+do_bind:
+ucontrol flag @time
+
+assign:
+# COUNTER DISPATCH — write @unit into the uX matching `current`.
+# Each block below MUST be exactly `lines_per_task` lines.
+op mul skip current lines_per_task
+op add @counter @counter skip
+    set u1 @unit
+    jump advance always
+    set u2 @unit
+    jump advance always
+    set u3 @unit
+    jump advance always
+    set u4 @unit
+    jump advance always
+
+advance:
+# Advance slot, wrap at `units`.
+op add current current 1
+op mod current current units
+end
