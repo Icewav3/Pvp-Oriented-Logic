@@ -1,5 +1,5 @@
 getlink link n
-
+#TODO change to opp adds to count total amount of mats needed. reset value once link number exceeds @links
 sensor factoryType link @type
 print result
 printflush message1
@@ -11,7 +11,17 @@ jump erekir_t2tank strictEqual factoryType "tank-refabricator"
 jump erekir_ship strictEqual factoryType "ship-fabricator"
 jump erekir_t2ship strictEqual factoryType "ship-refabricator"
 jump erekir_t3fab strictEqual factoryType "prime-refabricator"
-jump serpulo_
+#serpulo bit more tricky, factory type is shown below but to determine what unit a sensor for @config must be done for the t1 factory.
+#naval-factory 
+jump serpulo_risso
+jump serpulo_retusa
+#ground-factory 
+jump serpulo_crawler
+jump serpulo_dagger
+jump serpulo_nova
+#air-factory 
+jump serpulo_flare
+jump serpulo_mono
 
 erekir_mech:
     set BerylliumNeeded  50
@@ -31,10 +41,44 @@ erekir_ship:
 erekir_t2ship:
     set TungstenNeeded 40
     set SiliconNeeded 60
-
-
-
-
 erekir_t3fab:
     set ThoriumNeeded 80
     set SiliconNeeded 100
+#Serpulo
+serpulo_risso:
+    set SiliconNeeded 40
+    set MetaglassNeeded 70
+serpulo_retusa:
+    set SiliconNeeded 30
+    set TitaniumNeeded 40
+serpulo_crawler:
+    set SiliconNeeded 16
+    set CoalNeeded 20
+serpulo_dagger:
+    set SiliconNeeded 20
+    set LeadNeeded 20
+serpulo_nova:
+    set SiliconNeeded 60
+    set LeadNeeded 40
+    set TitaniumNeeded 40
+serpulo_flare:
+    set SiliconNeeded 30
+serpulo_mono:
+    set SiliconNeeded 60
+    set LeadNeeded 30
+serpulo_t2:
+    set SiliconNeeded 80
+    set GraphiteNeeded 80
+serpulo_t3:
+    set SiliconNeeded 260
+    set TitaniumNeeded 160
+    set MetaglassNeeded 80
+serpulo_t4:
+    set SiliconNeeded 1700
+    set TitaniumNeeded 1500
+    set PlastaniumNeeded 1300
+serpulo_t5:
+    set SiliconNeeded 2000
+    set PlastaniumNeeded 1200
+    set Surge-alloyNeeded 1000
+    set Phase-fabricNeeded 700

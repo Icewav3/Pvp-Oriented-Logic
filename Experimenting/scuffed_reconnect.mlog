@@ -1,0 +1,63 @@
+sensor net mender1 @powerNetIn
+jump connected notEqual net 0
+disconnected:
+    sensor conDead connector_unit @dead
+    jump have_unit strictEqual conDead false
+    set gen null
+    set genFound null
+    bind_loop:
+        ubind @poly
+    check_unit:
+        sensor flag @unit @flag
+        sensor ctrl @unit @controlled
+        jump claim_unit equal ctrl 0
+        end
+claim_unit:
+    ucontrol flag @time
+    set connector_unit @unit
+have_unit:
+    ubind connector_unit
+    sensor ded connector_unit @dead
+    jump disconnected strictEqual ded true
+    sensor genDead gen @dead #TODO fix so if generator is dead we properly null its ref to prevent getting stuck
+    jump 
+    jump place_step notEqual genFound null
+    ucontrol move @thisx @thisy
+    ucontrol within @thisx @thisy 0.5 here
+    jump end_cycle notEqual here true
+    ulocate building generator false @copper genx geny genFound gen
+    sensor genNet gen @powerNetIn
+    jump setup_path notEqual genNet 0
+    end
+setup_path:
+    op sub dx genx @thisx
+    op sub dy geny @thisy
+    op len dist dx dy
+    op div stepx dx dist
+    op mul stepx stepx 5
+    op div stepy dy dist
+    op mul stepy stepy 5
+    set cx @thisx
+    set cy @thisy
+place_step:
+    ucontrol move cx cy 0 0 0
+    ucontrol within cx cy 0.5 arrived 0
+    jump end_cycle notEqual arrived true
+    ucontrol build cx cy @power-node 0 0
+    op add cx cx stepx
+    op add cy cy stepy
+    op sub remx genx cx
+    op sub remy geny cy
+    op len remaining remx remy
+    jump end_cycle greaterThan remaining 2
+    ucontrol move genx geny 0 0 0
+    ucontrol within genx geny 0.5 arrived 0
+    jump end_cycle notEqual arrived true
+    ucontrol build genx geny @power-node 0 0
+end_cycle:
+    end
+connected:
+    ucontrol flag 0
+    set connector_unit null
+    set genFound null
+    end

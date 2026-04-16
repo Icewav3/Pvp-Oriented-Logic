@@ -1,0 +1,10 @@
+bind_loop:
+    ubind unit_type
+check_unit:
+    sensor flag @unit @flag
+    sensor ctrl @unit @controlled
+    jump claim_unit equal ctrl 0
+    end
+
+claim_unit:
+    ucontrol flag [insert flag]
