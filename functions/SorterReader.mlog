@@ -1,0 +1,43 @@
+
+sorterConfigure:
+set prevconfig config
+sensor config sorter1 @config
+jump update_selection notEqual config prevconfig
+
+#MAIN CODE START
+
+
+
+#MAIN CODE END
+end
+
+#Warning this should be done at bottom of the code in order to avoid jumping to lines that are used when hitting undefined behavoir
+#Index can now be directly used to manipulate @counter
+update_selection:
+#Get int associated with the resource
+sensor index config @id #starts at 0
+#value = number of non comment lines:
+set value 4
+op mul increment value index
+op add @counter @counter increment
+#Below is nothing other than example code
+set selection "selection 1"
+print selection
+printflush message1
+end
+
+set selection "selection 2"
+print selection
+printflush message1
+end
+
+set selection "selection 3"
+print selection
+printflush message1
+end
+
+set selection "selection 4"
+print selection
+printflush message1
+end
+

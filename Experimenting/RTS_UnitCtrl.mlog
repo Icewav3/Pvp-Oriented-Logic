@@ -1,0 +1,49 @@
+ubind @scepter
+jump 10 notEqual lhp null
+sensor mhp @unit @maxHealth
+op mul lhp mhp 0.85
+print "[orange]RTS style unit control [green]V1.0[white]"
+print "\n"
+print "binds low HP units to repair then returns them to prior positions"
+print "\n"
+print "Created by: [cyan]Ice[blue]wave"
+printflush message1
+sensor f @unit @flag
+sensor hp @unit @health
+jump 24 notEqual f 0
+jump 16 lessThanEq hp lhp
+ucontrol unbind temp 0 0 0 0
+end
+sensor ux @unit @x
+sensor uy @unit @y
+op shl temp ux 16
+op or temp temp uy
+op mul temp temp -1
+ucontrol flag temp 0 0 0 0
+ucontrol unbind temp 0 0 0 0
+end
+jump 39 greaterThan f 0
+sensor hp @unit @health
+jump 36 greaterThanEq hp mhp
+ulocate building repair false @copper repx repy rep b
+uradar enemy any any distance 0 1 enemy
+ucontrol targetp enemy enemy 0 0 0
+jump 33 equal rep false
+ucontrol pathfind repx repy 3 0 0
+end
+ulocate building core false @copper cx cy c b
+ucontrol pathfind cx cy 3 0 0
+end
+op mul f f -1
+ucontrol flag f 0 0 0 0
+end
+op shr tx f 16
+op and ty f 65535
+uradar enemy any any distance 0 1 enemy
+ucontrol targetp enemy enemy 0 0 0
+ucontrol pathfind tx ty 3 0 0
+ucontrol within tx ty 5 arrived 0
+jump 48 notEqual arrived true
+ucontrol flag 0 0 0 0 0
+ucontrol unbind 0 0 0 0 0
+end

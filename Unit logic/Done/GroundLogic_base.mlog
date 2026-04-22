@@ -12,7 +12,7 @@ jump bind_loop notEqual init null
 initialize:
 set lowhp -1
 set fleehp -1
-set rangeadjust 3
+set rangeadjust 1
 set cache_time 500
 set init true
 
