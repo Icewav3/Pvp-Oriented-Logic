@@ -1,4 +1,5 @@
-"make sync with other mining logic"
+#added bery
+#doesnt sync yet lol
 jump on notEqual seconds false
 set seconds 10
 op mul interval seconds 1000
@@ -110,12 +111,15 @@ start:
         mapchecktitan:
             ulocate ore factory true @titanium outx outy found
             set maptitan found
-        mapcheckthor:
-            ulocate ore factory true @thorium outx outy found
-            set mapthor found
+        mapcheckberyllium:
+            ulocate ore factory true @beryllium outx outy found
+            set mapbery found
         mapcheckscrap:
             ulocate ore factory true @scrap outx outy found
             set mapscrap found
+        mapcheckthor:
+            ulocate ore factory true @thorium outx outy found
+            set mapthor found
     core:
         ucontrol boost 1 0 0 0 0
         ucontrol move @thisx @thisy 0 0 0
@@ -134,6 +138,7 @@ lowres:
     sensor sand core @sand
     sensor coal core @coal
     sensor titan core @titanium
+    sensor bery core @beryllium
     sensor thor core @thorium
     sensor item_amount core last
     checkcopper:
@@ -160,11 +165,17 @@ lowres:
         set item @coal
         set item_amount coal
     checktitan:
-        jump checkthor equal maptitan false
+        jump checkbery equal maptitan false
         jump mine equal maxmine @coal
-        jump checkthor lessThan item_amount titan
+        jump checkbery lessThan item_amount titan
         set item @titanium
         set item_amount titanium
+    checkbery:
+        jump checkthor equal mapbery false
+        jump mine equal maxmine @coal
+        jump checkthor lessThan item_amount bery
+        set item @beryllium
+        set item_amount beryllium
     checkthor:
         jump checkscrap equal mapthor false
         jump mine lessThan item_amount thor

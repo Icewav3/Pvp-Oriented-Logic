@@ -124,7 +124,7 @@ op add @counter @counter skip
 
 binding:
 # One bind attempt per tick — non-blocking.
-ubind @poly
+ubind @quad
 sensor controlled @unit @controlled
 # Free unit (controlled==0) → bind regardless of flag.
 # Already controlled → only steal if flag==0 (convention: active processors flag their units).

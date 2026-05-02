@@ -97,7 +97,7 @@ end
 
 # === SHOOTING — aggressive chase toward cursor ===
 shooting_chase:
-ucontrol approach x y 3 0 0
+ucontrol pathfind x y
 ucontrol boost 0 y 0 0 0
 sensor ux @unit @x
 sensor uy @unit @y
@@ -112,14 +112,14 @@ end
 heal:
 ulocate building repair false @copper rx ry found building
 ucontrol boost 1 y 0 0 0
-ucontrol approach rx ry 3 0 0
+ucontrol pathfind rx ry
 uradar enemy any any distance 0 1 atk
 ucontrol targetp atk atk 0 0 0
 end
 
 # === DISABLED — sit at core, still fight if enemies nearby ===
 at_core_disabled:
-ucontrol approach cx cy 3 0 0
+ucontrol pathfind cx cy
 uradar enemy any any distance 0 1 atk
 jump no_enemy equal atk null
 ucontrol targetp atk atk 0 0 0

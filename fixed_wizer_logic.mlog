@@ -1,0 +1,399 @@
+set creator "[SG] Визя and Icewave#0394"
+set attempt_amount 73
+set unit_amount 8
+set time_between_bind 3000
+op rand flag 100000 b
+op add flag flag 1000
+op ceil flag flag b
+sensor powernet reconstructor1 @powerNetStored
+jump 173 lessThan powernet 4000
+op sub timer @time time_between_bind
+jump 207 greaterThan last_time timer
+sensor timescale reconstructor2 @timescale
+sensor choice sorter1 @config
+jump 173 equal choice false
+jump 26 equal prev_choice choice
+set prev_choice choice
+set unit_type @flare
+jump 173 equal choice @copper
+set unit_type @mono
+jump 173 equal choice @lead
+set unit_type @poly
+jump 173 equal choice @metaglass
+set unit_type @atrax
+jump 173 equal choice @graphite
+set unit_type false
+jump 173 always x false
+sensor unit_dead unit1 @dead
+jump 32 notEqual unit_dead 0
+sensor unit_flag unit1 @flag
+jump 32 notEqual flag unit_flag
+jump 44 greaterThan unit_amount 1
+jump 205 always x false
+set attempt 0
+ubind unit_type
+op add attempt attempt 1
+jump 205 greaterThan attempt attempt_amount
+sensor controller @unit @controller
+jump 40 equal controller @unit
+sensor unit_flag @unit @flag
+jump 33 greaterThan unit_flag 0
+set unit1 @unit
+ucontrol flag flag 0 0 0 0
+jump 44 greaterThan unit_amount 1
+jump 205 always x false
+sensor unit_dead unit2 @dead
+jump 50 notEqual unit_dead 0
+sensor unit_flag unit2 @flag
+jump 50 notEqual flag unit_flag
+jump 62 greaterThan unit_amount 2
+jump 205 always x false
+set attempt 0
+ubind unit_type
+op add attempt attempt 1
+jump 205 greaterThan attempt attempt_amount
+sensor controller @unit @controller
+jump 58 equal controller @unit
+sensor unit_flag @unit @flag
+jump 51 greaterThan unit_flag 0
+set unit2 @unit
+ucontrol flag flag 0 0 0 0
+jump 62 greaterThan unit_amount 2
+jump 205 always x false
+sensor unit_dead unit3 @dead
+jump 68 notEqual unit_dead 0
+sensor unit_flag unit3 @flag
+jump 68 notEqual flag unit_flag
+jump 80 greaterThan unit_amount 3
+jump 205 always x false
+set attempt 0
+ubind unit_type
+op add attempt attempt 1
+jump 205 greaterThan attempt attempt_amount
+sensor controller @unit @controller
+jump 76 equal controller @unit
+sensor unit_flag @unit @flag
+jump 69 greaterThan unit_flag 0
+set unit3 @unit
+ucontrol flag flag 0 0 0 0
+jump 80 greaterThan unit_amount 3
+jump 205 always x false
+jump 185 lessThan timescale 1.4
+sensor unit_dead unit4 @dead
+jump 87 notEqual unit_dead 0
+sensor unit_flag unit4 @flag
+jump 87 notEqual flag unit_flag
+jump 99 greaterThan unit_amount 4
+jump 205 always x false
+set attempt 0
+ubind unit_type
+op add attempt attempt 1
+jump 205 greaterThan attempt attempt_amount
+sensor controller @unit @controller
+jump 95 equal controller @unit
+sensor unit_flag @unit @flag
+jump 88 greaterThan unit_flag 0
+set unit4 @unit
+ucontrol flag flag 0 0 0 0
+jump 99 greaterThan unit_amount 4
+jump 205 always x false
+sensor unit_dead unit5 @dead
+jump 105 notEqual unit_dead 0
+sensor unit_flag unit5 @flag
+jump 105 notEqual flag unit_flag
+jump 117 greaterThan unit_amount 5
+jump 205 always x false
+set attempt 0
+ubind unit_type
+op add attempt attempt 1
+jump 205 greaterThan attempt attempt_amount
+sensor controller @unit @controller
+jump 113 equal controller @unit
+sensor unit_flag @unit @flag
+jump 106 greaterThan unit_flag 0
+set unit5 @unit
+ucontrol flag flag 0 0 0 0
+jump 117 greaterThan unit_amount 5
+jump 205 always x false
+jump 193 lessThan timescale 2.15
+sensor unit_dead unit6 @dead
+jump 124 notEqual unit_dead 0
+sensor unit_flag unit6 @flag
+jump 124 notEqual flag unit_flag
+jump 136 greaterThan unit_amount 6
+jump 205 always x false
+set attempt 0
+ubind unit_type
+op add attempt attempt 1
+jump 205 greaterThan attempt attempt_amount
+sensor controller @unit @controller
+jump 132 equal controller @unit
+sensor unit_flag @unit @flag
+jump 125 greaterThan unit_flag 0
+set unit6 @unit
+ucontrol flag flag 0 0 0 0
+jump 136 greaterThan unit_amount 6
+jump 205 always x false
+sensor unit_dead unit7 @dead
+jump 142 notEqual unit_dead 0
+sensor unit_flag unit7 @flag
+jump 142 notEqual flag unit_flag
+jump 154 greaterThan unit_amount 7
+jump 205 always x false
+set attempt 0
+ubind unit_type
+op add attempt attempt 1
+jump 205 greaterThan attempt attempt_amount
+sensor controller @unit @controller
+jump 150 equal controller @unit
+sensor unit_flag @unit @flag
+jump 143 greaterThan unit_flag 0
+set unit7 @unit
+ucontrol flag flag 0 0 0 0
+jump 154 greaterThan unit_amount 7
+jump 205 always x false
+jump 201 lessThan timescale 3
+sensor unit_dead unit8 @dead
+jump 161 notEqual unit_dead 0
+sensor unit_flag unit8 @flag
+jump 161 notEqual flag unit_flag
+noop
+jump 205 always x false
+set attempt 0
+ubind unit_type
+op add attempt attempt 1
+jump 205 greaterThan attempt attempt_amount
+sensor controller @unit @controller
+jump 169 equal controller @unit
+sensor unit_flag @unit @flag
+jump 162 greaterThan unit_flag 0
+set unit8 @unit
+ucontrol flag flag 0 0 0 0
+noop
+jump 205 always x false
+ubind unit1
+jump 205 equal @unit 0
+ucontrol flag 0 0 0 0 0
+set unit1 false
+ubind unit2
+jump 205 equal @unit 0
+ucontrol flag 0 0 0 0 0
+set unit2 false
+ubind unit3
+jump 205 equal @unit 0
+ucontrol flag 0 0 0 0 0
+set unit3 false
+ubind unit4
+jump 205 equal @unit 0
+ucontrol flag 0 0 0 0 0
+set unit4 false
+ubind unit5
+jump 205 equal @unit 0
+ucontrol flag 0 0 0 0 0
+set unit5 false
+ubind unit6
+jump 205 equal @unit 0
+ucontrol flag 0 0 0 0 0
+set unit6 false
+ubind unit7
+jump 205 equal @unit 0
+ucontrol flag 0 0 0 0 0
+set unit7 false
+ubind unit8
+jump 205 equal @unit 0
+ucontrol flag 0 0 0 0 0
+set unit8 false
+set last_time @time
+jump 207 always x false
+sensor total_graph reconstructor1 @graphite
+sensor total_glass reconstructor2 @metaglass
+sensor total_titanium reconstructor2 @titanium
+sensor factory1_config factory1 @config
+jump 284 equal factory1_config @flare
+jump 214 notEqual factory1_config @mono
+jump 224 always x false
+jump 216 notEqual factory1_config @dagger
+jump 232 always x false
+jump 218 notEqual factory1_config @nova
+jump 238 always x false
+jump 220 notEqual factory1_config @crawler
+jump 254 always x false
+jump 222 notEqual factory1_config @retusa
+jump 260 always x false
+jump 284 notEqual factory1_config @risso
+jump 276 always x false
+sensor lead_in_first_factory factory1 @lead
+sensor lead_in_second_factory factory2 @lead
+op add total_lead lead_in_first_factory lead_in_second_factory
+jump 284 greaterThanEq total_lead 60
+set item1 @lead
+set item2 @graphite
+set item3 @titanium
+jump 303 always x false
+sensor total_lead factory1 @lead
+jump 284 greaterThanEq total_lead 40
+set item1 @lead
+set item2 @graphite
+set item3 @titanium
+jump 303 always x false
+sensor lead_in_first_factory factory1 @lead
+sensor titanium_in_first_factory factory1 @titanium
+sensor lead_in_second_factory factory2 @lead
+sensor titanium_in_second_factory factory2 @titanium
+op add total_lead lead_in_first_factory lead_in_second_factory
+op add total_titanium titanium_in_first_factory titanium_in_second_factory
+jump 249 greaterThanEq total_lead 80
+set item1 @lead
+set item2 @graphite
+set item3 @metaglass
+jump 303 always x false
+jump 284 greaterThanEq total_titanium 80
+set item1 @titanium
+set item2 @graphite
+set item3 @metaglass
+jump 303 always x false
+sensor total_coal factory1 @coal
+jump 284 greaterThanEq total_coal 40
+set item1 @coal
+set item2 @graphite
+set item3 @titanium
+jump 303 always x false
+sensor metaglass_in_first_factory factory1 @metaglass
+sensor titanium_in_first_factory factory1 @titanium
+sensor metaglass_in_second_factory factory2 @metaglass
+sensor titanium_in_second_factory factory2 @titanium
+op add total_metaglass metaglass_in_first_factory metaglass_in_second_factory
+op add total_titanium titanium_in_first_factory titanium_in_second_factory
+jump 271 greaterThanEq total_metaglass 140
+set item1 @metaglass
+set item2 @titanium
+set item3 @silicon
+jump 303 always x false
+jump 284 greaterThanEq total_titanium 80
+set item1 @titanium
+set item2 @metaglass
+set item3 @silicon
+jump 303 always x false
+sensor metaglass_in_first_factory factory1 @metaglass
+sensor metaglass_in_second_factory factory2 @metaglass
+op add total_metaglass metaglass_in_first_factory metaglass_in_second_factory
+jump 284 greaterThanEq total_metaglass 140
+set item1 @metaglass
+set item2 @graphite
+set item3 @titanium
+jump 303 always x false
+jump 289 greaterThanEq total_graph 80
+set item1 @graphite
+set item2 @titanium
+set item3 @metaglass
+jump 303 always x false
+jump 294 greaterThanEq total_glass 80
+set item1 @metaglass
+set item2 @titanium
+set item3 @silicon
+jump 303 always x false
+jump 299 greaterThanEq total_titanium 160
+set item1 @titanium
+set item2 @silicon
+set item3 @silicon
+jump 303 always x false
+set item1 @silicon
+set item2 @silicon
+set item3 @silicon
+jump 303 always x false
+ubind unit1
+ulocate building core false i_love_you corex corey coref core
+sensor item_in_unit @unit @firstItem
+jump 311 equal item_in_unit @silicon
+ucontrol move corex corey 0 0 0
+ucontrol itemTake core @silicon 999 0 0
+ucontrol itemDrop core 999 0 0 0
+jump 316 always x false
+ucontrol move @thisx @thisy 0 0 0
+ucontrol itemDrop factory1 999 0 0 0
+ucontrol itemDrop factory2 999 0 0 0
+ucontrol itemDrop reconstructor1 999 0 0 0
+ucontrol itemDrop reconstructor2 999 0 0 0
+ubind unit2
+sensor item_in_unit @unit @firstItem
+jump 325 equal item_in_unit item1
+jump 325 equal item_in_unit item2
+jump 325 equal item_in_unit item3
+ucontrol move corex corey 0 0 0
+ucontrol itemTake core item1 999 0 0
+ucontrol itemDrop core 999 0 0 0
+jump 330 always x false
+ucontrol move @thisx @thisy 0 0 0
+ucontrol itemDrop factory1 999 0 0 0
+ucontrol itemDrop factory2 999 0 0 0
+ucontrol itemDrop reconstructor1 999 0 0 0
+ucontrol itemDrop reconstructor2 999 0 0 0
+ubind unit3
+sensor item_in_unit @unit @firstItem
+jump 339 equal item_in_unit item1
+jump 339 equal item_in_unit item2
+jump 339 equal item_in_unit item3
+ucontrol move corex corey 0 0 0
+ucontrol itemTake core item1 999 0 0
+ucontrol itemDrop core 999 0 0 0
+jump 344 always x false
+ucontrol move @thisx @thisy 0 0 0
+ucontrol itemDrop factory1 999 0 0 0
+ucontrol itemDrop factory2 999 0 0 0
+ucontrol itemDrop reconstructor1 999 0 0 0
+ucontrol itemDrop reconstructor2 999 0 0 0
+ubind unit4
+sensor item_in_unit @unit @firstItem
+jump 351 equal item_in_unit @silicon
+ucontrol move corex corey 0 0 0
+ucontrol itemTake core @silicon 999 0 0
+ucontrol itemDrop core 999 0 0 0
+jump 356 always x false
+ucontrol move @thisx @thisy 0 0 0
+ucontrol itemDrop reconstructor2 999 0 0 0
+ucontrol itemDrop reconstructor1 999 0 0 0
+ucontrol itemDrop factory1 999 0 0 0
+ucontrol itemDrop factory2 999 0 0 0
+ubind unit5
+sensor item_in_unit @unit @firstItem
+jump 365 equal item_in_unit item1
+jump 365 equal item_in_unit item2
+jump 365 equal item_in_unit item3
+ucontrol move corex corey 0 0 0
+ucontrol itemTake core item2 999 0 0
+ucontrol itemDrop core 999 0 0 0
+jump 370 always x false
+ucontrol move @thisx @thisy 0 0 0
+ucontrol itemDrop reconstructor1 999 0 0 0
+ucontrol itemDrop reconstructor2 999 0 0 0
+ucontrol itemDrop factory1 999 0 0 0
+ucontrol itemDrop factory2 999 0 0 0
+ubind unit6
+sensor item_in_unit @unit @firstItem
+jump 377 equal item_in_unit @silicon
+ucontrol move corex corey 0 0 0
+ucontrol itemTake core @silicon 999 0 0
+ucontrol itemDrop core 999 0 0 0
+jump 382 always x false
+ucontrol move @thisx @thisy 0 0 0
+ucontrol itemDrop reconstructor2 999 0 0 0
+ucontrol itemDrop reconstructor1 999 0 0 0
+ucontrol itemDrop factory1 999 0 0 0
+ucontrol itemDrop factory2 999 0 0 0
+ubind unit7
+sensor item_in_unit @unit @firstItem
+jump 391 equal item_in_unit item1
+jump 391 equal item_in_unit item2
+jump 391 equal item_in_unit item3
+ucontrol move corex corey 0 0 0
+ucontrol itemTake core item2 999 0 0
+ucontrol itemDrop core 999 0 0 0
+jump 396 always x false
+ucontrol move @thisx @thisy 0 0 0
+ucontrol itemDrop reconstructor1 999 0 0 0
+ucontrol itemDrop reconstructor2 999 0 0 0
+ucontrol itemDrop factory1 999 0 0 0
+ucontrol itemDrop factory2 999 0 0 0
+ubind unit8
+ucontrol move @thisx @thisy 0 0 0
+jump 7 always x false

@@ -21,7 +21,7 @@ ubind type                             # player dead — find their ghost unit b
 sensor unitname @unit @name
 jump player_alive notEqual unitname name  # loop until matching name found
 
-# === READ PLAYER CURSOR ===
+# === READ PLAYER CURSOR (or whatever other info for controlling units) ===
 sense_cursor:
 sensor x @unit @shootX
 sensor y @unit @shootY

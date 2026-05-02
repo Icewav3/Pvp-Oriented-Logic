@@ -42,7 +42,7 @@ jump claim equal ctrl 0                # uncontrolled — claim it
 jump bind_utype notEqual flag 0        # flagged by someone else — skip, next unit
 
 claim:
-ucontrol flag 0 y 0 0 0               # claim unit
+ucontrol flag 0               # claim unit
 
 # === UNIT STAT CACHE (once per unit) ===
 jump unit_ready equal boot2 1          # already cached stats
