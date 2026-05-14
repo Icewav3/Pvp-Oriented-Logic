@@ -1,27 +1,30 @@
     start:
     jump booted notEqual init null
     set creator Icewave
-
-
+    set unit_type @flare
+    set current -1
+    set init true
 
     booted:
     op add current current 1
     #All units must be set in 2 lines
-    
-    end
+    op mul offset current 2
+    op add @counter @counter offset
         #Define units here
-        u1:
+        #u1:
         set current_unit u1
         jump checks always
 
-        u2:
+        #u2:
         set current_unit u2
         jump checks always
 
-        u3:
+        #u3:
         set current_unit u3
         jump checks always
 
+        #reset index
+        set current -1
         #Make sure unit is fine before proceed to work
     checks:
         ubind current_unit
@@ -36,9 +39,11 @@
         ubind unit_type
         sensor flag @unit @flag
         sensor controlled @unit @controlled
+        jump found equal flag 0
         jump found equal controlled 0
-
+        end
         found:
+            ucontrol flag @time
             set current_unit @unit
                 u1set:
                     jump u2set notEqual u1 null
@@ -51,3 +56,5 @@
                 u3set:
                     set u3 @unit
                     end
+end:
+end

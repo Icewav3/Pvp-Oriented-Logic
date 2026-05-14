@@ -1,0 +1,132 @@
+jump 26 equal bootseq 1
+set percent 0.8
+set utype @zenith
+set bootseq 1
+set rangeadjust -1
+ubind utype
+jump 5 strictEqual @unit null
+sensor range @unit @range
+op add range range rangeadjust
+op mul engage range 0.9
+op mul shit range 0.95
+sensor mhp @unit @maxHealth
+op mul low percent mhp
+sensor ammocap @unit @ammoCapacity
+op mul lowammo 0.25 ammocap
+sensor cap @unit @itemCapacity
+printflush message1
+print "[red]"
+print utype
+print " attack logic v3.3[white]"
+print "\n"
+print "By: [cyan]Ice[blue]wave[sky]#0394"
+print "\n"
+print "[white]Button is to enable or "
+print "disable the script"
+printflush message1
+sensor mode sorter1 @config
+jump 32 strictEqual mode null
+jump 30 strictEqual mode @blast-compound
+jump 34 always flag -1
+set bait true
+jump 35 always flag -1
+set on 0
+jump 35 always flag -1
+set on 1
+ubind utype
+sensor ctrl @unit @controlled
+sensor flag @unit @flag
+jump 86 equal flag -1
+jump 76 equal flag 1
+jump 84 equal ctrl 0
+jump 35 notEqual flag 0
+sensor blast @unit @blast-compound
+sensor pyra @unit @pyratite
+sensor spore @unit @spore-pod
+jump 50 strictEqual blast cap
+jump 50 strictEqual spore cap
+jump 50 strictEqual pyra cap
+set r range
+jump 52 always flag 0
+set r 1
+jump 57 always flag 0
+sensor hp @unit @health
+sensor flag @unit @flag
+sensor ammo @unit @ammo
+jump 86 lessThan hp low
+jump 76 lessThan ammo lowammo
+jump 70 equal on 0
+jump 125 equal r 1
+uradar enemy any any distance 0 1 unit
+jump 97 strictEqual unit null
+sensor x unit @x
+sensor y unit @y
+ucontrol targetp unit 1 0 0 0
+ucontrol within tx ty shit fuck 0
+jump 68 equal fuck true
+ucontrol approach x y engage 0 0
+end
+ucontrol approach tx ty r 0 0
+end
+jump 93 notEqual hp mhp
+jump 82 notEqual ammo ammocap
+ucontrol approach @thisx @thisy range 0 0
+uradar enemy any any distance 0 1 unit
+ucontrol targetp unit unit 0 0 0
+end
+noop
+sensor ammo @unit @ammo
+uradar enemy any any distance 0 1 unit
+ucontrol targetp unit 1 0 0 0
+ucontrol move x y 0 0 0
+jump 84 notEqual ammo 0
+ucontrol flag 1 y 0 0 0
+end
+ucontrol flag 0 y 0 0 0
+end
+ulocate building repair false @copper x y found building
+sensor hp @unit @health
+ucontrol move x y 0 0 0
+uradar enemy any any distance 0 1 unit
+ucontrol targetp unit 1 0 0 0
+ucontrol move x y 0 0 0
+jump 95 equal hp mhp
+ucontrol flag -1 y 0 0 0
+end
+ucontrol flag 0 y 0 0 0
+end
+ulocate building turret true @copper tx ty found turret
+sensor ux @unit @x
+sensor uy @unit @y
+op add sx ux tx
+op div sx sx 2
+op add sy uy ty
+op div sy sy 2
+jump 115 equal found false
+jump 109 notEqual bait true
+ucontrol getBlock tx ty null t 0
+sensor sh t @shooting
+jump 112 equal sh true
+ucontrol approach tx ty r 0 0
+ucontrol target sx sy 1 0 0
+end
+ucontrol approach tx ty 50 0 0
+ucontrol target sx sy 1 0 0
+end
+ulocate building factory true @copper x y found building
+jump 120 equal found false
+ucontrol approach x y r 0 0
+ucontrol target x y 1 0 0
+end
+ulocate building generator true @copper x y found building
+jump 125 equal found false
+ucontrol approach x y r 0 0
+ucontrol target x y 1 0 0
+end
+ulocate building core true @copper x y found building
+jump 130 equal found false
+ucontrol approach x y r 0 0
+ucontrol target x y 1 0 0
+end
+ucontrol pathfind 0 0 0 0 0
+end

@@ -1,0 +1,117 @@
+jump 23 equal bootseq 1
+set percent 0.85
+set utype @eclipse
+set bootseq 1
+ubind utype
+jump 4 strictEqual @unit null
+sensor range @unit @range
+op add range range rangeadjust
+op mul engage range 0.9
+op mul shit range 0.95
+sensor mhp @unit @maxHealth
+op mul low percent mhp
+sensor cap @unit @itemCapacity
+printflush message1
+print "[red]"
+print utype
+print " attack logic v3.5[white]"
+print "\n"
+print "By: [cyan]Ice[blue]wave[sky]#0394"
+print "\n"
+print "[white]sorter = config"
+printflush message1
+sensor mode sorter1 @config
+jump 29 strictEqual mode null
+jump 27 strictEqual mode @blast-compound
+jump 31 always flag -1
+set bait true
+jump 32 always flag -1
+set on 0
+jump 32 always flag -1
+set on 1
+ubind utype
+sensor ctrl @unit @controlled
+sensor flag @unit @flag
+jump 72 equal flag -1
+jump -1 equal flag 1
+jump 70 equal ctrl 0
+jump 32 notEqual flag 0
+sensor blast @unit @blast-compound
+sensor pyra @unit @pyratite
+sensor spore @unit @spore-pod
+jump 47 strictEqual blast cap
+jump 47 strictEqual spore cap
+jump 47 strictEqual pyra cap
+set r range
+jump 49 always flag 0
+set r 1
+jump 52 always flag 0
+sensor hp @unit @health
+sensor flag @unit @flag
+jump 72 lessThan hp low
+jump 65 equal on 0
+jump 111 equal r 1
+uradar enemy any any distance 0 1 unit
+jump 83 strictEqual unit null
+sensor x unit @x
+sensor y unit @y
+ucontrol targetp unit 1 0 0 0
+ucontrol within tx ty shit fuck 0
+jump 63 equal fuck true
+ucontrol approach x y engage 0 0
+end
+ucontrol approach tx ty r 0 0
+end
+jump 79 notEqual hp mhp
+ucontrol approach @thisx @thisy range 0 0
+uradar enemy any any distance 0 1 unit
+ucontrol targetp unit unit 0 0 0
+end
+ucontrol flag 0 y 0 0 0
+end
+ulocate building repair false @copper x y found building
+sensor hp @unit @health
+ucontrol move x y 0 0 0
+uradar enemy any any distance 0 1 unit
+ucontrol targetp unit 1 0 0 0
+ucontrol move x y 0 0 0
+jump 81 equal hp mhp
+ucontrol flag -1 y 0 0 0
+end
+ucontrol flag 0 y 0 0 0
+end
+ulocate building turret true @copper tx ty found turret
+sensor ux @unit @x
+sensor uy @unit @y
+op add sx ux tx
+op div sx sx 2
+op add sy uy ty
+op div sy sy 2
+jump 101 equal found false
+jump 95 notEqual bait true
+ucontrol getBlock tx ty null t 0
+sensor sh t @shooting
+jump 98 equal sh true
+ucontrol approach tx ty r 0 0
+ucontrol target sx sy 1 0 0
+end
+ucontrol approach tx ty 50 0 0
+ucontrol target sx sy 1 0 0
+end
+ulocate building factory true @copper x y found building
+jump 106 equal found false
+ucontrol approach x y r 0 0
+ucontrol target x y 1 0 0
+end
+ulocate building generator true @copper x y found building
+jump 111 equal found false
+ucontrol approach x y r 0 0
+ucontrol target x y 1 0 0
+end
+ulocate building core true @copper x y found building
+jump 116 equal found false
+ucontrol approach x y r 0 0
+ucontrol target x y 1 0 0
+end
+ucontrol pathfind 0 0 0 0 0
+end

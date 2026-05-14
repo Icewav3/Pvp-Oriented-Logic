@@ -1,0 +1,172 @@
+jump 3 notEqual seconds false
+set seconds 10
+op mul interval seconds 1000
+jump 3 equal sorter1 null
+sensor config sorter1 @config
+jump 3 strictEqual config null
+sensor config sorter1 @config
+jump 10 equal u_type null
+jump 10 notEqual config prevconfig
+jump 83 always x false
+jump 20 equal config @copper
+jump 29 equal config @lead
+jump 38 equal config @graphite
+jump 47 equal config @sand
+jump 56 equal config @coal
+jump 65 equal config @titanium
+jump 74 equal config @thorium
+print "None"
+printflush message1
+jump 4 always x false
+set u_type @pulsar
+set icon "Pulsar"
+set u_cap 40
+set ground true
+set maxmine @coal
+printflush message1
+print icon
+printflush message1
+jump 83 always x false
+set u_type @mono
+set icon "Mono"
+set u_cap 20
+set ground false
+set maxmine @sand
+printflush message1
+print icon
+printflush message1
+jump 83 always x false
+set u_type @poly
+set icon "Poly"
+set u_cap 30
+set ground false
+set maxmine @coal
+printflush message1
+print icon
+printflush message1
+jump 83 always x false
+set u_type @mega
+set icon "Mega"
+set u_cap 60
+set ground false
+set maxmine @titanium
+printflush message1
+print icon
+printflush message1
+jump 83 always x false
+set u_type @quasar
+set icon "Quasar"
+set u_cap 50
+set ground true
+set maxmine @titanium
+printflush message1
+print icon
+printflush message1
+jump 83 always x false
+set u_type @poly
+set icon "Ranked Poly"
+set u_cap 30
+set ground true
+set maxmine @titanium
+printflush message1
+print icon
+printflush message1
+jump 83 always x false
+set u_type @mega
+set icon "Ranked Mega"
+set u_cap 60
+set ground true
+set maxmine @thorium
+printflush message1
+print icon
+printflush message1
+jump 83 always x false
+ubind u_type
+jump 3 strictEqual @unit null
+sensor c @unit @controlled
+sensor f @unit @flag
+jump 89 strictEqual c 0
+jump 83 notEqual f 0
+set prevconfig config
+sensor ded core @dead
+uradar enemy any any distance 0 1 tar
+sensor mhp @unit @maxHealth
+sensor hp @unit @health
+jump 165 notEqual tar null
+jump 158 notEqual hp mhp
+ucontrol flag 0 0 0 0 0
+jump 99 strictEqual cx null
+jump 104 notEqual ded true
+ucontrol boost 1 0 0 0 0
+ucontrol move @thisx @thisy 0 0 0
+ucontrol within @thisx @thisy 3 here 0
+jump 3 notEqual here true
+ulocate building core false @copper cx cy found core
+op sub timer mining_timer @time
+jump 107 strictEqual item null
+jump 137 greaterThan timer 0
+op add mining_timer @time interval
+sensor copper core @copper
+sensor lead core @lead
+sensor sand core @sand
+sensor coal core @coal
+sensor titan core @titanium
+sensor thor core @thorium
+sensor item_amount core last
+jump 117 strictEqual last null
+jump 119 lessThan item_amount copper
+set item_amount copper
+set item @copper
+jump 122 lessThan item_amount lead
+set item @lead
+set item_amount lead
+jump 125 lessThan item_amount sand
+set item @sand
+set item_amount sand
+jump 137 equal maxmine @sand
+jump 129 lessThan item_amount coal
+set item @coal
+set item_amount coal
+jump 137 equal maxmine @coal
+jump 133 lessThan item_amount titan
+set item @titanium
+set item_amount titanium
+jump 137 equal maxmine @titanium
+jump 137 lessThan item_amount thor
+set item @thorium
+set item_amount thorium
+jump 143 strictEqual last item
+set last item
+ulocate ore core true item x y found building
+jump 143 equal found true
+op add y @thisy 1
+set x @thisx
+sensor items @unit item
+jump 153 strictEqual items u_cap
+sensor type @unit @firstItem
+sensor total @unit @totalItems
+jump 149 strictEqual total 0
+jump 153 notEqual type item
+ucontrol boost 1 0 0 0 0
+ucontrol approach x y 7 0 0
+ucontrol mine x y 0 0 0
+end
+ucontrol boost 1 0 0 0 0
+ucontrol approach cx cy 7 0 0
+ucontrol itemDrop core u_cap 0 0 0
+ucontrol mine 0 0 0 0 0
+end
+ulocate building repair false @copper repx repy found rep
+jump 97 notEqual found true
+ucontrol flag -1 1 0 0 0
+sensor rx rep @x
+sensor ry rep @y
+ucontrol approach rx ry 5 0 0
+end
+ucontrol boost 0 0 0 0 0
+ucontrol targetp tar 1 0 0 0
+sensor tarx tar @x
+sensor tary tar @y
+sensor rng @unit @range
+ucontrol approach tarx tary rng 0 0
+end

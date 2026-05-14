@@ -1,0 +1,37 @@
+ubind @flare
+sensor f @unit @flag
+sensor c @unit @controlled
+sensor u @unit @totalItems
+sensor hp @unit @health
+sensor mhp @unit @maxHealth
+
+jump unbind notEqual c 0 #this is an issue unbind doesnt unbind from this proc it does globally. Shit
+jump repair strictEqual f -1
+jump empty strictEqual f 6
+jump flag_for_repair notEqual hp mhp
+jump flag_for_empty greaterThan u 0
+jump unflag notEqual f 0
+jump end always
+
+unflag:
+    ucontrol flag 0
+unbind:
+    ucontrol unbind
+    end
+flag_for_repair:
+    ucontrol flag -1
+    end
+repair:
+    ulocate building repair false @copper rx ry f rep
+    jump unbind strictEqual rep null
+    ucontrol approach rx ry 3
+    end
+flag_for_empty:
+    ucontrol flag 6
+empty:
+    ulocate building core false @copper cx cy f core
+    ucontrol approach cx cy 3
+    ucontrol itemDrop core 9999
+end:
+end
+print "By: Icewave#0394"

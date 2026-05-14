@@ -1,5 +1,5 @@
 
-sensor net mender1 @powerNetIn
+sensor net projector1 @powerNetIn
 jump connected notEqual net 0
 
 disconnected:

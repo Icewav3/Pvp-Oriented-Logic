@@ -1,0 +1,34 @@
+    getlink link i
+    jump resetI strictEqual link null
+    op add i i 1
+    sensor e link @efficiency
+    jump notFull notEqual e 1
+    jump timing strictEqual link trackedLink
+    set trackedLink link
+    set timerStart @time
+    jump done always
+timing:
+    op sub elapsed @time timerStart
+    op div totalSec elapsed 1000
+    op floor totalSec totalSec
+    op idiv m totalSec 60
+    op mod s totalSec 60
+    print trackedLink
+    print ": "
+    print m
+    print ":"
+    jump nopad greaterThanEq s 10
+    print "0"
+nopad:
+    print s
+    print "\n"
+    printflush message1
+    jump done always
+notFull:
+    jump done notEqual link trackedLink
+    set trackedLink null
+    set timerStart null
+done:
+    end
+resetI:
+    set i 0
