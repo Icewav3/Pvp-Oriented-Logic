@@ -1,0 +1,23 @@
+    getlink link i
+    jump reset strictEqual link null
+    op add i i 1
+    radar enemy any any maxHealth link 1 unit
+    sensor m unit @maxHealth
+    jump shoot greaterThan m 220
+    radar enemy any any distance link 1 unit
+    sensor m unit @maxHealth
+    jump shoot greaterThan m 220
+    radar enemy any any health link 1 unit
+    sensor m unit @maxHealth
+    jump shoot greaterThan m 220
+    control shootp link unit 0
+    set target 0
+    end
+shoot:
+    control shootp link unit 1
+    set target 1
+    end
+    print "Icewave#0394"
+    end
+reset:
+    set i 0

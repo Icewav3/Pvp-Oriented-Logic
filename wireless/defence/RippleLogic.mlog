@@ -1,0 +1,176 @@
+boot:
+    jump start notEqual boot_seq null
+    set boot_seq 1
+    set ripple_range 41
+    op mul ripple_range2 ripple_range ripple_range
+    set grab_radius 7
+    op mul grab_radius2 grab_radius grab_radius
+    set scan_interval 2500
+    set best_found 0
+    set creator Icewave
+start:
+    getlink turret i
+    jump reset greaterThanEq i @links
+    op add i i 1
+    jump end equal turret null
+timer_gate:
+    jump shoot_phase greaterThan nexttime @time
+radar:
+    radar ally any any distance turret 1 u
+    jump shoot_phase equal u null
+distance_check:
+    sensor ux u @x
+    sensor uy u @y
+    sensor tx turret @x
+    sensor ty turret @y
+    op sub dx ux tx
+    op sub dy uy ty
+    op mul dx dx dx
+    op mul dy dy dy
+    op add d2 dx dy
+    jump shoot_phase greaterThan d2 grab_radius2
+unit_found:
+    op add nexttime @time scan_interval
+    ubind u
+locate_buildings:
+    ulocate building core true @copper cx cy cf core
+    ulocate building storage true @copper sx sy sf storage
+    ulocate building generator true @copper genx geny genf generator
+    ulocate building turret true @copper turx tury turf turretB
+    ulocate building factory true @copper factx facty factf factory
+    ulocate building repair true @copper repx repy repf repair
+    ulocate building battery true @copper batx baty batf battery
+    ulocate building reactor true @copper reax reay reaf reactor
+    ulocate building drill true @copper drx dry drf drill
+    ulocate building shield true @copper shx shy shf shield
+init_best:
+    set bestd ripple_range2
+    set best_found 0
+check_core:
+    jump check_storage equal cf false
+    op sub dx cx tx
+    op sub dy cy ty
+    op mul dx dx dx
+    op mul dy dy dy
+    op add d dx dy
+    jump check_storage greaterThan d bestd
+    set bestd d
+    set bestx cx
+    set besty cy
+    set best_found 1
+check_storage:
+    jump check_generator equal sf false
+    op sub dx sx tx
+    op sub dy sy ty
+    op mul dx dx dx
+    op mul dy dy dy
+    op add d dx dy
+    jump check_generator greaterThan d bestd
+    set bestd d
+    set bestx sx
+    set besty sy
+    set best_found 1
+check_generator:
+    jump check_turret equal genf false
+    op sub dx genx tx
+    op sub dy geny ty
+    op mul dx dx dx
+    op mul dy dy dy
+    op add d dx dy
+    jump check_turret greaterThan d bestd
+    set bestd d
+    set bestx genx
+    set besty geny
+    set best_found 1
+check_turret:
+    jump check_factory equal turf false
+    op sub dx turx tx
+    op sub dy tury ty
+    op mul dx dx dx
+    op mul dy dy dy
+    op add d dx dy
+    jump check_factory greaterThan d bestd
+    set bestd d
+    set bestx turx
+    set besty tury
+    set best_found 1
+check_factory:
+    jump check_repair equal factf false
+    op sub dx factx tx
+    op sub dy facty ty
+    op mul dx dx dx
+    op mul dy dy dy
+    op add d dx dy
+    jump check_repair greaterThan d bestd
+    set bestd d
+    set bestx factx
+    set besty facty
+    set best_found 1
+check_repair:
+    jump check_battery equal repf false
+    op sub dx repx tx
+    op sub dy repy ty
+    op mul dx dx dx
+    op mul dy dy dy
+    op add d dx dy
+    jump check_battery greaterThan d bestd
+    set bestd d
+    set bestx repx
+    set besty repy
+    set best_found 1
+check_battery:
+    jump check_reactor equal batf false
+    op sub dx batx tx
+    op sub dy baty ty
+    op mul dx dx dx
+    op mul dy dy dy
+    op add d dx dy
+    jump check_reactor greaterThan d bestd
+    set bestd d
+    set bestx batx
+    set besty baty
+    set best_found 1
+check_reactor:
+    jump check_drill equal reaf false
+    op sub dx reax tx
+    op sub dy reay ty
+    op mul dx dx dx
+    op mul dy dy dy
+    op add d dx dy
+    jump check_drill greaterThan d bestd
+    set bestd d
+    set bestx reax
+    set besty reay
+    set best_found 1
+check_drill:
+    jump check_shield equal drf false
+    op sub dx drx tx
+    op sub dy dry ty
+    op mul dx dx dx
+    op mul dy dy dy
+    op add d dx dy
+    jump check_shield greaterThan d bestd
+    set bestd d
+    set bestx drx
+    set besty dry
+    set best_found 1
+check_shield:
+    jump shoot_phase equal shf false
+    op sub dx shx tx
+    op sub dy shy ty
+    op mul dx dx dx
+    op mul dy dy dy
+    op add d dx dy
+    jump shoot_phase greaterThan d bestd
+    set bestd d
+    set bestx shx
+    set besty shy
+    set best_found 1
+shoot_phase:
+    jump end equal best_found 0
+    control shoot turret bestx besty 1
+end:
+    end
+reset:
+    set i 0
+    end

@@ -1,0 +1,29 @@
+set u_type @flare
+jump stuff notEqual my_little_unit null
+bind:
+    ubind u_type
+    sensor ctrl @unit @controlled
+    jump claim equal ctrl 0 #if no one uses = we use
+    #also if its not used we dont care abt flag so we can skip that
+    sensor flag @unit @flag
+    jump claim equal flag 0
+    #if flag not 0 then STOP STEALING
+    end
+claim:
+    #flag ur unit properly and then do stuff
+    ucontrol flag @time
+    #ALSO SAVE A UUID REF
+    set my_little_unit @unit
+    end
+stuff:
+    #bind ur little guy
+    ubind my_little_unit
+    #is bro dead??
+    sensor ded @unit @dead
+    jump dead notEqual ded 0
+    #enslave him
+    ucontrol move @thisx @thisy
+    end
+dead:
+    set my_little_unit null
+    end

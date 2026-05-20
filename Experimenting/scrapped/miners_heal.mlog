@@ -1,0 +1,42 @@
+#scrapped due to units not returning to mining mode after being unbound
+on:
+type:
+    op add i i 1
+    jump mono equal i 1
+    jump pulsar equal i 2
+    jump poly equal i 3
+    jump mega equal i 4
+    jump quasar equal i 5
+    set i 0
+    jump on always x false
+    pulsar:
+        set u_type @pulsar
+        jump bind always x false
+    mono:
+        set u_type @mono
+        jump bind always x false
+    poly:
+        set u_type @poly
+        jump bind always x false
+    mega:
+        set u_type @mega
+        jump bind always x false
+    quasar:
+        set u_type @quasar
+        jump bind always x false
+bind:
+    ubind u_type
+    jump on strictEqual @unit null
+    sensor mhp @unit @maxHealth
+    sensor hp @unit @health
+    jump repair notEqual hp mhp
+    ucontrol unbind
+    end
+repair:
+    ulocate building repair false @copper repx repy found rep
+    jump on notEqual found true
+    ucontrol flag -1
+    sensor rx rep @x
+    sensor ry rep @y
+    ucontrol approach rx ry 5 0 0
+    end

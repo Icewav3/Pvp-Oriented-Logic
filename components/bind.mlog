@@ -1,10 +1,12 @@
 bind:
     ubind utype
-    sensor flag @unit @flag
     sensor ctrl @unit @controlled
-    jump claim equal ctrl 0         # uncontrolled — claim regardless of flag
-    jump skip notEqual flag 0       # controlled + flagged — skip, next cycle
-    # fall-through: controlled but unflagged (bad foreign script) — claim it
+    jump claim equal ctrl 0 #if no one uses = we use
+    #also if its not used we dont care abt flag so we can skip that
+    sensor flag @unit @flag
+    jump claim equal flag 0
+    #if flag not 0 then STOP STEALING
+    end
 claim:
-    ucontrol flag 0                 # replace 0 with actual key when used in context
-skip:
+    #flag ur unit properly and then do stuff
+    ucontrol flag @time

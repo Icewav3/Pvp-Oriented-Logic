@@ -1,9 +1,10 @@
-# GROUND UNIT LOGIC V1.0 — by Icewave#0394
+# GROUND UNIT LOGIC V1.0 - by Icewave#0394
 # TODO fire at closest building instead of whatatever was last
+# TODO flee is completely unused in practice.
 # BUGS sometimes units seem to randomly get stuck, also when pathfinding back units will walk right into defence occasionally, - should move them away before retreating.
 # fun idea; do calculations to determine amount of units and attack in groups.
 # CONFIGURATION:
-#   rangeadjust — extra tiles added to weapon range for approach_range
+#   rangeadjust - extra tiles added to weapon range for approach_range
 # Boot sequence:
 
 jump start lessThan @time next_time
