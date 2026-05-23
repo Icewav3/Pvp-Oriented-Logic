@@ -1,0 +1,144 @@
+delay:
+    set fails 0
+    op mod t @time 500
+    jump start greaterThan t 250
+
+projcheck:
+    #having issues with the timescale, temp disabled for safety
+    #sensor timescale @this @timescale
+    #jump setproj greaterThanEq timescale 2.49
+
+    #sensor s swarmer1 @shooting
+    radar enemy any any distance disperse1 1 s
+    jump setproj notEqual s 0
+    #sensor s swarmer2 @shooting
+    radar enemy any any distance disperse2 1 s
+setproj:
+    #select proj greaterThanEq timescale 2.24 false s
+    #control enabled projector1 proj
+    control enabled projector1 s
+
+start:
+    jump boot greaterThan bootseq 0
+    set bootseq 1
+    set creator Icewave
+    op mul mx @thisx 1000
+    op add key mx @thisy
+    boot:
+    op add current current 1
+    jump u1 lessThan current 2
+    jump u2 lessThan current 3
+    jump u3 lessThan current 4
+    set current 0
+    end
+
+        u1:
+        set unit_type @flare
+        set current_unit u1
+        set block conveyor1
+        set item1 @surge-alloy
+        set item2 @tungsten
+        set item3 @thorium
+        jump checks always
+
+        u2:
+        set current_unit u2
+        set block conveyor2
+        set item1 @surge-alloy
+        set item2 @tungsten
+        set item3 @thorium
+        jump checks always
+
+        u3:
+        set current_unit u3
+        set block projector1
+        set item1 @phase-fabric
+        set item2 @phase-fabric
+        set item3 @phase-fabric
+        jump checks always
+
+    checks:
+        sensor gone block @dead
+        jump delay equal gone true
+        sensor fill block @ammo
+        jump isbindneeded notEqual fill null
+        sensor fill block @totalItems
+
+        isbindneeded:
+            jump unbind greaterThan fill 9
+            ubind current_unit
+            sensor dead @unit @dead
+            sensor f @unit @flag
+            jump binding greaterThan dead 0
+            jump unbind notEqual f key
+
+        sensor type @unit @firstItem
+        jump drop equal type item1
+        jump drop equal type item2
+        jump drop equal type item3
+        ulocate building core false @copper cx cy found core
+        set get item1
+        sensor res core item1
+        jump take greaterThan res 50
+        set get item2
+        sensor res core item2
+        jump take greaterThan res 10
+        set get item3
+
+    take:
+        ucontrol approach cx cy 5
+        ucontrol itemDrop core 999
+        ucontrol itemTake core get 999
+        end
+
+    drop:
+        sensor x block @x
+        sensor y block @y
+        ucontrol move x y
+        ucontrol itemDrop block 999
+        end
+
+    binding:
+        ubind unit_type
+        sensor flag @unit @flag
+        sensor controlled @unit @controlled
+        jump found equal controlled 0
+        op add fails fails 1
+        jump delay greaterThan fails 5
+        jump binding notEqual flag false
+
+        found:
+            ucontrol flag key
+            set current_unit @unit
+                u1set:
+                    jump u2set notEqual current 1
+                    set u1 @unit
+                    end
+                u2set:
+                    jump unbind equal current_unit u1
+                    jump u3set notEqual current 2
+                    set u2 @unit
+                    end
+                u3set:
+                    jump unbind equal current_unit u2
+                    jump delay notEqual current 3
+                    set u3 @unit
+                    end
+
+unbind:
+    jump delay strictEqual current_unit null
+    ubind current_unit
+        u1r:
+            jump u2r notEqual u1 @unit
+            ucontrol flag 0
+            set u1 null
+            end
+        u2r:
+            jump u3r notEqual u2 @unit
+            ucontrol flag 0
+            set u2 null
+            end
+        u3r:
+            ucontrol flag 0
+            set u3 null
+            end

@@ -1,0 +1,15 @@
+#initial setup tested ingame, works but could probably use improvements to flow
+#does a good example of using the brand new select statement to reduce line count
+#hoping to apply this into multibind defence scatter fallback. Try flare first, if the last count of the amount of flares was 0 or null, then we use mono instead.
+set u_type @mono
+ubind u_type
+select anchor_unit strictEqual anchor_unit null @unit anchor_unit
+sensor ded anchor_unit @dead
+jump 8 notEqual ded 0
+op add u_count u_count 1
+jump 9 strictEqual @unit anchor_unit
+end
+set anchor_unit null
+set last_count u_count
+set u_count 0
+end
