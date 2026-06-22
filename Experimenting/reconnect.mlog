@@ -1,7 +1,9 @@
 #==== START OF INSERTED RECONNECT SCRIPT ====
+
+#TODO if poly cannot build on the desired location, and thus has the power line severed, it will continue all the way to target AND past without any way to succeed. This causes a TON of issues.
 jump rc_boot notEqual reconnect null
 set creator "[cyan]Ice[blue]wave"
-set reconnect "[red]EXP[white]  [yellow]AutoConnect[white] v0.8\n"
+set reconnect "[red]EXP[white]  [yellow]AutoConnect[white] v0.9\n"
 rc_boot:
 sensor net mender1 @powerNetIn
 jump rc_connected notEqual net 0
@@ -30,9 +32,19 @@ rc_claim:
 	set progress 0
 
 rc_have_poly:
+	ulocate building battery false @copper genx geny genFound gen
+	jump rc_try_fac equal genFound false
+	sensor net gen @powerNetIn
+	jump rc_target notEqual net 0
+rc_try_fac:
+	ulocate building factory false @copper genx geny genFound gen
+	jump rc_try_gen equal genFound false
+	sensor net gen @powerNetIn
+	jump rc_target notEqual net 0
+rc_try_gen:
 	ulocate building generator false @copper genx geny genFound gen
 	jump rc_no_gen equal genFound false
-
+rc_target:
 	op sub gdx genx @thisx
 	op sub gdy geny @thisy
 	op len total gdx gdy
@@ -61,8 +73,12 @@ rc_step_skip:
 	end
 
 rc_finalize:
-	op floor bx genx
-	op floor by geny
+	op mul backx ux 2
+	op mul backy uy 2
+	op sub fx genx backx
+	op sub fy geny backy
+	op floor bx fx
+	op floor by fy
 	ucontrol move bx by 0 0 0
 	ucontrol within bx by 0.5 arrived 0
 	jump rc_fin_skip notEqual arrived true

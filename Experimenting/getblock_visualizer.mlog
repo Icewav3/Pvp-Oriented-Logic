@@ -1,0 +1,81 @@
+# === GetBlock Visualizer ===
+# Paints what `ucontrol getBlock` returns for every tile in a bound poly's
+# build range (24.5) onto a large logic display.
+#
+# Hardware: hyperprocessor + cell1 + display1
+# Purpose: scout the data shape of getBlock (type vs floor, null vs @air,
+#   what shows up for ally buildings / deep terrain / ore) before writing
+#   the verify-buildable pre-check for reconnect.mlog.
+#
+# Design rules deliberately violated (test-only, not for PvP):
+#   - backward jump used to burn through the per-tick instruction budget
+#   - memory cell used for scan-index persistence across ticks
+#   - non-headless (depends on cell1 + display1)
+#
+# Layout: 49x49 tile window, 3px per tile, centered at display pixel (88,88).
+# Range gate: keep tiles where ox*ox + oy*oy <= 600  (24.5^2 = 600.25)
+
+# --- bind a poly; skip tick if none available ---
+ubind @poly
+jump gv_end strictEqual @unit null
+sensor pdead @unit @dead
+jump gv_end equal pdead true
+sensor px @unit @x
+sensor py @unit @y
+op floor px px
+op floor py py
+
+# --- restore scan progress ---
+read i cell1 0
+
+# --- on fresh scan: clear the display once ---
+jump gv_scan notEqual i 0
+draw clear 20 20 20 0 0 0
+drawflush display1
+
+gv_scan:
+	op mod ox i 49
+	op idiv oy i 49
+	op sub ox ox 24
+	op sub oy oy 24
+
+	# circular range filter (skip diagonal corners outside 24.5)
+	op mul sqx ox ox
+	op mul sqy oy oy
+	op add sq sqx sqy
+	jump gv_advance greaterThan sq 600
+
+	op add tx px ox
+	op add ty py oy
+	ucontrol getBlock tx ty btype bbuild bfloor 0
+
+	# pixel = display center + 3 * tile offset
+	op mul dx ox 3
+	op mul dy oy 3
+	op add dx dx 88
+	op add dy dy 88
+
+	# if a block is present, draw the block sprite; otherwise draw the floor
+	jump gv_draw_floor strictEqual btype null
+	jump gv_draw_floor strictEqual btype @air
+	draw image dx dy btype 3 0 0
+	jump gv_flush always
+gv_draw_floor:
+	jump gv_flush strictEqual bfloor null
+	draw image dx dy bfloor 3 0 0
+gv_flush:
+	drawflush display1
+
+gv_advance:
+	op add i i 1
+	jump gv_done greaterThanEq i 2401
+	write i cell1 0
+	jump gv_scan always
+
+gv_done:
+	# full sweep complete — reset index so next tick re-clears and re-scans
+	write 0 cell1 0
+	end
+
+gv_end:
+	end

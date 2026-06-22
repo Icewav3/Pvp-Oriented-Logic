@@ -1,27 +1,15 @@
 delay:
     set fails 0
     op mod t @time 500
-    jump start greaterThan t 250
+    jump start lessThan t 250
+# ===== TODO Insert unit config work to detect units avaliable ===
 
-projcheck:
-    #having issues with the timescale, temp disabled for safety
-    #sensor timescale @this @timescale
-    #jump setproj greaterThanEq timescale 2.49
-
-    #sensor s swarmer1 @shooting
-    radar enemy any any distance disperse1 1 s
-    jump setproj notEqual s 0
-    #sensor s swarmer2 @shooting
-    radar enemy any any distance disperse2 1 s
-setproj:
-    #select proj greaterThanEq timescale 2.24 false s
-    #control enabled projector1 proj
-    control enabled projector1 s
 
 start:
     jump boot greaterThan bootseq 0
     set bootseq 1
-    set creator Icewave
+    set creator "[cyan]Ice[blue]wave"
+    set version "v1.1 Cleanup Update"
     op mul mx @thisx 1000
     op add key mx @thisy
     boot:
@@ -29,6 +17,8 @@ start:
     jump u1 lessThan current 2
     jump u2 lessThan current 3
     jump u3 lessThan current 4
+    jump u4 lessThan current 5
+    jump u5 lessThan current 6
     set current 0
     end
 
@@ -36,25 +26,41 @@ start:
         set unit_type @flare
         set current_unit u1
         set block conveyor1
-        set item1 @surge-alloy
-        set item2 @tungsten
-        set item3 @thorium
+        set item1 @silicon
+        set item2 @graphite
+        set item3 @copper
         jump checks always
 
         u2:
         set current_unit u2
         set block conveyor2
-        set item1 @surge-alloy
-        set item2 @tungsten
-        set item3 @thorium
+        set item1 @silicon
+        set item2 @graphite
+        set item3 @copper
         jump checks always
 
         u3:
         set current_unit u3
-        set block projector1
-        set item1 @phase-fabric
-        set item2 @phase-fabric
-        set item3 @phase-fabric
+        set block conveyor1
+        set item1 @silicon
+        set item2 @graphite
+        set item3 @copper
+        jump checks always
+
+        u4:
+        set current_unit u4
+        set block conveyor2
+        set item1 @silicon
+        set item2 @graphite
+        set item3 @copper
+        jump checks always
+
+        u5:
+        set current_unit u5
+        set block null
+        set item1 @pyratite
+        set item2 @silicon
+        set item3 @copper
         jump checks always
 
     checks:
@@ -71,18 +77,18 @@ start:
             sensor f @unit @flag
             jump binding greaterThan dead 0
             jump unbind notEqual f key
+            ulocate building core false @copper cx cy found core
+            sensor res core item1
+            sensor res2 core item2
 
         sensor type @unit @firstItem
         jump drop equal type item1
         jump drop equal type item2
         jump drop equal type item3
-        ulocate building core false @copper cx cy found core
         set get item1
-        sensor res core item1
-        jump take greaterThan res 50
+        jump take greaterThan res 100
         set get item2
-        sensor res core item2
-        jump take greaterThan res 10
+        jump take greaterThan res2 100
         set get item3
 
     take:
@@ -97,7 +103,11 @@ start:
         ucontrol move x y
         ucontrol itemDrop block 999
         end
-
+    clean:
+        ucontrol approach cx cy 5 
+        ucontrol itemDrop core 999
+        end
+        
     binding:
         ubind unit_type
         sensor flag @unit @flag
@@ -121,24 +131,58 @@ start:
                     end
                 u3set:
                     jump unbind equal current_unit u2
-                    jump delay notEqual current 3
+                    jump u4set notEqual current 3
                     set u3 @unit
                     end
-
+                u4set:
+                    jump unbind equal current_unit u3
+                    jump u5set notEqual current 4
+                    set u4 @unit
+                    end
+                u5set:
+                    jump unbind equal current_unit u4
+                    jump delay notEqual current 5
+                    set u5 @unit
+                    end
 unbind:
     jump delay strictEqual current_unit null
     ubind current_unit
         u1r:
             jump u2r notEqual u1 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u1 null
             end
         u2r:
             jump u3r notEqual u2 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u2 null
             end
         u3r:
+            jump u4r notEqual u3 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u3 null
+            end
+        u4r:
+            jump u5r notEqual u4 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
+            ucontrol flag 0
+            ucontrol unbind
+            set u4 null
+            end
+        u5r:
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
+            ucontrol flag 0
+            ucontrol unbind
+            set u5 null
             end

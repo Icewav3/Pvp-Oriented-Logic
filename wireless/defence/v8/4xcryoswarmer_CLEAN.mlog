@@ -98,12 +98,23 @@ start:
         sensor fill block @totalItems
 
         isbindneeded:
-            jump unbind greaterThan fill 9
-            ubind current_unit
-            sensor dead @unit @dead
-            sensor f @unit @flag
-            jump binding greaterThan dead 0
-            jump unbind notEqual f key
+            sensor SA core @surge-alloy
+            jump WeArePoor lessThan SA 250
+            sensor Atype1 swarmer1 @currentAmmoType
+            jump AmmoDump notEqual Atype1 @surge-alloy
+            sensor Atype2 swarmer2 @currentAmmoType
+            jump AmmoDump notEqual Atype2 @surge-alloy
+            sensor Atype3 swarmer3 @currentAmmoType
+            jump AmmoDump notEqual Atype3 @surge-alloy
+            sensor Atype4 swarmer4 @currentAmmoType
+            jump AmmoDump notEqual Atype4 @surge-alloy
+            WeArePoor:
+                jump unbind greaterThan fill 9
+                ubind current_unit
+                sensor dead @unit @dead
+                sensor f @unit @flag
+                jump binding greaterThan dead 0
+                jump unbind notEqual f key
 
         sensor type @unit @firstItem
         jump drop equal type item1
@@ -130,7 +141,10 @@ start:
         ucontrol move x y
         ucontrol itemDrop block 999
         end
-
+    clean:
+        ucontrol approach cx cy 5 
+        ucontrol itemDrop core 999
+        end
     binding:
         ubind unit_type
         sensor flag @unit @flag
@@ -178,30 +192,67 @@ unbind:
     ubind current_unit
         u1r:
             jump u2r notEqual u1 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u1 null
             end
         u2r:
             jump u3r notEqual u2 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u2 null
             end
         u3r:
             jump u4r notEqual u3 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u3 null
             end
         u4r:
             jump u5r notEqual u4 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u4 null
             end
         u5r:
             jump u6r notEqual u5 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u5 null
             end
         u6r:
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u6 null
             end
+end
+AmmoDump:
+    #swarmer1
+
+    select shoot1 notEqual Atype @surge-alloy 1 0
+    control shoot1 swarmer1 @thisx @thisy shoot1
+    #swarmer2
+
+    select shoot2 notEqual Atype @surge-alloy 1 0
+    control shoot2 swarmer2 @thisx @thisy shoot2
+    #swarmer3
+    sensor Atype3 swarmer3 @currentAmmoType
+    select shoot3 notEqual Atype @surge-alloy 1 0
+    control shoot3 swarmer3 @thisx @thisy shoot3
+    #swarmer4
+    sensor Atype4 swarmer4 @currentAmmoType
+    select shoot4 notEqual Atype @surge-alloy 1 0
+    control shoot4 swarmer4 @thisx @thisy shoot4
+    end

@@ -1,0 +1,112 @@
+delay:
+start:
+    set prevconfig config
+    sensor config sorter1 @config
+    jump type notEqual config prevconfig
+    jump boot greaterThan bootseq 0
+    set bootseq 1
+    set creator Icewave
+    printflush
+    print "Created by [cyan]Ice[blue]wave[sky]#0394[white] "
+    print "\n[green]"
+    print "Core healing logic."
+    print "\n"
+    print "[forest]First row in sorter for poly, 2nd for megas. Resource determines amount of units."
+    printflush
+    op mul mx @thisx 1000
+    op add key mx @thisy
+
+        type:
+            jump p1 equal config @copper
+            jump p3 equal config @lead
+            jump m1 equal config @sand
+            jump m3 equal config @coal
+            jump unbind always x false
+        p1:
+            set unit_type @poly
+            set maxunit 1
+            end
+        p3:
+            set unit_type @poly
+            set maxunit 3
+            end
+        m1:
+            set unit_type @mega
+            set maxunit 1
+            end
+        m3:
+            set unit_type @mega
+            set maxunit 3
+            end
+
+    boot:
+    op add current current 1
+    jump continue greaterThan current maxunit
+    jump u1 lessThan current 2
+    jump u2 lessThan current 3
+    jump u3 lessThan current 4
+    continue:
+    set current 0
+    end
+
+        u1:
+        set current_unit u1
+        jump checks always
+
+        u2:
+        set current_unit u2
+        jump checks always
+
+        u3:
+        set current_unit u3
+        jump checks always
+
+    checks:
+        sensor gone mycore @dead
+        ubind current_unit
+            sensor u_type @unit @type
+            sensor dead @unit @dead
+            sensor f @unit @flag
+            jump binding greaterThan dead 0
+            jump unbind notEqual u_type unit_type
+            jump unbind notEqual f key
+        jump heal notEqual gone 1
+        locate:
+            ucontrol move @thisx @thisy
+            ucontrol within @thisx @thisy 3 here
+            jump locate notEqual here true
+            ulocate building core false @copper x y found mycore
+            heal:
+                ucontrol flag key
+                ucontrol target x y 1
+                ucontrol move x y
+                end
+
+    binding:
+        ubind unit_type
+        sensor flag @unit @flag
+        sensor controlled @unit @controlled
+        jump found equal controlled 0
+        jump found equal flag false
+        op add fails fails 1
+        jump delay greaterThan fails 5
+
+        found:
+            ucontrol flag key
+            set current_unit @unit
+            jump unbind equal current_unit u1
+            jump unbind equal current_unit u2
+            select u1 equal current 1 @unit u1
+            select u2 equal current 2 @unit u2
+            select u3 equal current 3 @unit u3
+            end
+unbind:
+    jump delay strictEqual current_unit null
+    ubind current_unit
+    sensor f @unit @flag
+    select u1 notEqual u1 @unit u1 null
+    select u2 notEqual u2 @unit u2 null
+    select u3 notEqual u3 @unit u3 null
+    jump delay notEqual f key
+    ucontrol flag 0
+    ucontrol unbind

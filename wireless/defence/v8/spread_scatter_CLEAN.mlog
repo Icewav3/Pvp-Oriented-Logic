@@ -25,7 +25,8 @@ shoot:
 start:
     jump boot greaterThan bootseq 0
     set bootseq 1
-    set creator Icewave
+    set creator "[cyan]Ice[blue]wave"
+    set version "v1.1 Cleanup Update"
     op mul mx @thisx 1000
     op add key mx @thisy
     boot:
@@ -49,27 +50,27 @@ start:
         u2:
         set current_unit u2
         set block conveyor2
-        set item1 @metaglass
-        set item2 @lead
+        set item1 @pyratite
+        set item2 @silicon
         jump checks always
 
         u3:
         set current_unit u3
-        set block conveyor3
+        set block null
         set item1 @metaglass
         set item2 @lead
         jump checks always
 
         u4:
         set current_unit u4
-        set block hail1
+        set block null
         set item1 @pyratite
         set item2 @silicon
         jump checks always
 
         u5:
         set current_unit u5
-        set block hail2
+        set block null
         set item1 @pyratite
         set item2 @silicon
         jump checks always
@@ -109,6 +110,10 @@ start:
         sensor y block @y
         ucontrol move x y
         ucontrol itemDrop block 999
+        end
+    clean:
+        ucontrol approach cx cy 5 
+        ucontrol itemDrop core 999
         end
         
     binding:
@@ -152,25 +157,40 @@ unbind:
     ubind current_unit
         u1r:
             jump u2r notEqual u1 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u1 null
             end
         u2r:
             jump u3r notEqual u2 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u2 null
             end
         u3r:
             jump u4r notEqual u3 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u3 null
             end
         u4r:
             jump u5r notEqual u4 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u4 null
             end
         u5r:
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u5 null
             end

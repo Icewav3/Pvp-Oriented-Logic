@@ -1,0 +1,232 @@
+# ==== ItemCounting END ====
+op mod t @time 5000
+jump scan_link lessThan t 4000
+
+dispatch:
+	set in_scan 0
+	end
+
+scan_link:
+	jump no_reset equal in_scan 1
+	set in_scan 1
+	set num 0
+	set silicon_get 0
+	set lead_get 0
+	set coal_get 0
+	set titanium_get 0
+	set graphite_get 0
+	set metaglass_get 0
+	set beryllium_get 0
+	set tungsten_get 0
+	set thorium_get 0
+	set plastanium_get 0
+	set surge_get 0
+	set phase_get 0
+no_reset:
+	getlink link num
+	jump scan_idle strictEqual link null
+	op add num num 1
+	sensor type link @type
+
+	jump t1_fact equal type @air-factory
+	jump t1_fact equal type @ground-factory
+	jump t1_fact equal type @naval-factory
+	jump t2_recon equal type @additive-reconstructor
+	jump t3_recon equal type @multiplicative-reconstructor
+	jump t4_recon equal type @exponential-reconstructor
+	jump t5_recon equal type @tetrative-reconstructor
+	jump erekir_mech equal type @mech-fabricator
+	jump erekir_tank equal type @tank-fabricator
+	jump erekir_ship equal type @ship-fabricator
+	jump erekir_t2mech equal type @mech-refabricator
+	jump erekir_t2tank equal type @tank-refabricator
+	jump erekir_t2ship equal type @ship-refabricator
+	jump erekir_t3 equal type @prime-refabricator
+scan_idle:
+	end
+
+t1_fact:
+	sensor config link @config
+	jump t1_flare equal config @flare
+	jump t1_mono equal config @mono
+	jump t1_dagger equal config @dagger
+	jump t1_crawler equal config @crawler
+	jump t1_nova equal config @nova
+	jump t1_risso equal config @risso
+	jump t1_retusa equal config @retusa
+	end
+
+	t1_flare:
+		sensor sili link @silicon
+		op sub silicon_needed 30 sili
+		op add silicon_get silicon_get silicon_needed
+		end
+
+	t1_mono:
+		sensor sili link @silicon
+		sensor lead link @lead
+		op sub silicon_needed 60 sili
+		op sub lead_needed 30 lead
+		op add silicon_get silicon_get silicon_needed
+		op add lead_get lead_get lead_needed
+		end
+
+	t1_dagger:
+		sensor sili link @silicon
+		sensor lead link @lead
+		op sub silicon_needed 20 sili
+		op sub lead_needed 20 lead
+		op add silicon_get silicon_get silicon_needed
+		op add lead_get lead_get lead_needed
+		end
+
+	t1_crawler:
+		sensor sili link @silicon
+		sensor coal link @coal
+		op sub silicon_needed 16 sili
+		op sub coal_needed 20 coal
+		op add silicon_get silicon_get silicon_needed
+		op add coal_get coal_get coal_needed
+		end
+
+	t1_nova:
+		sensor sili link @silicon
+		sensor lead link @lead
+		sensor titan link @titanium
+		op sub silicon_needed 60 sili
+		op sub lead_needed 40 lead
+		op sub titanium_needed 40 titan
+		op add silicon_get silicon_get silicon_needed
+		op add lead_get lead_get lead_needed
+		op add titanium_get titanium_get titanium_needed
+		end
+
+	t1_risso:
+		sensor sili link @silicon
+		sensor glass link @metaglass
+		op sub silicon_needed 40 sili
+		op sub metaglass_needed 70 glass
+		op add silicon_get silicon_get silicon_needed
+		op add metaglass_get metaglass_get metaglass_needed
+		end
+
+	t1_retusa:
+		sensor sili link @silicon
+		sensor titan link @titanium
+		op sub silicon_needed 30 sili
+		op sub titanium_needed 40 titan
+		op add silicon_get silicon_get silicon_needed
+		op add titanium_get titanium_get titanium_needed
+		end
+
+t2_recon:
+	sensor sili link @silicon
+	sensor graph link @graphite
+	op sub silicon_needed 80 sili
+	op sub graphite_needed 80 graph
+	op add silicon_get silicon_get silicon_needed
+	op add graphite_get graphite_get graphite_needed
+	end
+
+t3_recon:
+	sensor sili link @silicon
+	sensor glass link @metaglass
+	sensor titan link @titanium
+	op sub silicon_needed 260 sili
+	op sub metaglass_needed 80 glass
+	op sub titanium_needed 160 titan
+	op add silicon_get silicon_get silicon_needed
+	op add metaglass_get metaglass_get metaglass_needed
+	op add titanium_get titanium_get titanium_needed
+	end
+
+t4_recon:
+	sensor sili link @silicon
+	sensor titan link @titanium
+	sensor plast link @plastanium
+	op sub silicon_needed 1700 sili
+	op sub titanium_needed 1500 titan
+	op sub plastanium_needed 1300 plast
+	op add silicon_get silicon_get silicon_needed
+	op add titanium_get titanium_get titanium_needed
+	op add plastanium_get plastanium_get plastanium_needed
+	end
+
+t5_recon:
+	sensor sili link @silicon
+	sensor plast link @plastanium
+	sensor surge link @surge-alloy
+	sensor phase link @phase-fabric
+	op sub silicon_needed 2000 sili
+	op sub plastanium_needed 1200 plast
+	op sub surge_needed 1000 surge
+	op sub phase_needed 700 phase
+	op add silicon_get silicon_get silicon_needed
+	op add plastanium_get plastanium_get plastanium_needed
+	op add surge_get surge_get surge_needed
+	op add phase_get phase_get phase_needed
+	end
+
+erekir_mech:
+	sensor bery link @beryllium
+	sensor sili link @silicon
+	op sub beryllium_needed 50 bery
+	op sub silicon_needed 70 sili
+	op add beryllium_get beryllium_get beryllium_needed
+	op add silicon_get silicon_get silicon_needed
+	end
+
+erekir_tank:
+	sensor bery link @beryllium
+	sensor sili link @silicon
+	op sub beryllium_needed 40 bery
+	op sub silicon_needed 50 sili
+	op add beryllium_get beryllium_get beryllium_needed
+	op add silicon_get silicon_get silicon_needed
+	end
+
+erekir_ship:
+	sensor graph link @graphite
+	sensor sili link @silicon
+	op sub graphite_needed 50 graph
+	op sub silicon_needed 70 sili
+	op add graphite_get graphite_get graphite_needed
+	op add silicon_get silicon_get silicon_needed
+	end
+
+erekir_t2mech:
+	sensor tung link @tungsten
+	sensor sili link @silicon
+	op sub tungsten_needed 40 tung
+	op sub silicon_needed 50 sili
+	op add tungsten_get tungsten_get tungsten_needed
+	op add silicon_get silicon_get silicon_needed
+	end
+
+erekir_t2tank:
+	sensor tung link @tungsten
+	sensor sili link @silicon
+	op sub tungsten_needed 30 tung
+	op sub silicon_needed 40 sili
+	op add tungsten_get tungsten_get tungsten_needed
+	op add silicon_get silicon_get silicon_needed
+	end
+
+erekir_t2ship:
+	sensor tung link @tungsten
+	sensor sili link @silicon
+	op sub tungsten_needed 40 tung
+	op sub silicon_needed 60 sili
+	op add tungsten_get tungsten_get tungsten_needed
+	op add silicon_get silicon_get silicon_needed
+	end
+
+erekir_t3:
+	sensor thor link @thorium
+	sensor sili link @silicon
+	op sub thorium_needed 80 thor
+	op sub silicon_needed 100 sili
+	op add thorium_get thorium_get thorium_needed
+	op add silicon_get silicon_get silicon_needed
+	end
+# ==== ItemCounting END ====`

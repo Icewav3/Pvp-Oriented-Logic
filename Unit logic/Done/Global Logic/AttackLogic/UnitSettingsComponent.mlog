@@ -1,0 +1,80 @@
+#============= Unit config start ====================
+#TODO handle support ground units differently? what about healer units? can we have other weak units retreat to nearby healers?
+sensor type @unit @type
+
+#Naval attack
+risso:
+set extra_range
+set logic_type "ground"
+minke:
+set extra_range
+set logic_type "ground"
+bryde:
+set extra_range
+set logic_type "ground"
+sei:
+set extra_range
+set logic_type "ground"
+omura:
+set extra_range
+set logic_type "ground"
+#Naval Support
+retusa:
+set extra_range
+set logic_type "ground"
+oxynoe:
+set extra_range
+set logic_type "ground"
+cyerce:
+set extra_range 15
+set logic_type "ground"
+aegires:
+set extra_range
+set logic_type "ground"
+navanax:
+set extra_range 
+set logic_type "ground"
+#Ground attack
+dagger:
+set extra_range 2
+set logic_type "ground"
+mace:
+set extra_range
+set logic_type "ground"
+fortress:
+set extra_range 2
+set logic_type "ground"
+specter:
+set extra_range
+set logic_type "ground"
+reign:
+set extra_range
+set logic_type "ground"
+#ground support
+nova:
+set extra_range
+set logic_type "ground"
+pulsar:
+set extra_range
+quasar:
+set extra_range
+vela:
+set extra_range
+corvus:
+set extra_range
+#Air
+flare:
+#not doing ts
+horizon:
+#maybe?
+zenith:
+set extra_range 
+Antumbra:
+set extra_range 
+Eclipse:
+set extra_range 
+
+
+
+
+#============= Unit config end ======================

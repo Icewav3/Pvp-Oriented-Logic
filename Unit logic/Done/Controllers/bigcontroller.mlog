@@ -1,7 +1,7 @@
 # === BOOT CONFIG ===
 jump cached_player equal boot 1       # skip config if already booted
-set utype @zenith
-set multi 0.95
+set utype @quasar
+set multi 1
 set boot 1
 set hpmulti 0.75
 set dist 100

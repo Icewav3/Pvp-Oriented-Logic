@@ -1,10 +1,11 @@
 # GROUND UNIT LOGIC V1.0 - by Icewave#0394
 # TODO fire at closest building instead of whatatever was last
-# TODO flee is completely unused in practice.
+# TODO flee is completely unused in practice. should be removed
+# TODO, could implement simple adaptive behavoir by modifying the rangeadjust and lowhp values when a unit is detected to have died.
 # BUGS sometimes units seem to randomly get stuck, also when pathfinding back units will walk right into defence occasionally, - should move them away before retreating.
 # fun idea; do calculations to determine amount of units and attack in groups.
 # CONFIGURATION:
-#   rangeadjust - extra tiles added to weapon range for approach_range
+# rangeadjust - extra tiles added to weapon range for approach_range
 # Boot sequence:
 
 jump start lessThan @time next_time
@@ -175,7 +176,7 @@ fire_phase:
     jump fire_prefire equal found true
 
     # Nothing to fire at
-    jump end always
+    jump end always #TODO why jump end? we should prefire if no target??
 
 fire_at_unit:
     ucontrol targetp atk 1

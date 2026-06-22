@@ -41,3 +41,4 @@ print selection
 printflush message1
 end
 
+# BIG FIND: without binding a unit you can check for unit stats on units by themeselves, which means we can easily have the sorter go through units, and ignore automatically ones with item capacities of 0

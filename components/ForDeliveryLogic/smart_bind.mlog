@@ -1,0 +1,31 @@
+#wip
+
+#TODO need to refactor to instead of looking over all units, just counts until a min_units# units are found, if not, switch utype to the 2nd unit type or third. As soon any valid count units are found, keep the utype configured. This must be quick to run ideally at large scales. When complete, should neatly slot into duoDef_CLEAN.mlog
+smart_bind_init:
+jump smart_bind_bind notEqual utype1 null
+set min_units 6
+set utype1 @flare
+set utype2 @mono
+set utype3 @poly
+smart_bind_bind:
+    ubind utype
+    sensor flag @unit @flag
+    sensor ctrl @unit @controlled
+    smart_bind_anchor_unit_initialization:
+        jump smart_bind_anchor_check notEqual anchor_unit null
+        set anchor_unit @unit
+    smart_bind_anchor_check:
+        jump smart_bind_bind_cont notEqual anchor_unit @unit
+        set current_total u_total #last calculated total
+        set u_total 0
+    smart_bind_bind_cont:
+        op add u_total u_total 1
+        jump smart_bind_claim equal ctrl 0 # uncontrolled = can claim 
+        jump smart_bind_skip notEqual flag 0 # controlled + flagged = skip
+smart_bind_claim:
+    #placeholder
+smart_bind_skip:
+    #atm this is for logging but should instead only be used internally, to determine what unit type we need to bind to find free units.
+    print "units: "
+    print current_total
+    printflush message1

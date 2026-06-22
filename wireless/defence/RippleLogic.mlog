@@ -1,3 +1,5 @@
+#TODO stop firing after x delay without updates, (easiest to implement as shoot for counter after update) OR could use refrence of nearest building and once its @dead = 1 stop controlling turret
+
 boot:
     jump start notEqual boot_seq null
     set boot_seq 1
@@ -5,7 +7,7 @@ boot:
     op mul ripple_range2 ripple_range ripple_range
     set grab_radius 7
     op mul grab_radius2 grab_radius grab_radius
-    set scan_interval 2500
+    set scan_interval 250
     set best_found 0
     set creator Icewave
 start:

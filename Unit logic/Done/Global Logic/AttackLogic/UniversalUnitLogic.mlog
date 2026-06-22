@@ -1,0 +1,211 @@
+# GROUND UNIT LOGIC V1.0 - by Icewave#0394
+# TODO fire at closest building instead of whatatever was last
+# TODO flee is completely unused in practice. should be removed
+# TODO, could implement simple adaptive behavoir by modifying the rangeadjust and lowhp values when a unit is detected to have died.
+# BUGS sometimes units seem to randomly get stuck, also when pathfinding back units will walk right into defence occasionally, - should move them away before retreating.
+# fun idea; do calculations to determine amount of units and attack in groups.
+# CONFIGURATION:
+# rangeadjust - extra tiles added to weapon range for approach_range
+# Boot sequence:
+
+jump start lessThan @time next_time
+op add next_time next_time cache_time
+start:
+jump bind_loop notEqual init null
+
+initialize:
+set lowhp 0.85
+set rangeadjust null
+set cache_time 500
+set init true
+
+bind_loop:
+    ubind @fortress
+check_unit:
+    sensor flag @unit @flag
+    sensor ctrl @unit @controlled
+    jump claim_unit equal ctrl 0
+    jump bind_loop notEqual flag 0
+
+claim_unit:
+    ucontrol flag 0
+    jump combat_mode equal boot true
+
+boot_sequence:
+    jump initialize strictEqual @unit null
+    sensor range @unit @range
+    sensor mhp @unit @maxHealth
+    op mul lowhp mhp lowhp
+    
+    op mul fire_range range 0.99
+    sensor type @unit @type
+    jump rangeadjust_override strictEqual rangeadjust null
+# ========== TODO USE UNIT LOOKUP FUNCTIONALITY ADDED IN V8 ==========
+    
+    rangeadjust_override:
+    jump set_ground_atk equal type @fortress
+    jump set_ground_atk equal type @bryde
+    jump set_ground_atk equal type @atrax
+    jump set_air_atk always
+
+    fortress_range_set:
+    set rangeadjust 2
+    jump set_ground_atk always
+
+# ========== TODO USE UNIT LOOKUP FUNCTIONALITY ADDED IN V8 ==========
+
+set_ground_atk:
+    set atk_type 0
+    jump boot_end always
+
+set_air_atk:
+    set atk_type 1
+
+boot_end:
+    op add approach_range range rangeadjust
+    set boot true
+
+# ============================================================
+# COMBAT MODE — Two decoupled phases run every tick:
+#   Phase 1: MOVEMENT — decide where the unit goes
+#   Phase 2: FIRING  — decide what the unit shoots at
+# ============================================================
+
+combat_mode:
+
+# --- PHASE 1: MOVEMENT ---
+# Determine unit state, then issue exactly one movement command.
+
+    sensor hp @unit @health
+
+    # Flee: low HP and active threat → run away from threat
+    jump move_flee lessThan hp fleehp
+
+    # Repair: damaged but not fleeing → path to repair point
+    jump move_repair lessThan hp lowhp
+
+    # Radar for enemy unit
+    jump move_radar_ground equal atk_type 0
+    uradar enemy any any distance 0 1 atk
+    jump move_attack always
+
+move_radar_ground:
+    uradar enemy ground any distance 0 1 atk
+
+move_attack:
+    # If enemy unit in radar: approach it
+    jump move_navigate strictEqual atk null
+    sensor atk_x atk @x
+    sensor atk_y atk @y
+    ucontrol approach atk_x atk_y approach_range
+    jump fire_phase always
+
+move_flee:
+    # Flee from radar target if one exists, otherwise fall into repair
+    jump move_flee_from_atk notEqual atk null
+    jump move_repair always
+
+move_flee_from_atk:
+    sensor atk_x atk @x
+    sensor atk_y atk @y
+    sensor ux @unit @x
+    sensor uy @unit @y
+    # Flee vector: unit position minus attacker position = direction away from threat
+    op sub fx ux atk_x
+    op sub fy uy atk_y
+    op angle fang fx fy
+    op cos fx fang
+    op sin fy fang
+    # Move to a point approach_range tiles away from us, in the flee direction
+    op mul fx fx approach_range
+    op mul fy fy approach_range
+    op add fx fx ux
+    op add fy fy uy
+    ucontrol move fx fy
+    jump fire_phase always
+
+move_repair:
+    ulocate building repair false @copper repx repy can_repair repair
+    jump move_retreat equal can_repair true
+    # No repair point found — fall through to navigate as normal
+    jump move_navigate always
+
+move_retreat:
+    ucontrol pathfind repx repy
+    jump fire_phase always
+
+# Navigate: no enemy unit in radar, healthy — path toward enemy buildings.
+# Priority: turret → generator → reactor → factory → battery → repair → drill → shield → core
+move_navigate:
+    ulocate building turret true @copper x y found building
+    # todo check turret range, if it outranges us stay beyond its range as to not suicide units. also do not target other buildings like drills if there is a turret in range of us.
+    ucontrol within x y approach_range in_range
+    jump move_to_building equal in_range true
+    ulocate building generator true @copper x y found building
+    ucontrol within x y approach_range in_range
+    jump move_to_building equal in_range true
+    ulocate building reactor true @copper x y found building
+    ucontrol within x y approach_range in_range
+    jump move_to_building equal in_range true
+    ulocate building factory true @copper x y found building
+    ucontrol within x y approach_range in_range
+    jump move_to_building equal in_range true
+    ulocate building battery true @copper x y found building
+    ucontrol within x y approach_range in_range
+    jump move_to_building equal in_range true
+    ulocate building repair true @copper x y found building
+    ucontrol within x y approach_range in_range
+    jump move_to_building equal in_range true
+    ulocate building drill true @copper x y found building
+    ucontrol within x y approach_range in_range
+    jump move_to_building equal in_range true
+    ulocate building shield true @copper x y found building
+    ucontrol within x y approach_range in_range
+    jump move_to_building equal in_range true
+    ulocate building core true @copper x y found building
+    ucontrol within x y approach_range in_range
+    jump move_to_building equal in_range true
+    # Nothing found at all — autopath as fallback
+    ucontrol autoPathfind
+    jump fire_phase always
+
+move_to_building:
+    ucontrol approach x y approach_range
+    jump fire_phase always
+
+# --- PHASE 2: FIRING ---
+# Runs EVERY tick regardless of movement state.
+# Priority: radar target (atk) → prefire at building (x, y)
+
+fire_phase:
+    # Re-check radar target — if atk is alive, targetp it directly
+    jump fire_at_unit notEqual atk null
+
+    # No radar target — prefire at building coords (x, y) if we have them
+    jump fire_prefire equal found true
+
+    # Nothing to fire at
+    jump end always #TODO why jump end? we should prefire if no target??
+
+fire_at_unit:
+    ucontrol targetp atk 1
+    jump end always
+
+fire_prefire:
+    # Calculate prefire point: a point exactly `range` tiles from unit toward (x, y)
+    # This ensures the target coordinate is within weapon range so the shot actually fires.
+    sensor ux @unit @x
+    sensor uy @unit @y
+    op sub dx x ux
+    op sub dy y uy
+    op angle ang dx dy
+    op cos rx ang
+    op sin ry ang
+    op mul rx rx fire_range
+    op mul ry ry fire_range
+    op add sx rx ux
+    op add sy ry uy
+    ucontrol target sx sy 1
+
+end:
+end

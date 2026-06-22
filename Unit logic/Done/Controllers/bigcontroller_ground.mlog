@@ -1,9 +1,9 @@
 jump 11 equal boot 1
-set utype @cyerce
-set multi 0.95
+set utype @fortress
+set multi 1
 set boot 1
-set hpmulti 0.75
-set dist 100
+set hpmulti 0.85
+set dist 150
 set enabled 1
 radar player any any distance @this 1 player
 ubind player
