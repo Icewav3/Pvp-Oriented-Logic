@@ -1,1 +1,19 @@
-#TODO extract from other scripts
+# delayed_update.mlog — throttled-execution preamble
+# Runs the throttled section (reconnect, ammo checks…) only ~half of each 500ms
+# window so it doesn't cost per-unit latency every tick. du_t cycles 0..499.
+#
+# SHARED BOUNDARY (not prefixed — they're the host interface, not private state):
+#   delay  - host binding loop jumps here (jump delay greaterThan fails 5)
+#   start  - host's always-run main logic
+#   fails  - bind-retry counter, reset per cycle (drop if host has no retry loop)
+#
+# LEGACY WARNING: older scripts use `jump delay lessThan du_t 250` — a BACKWARD
+# jump that busy-waits. Always use the forward jump to start, as below.
+
+delay:
+    set fails 0
+    op mod du_t @time 500
+    jump start lessThan du_t 250
+    # ...throttled section runs here (second half of the window)...
+start:
+    # ...always-run main logic...

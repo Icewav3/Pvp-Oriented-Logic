@@ -1,14 +1,15 @@
 delay:
     set fails 0
     op mod t @time 500
-    jump delay lessThan t 250
-
+    jump start lessThan t 250
 #==== START OF INSERTED RECONNECT SCRIPT ====
+
+#TODO if poly cannot build on the desired location, and thus has the power line severed, it will continue all the way to target AND past without any way to succeed. This causes a TON of issues.
 jump rc_boot notEqual reconnect null
 set creator "[cyan]Ice[blue]wave"
 set reconnect "[red]EXP[white]  [yellow]AutoConnect[white] v0.9\n"
 rc_boot:
-sensor net mender1 @powerNetIn
+sensor net mixer1 @powerNetIn
 jump rc_connected notEqual net 0
 
 #bind
@@ -35,18 +36,63 @@ rc_claim:
 	set progress 0
 
 rc_have_poly:
-	ulocate building battery false @copper genx geny genFound gen
-	jump rc_try_fac equal genFound false
-	sensor net gen @powerNetIn
-	jump rc_target notEqual net 0
-rc_try_fac:
-	ulocate building factory false @copper genx geny genFound gen
-	jump rc_try_gen equal genFound false
-	sensor net gen @powerNetIn
-	jump rc_target notEqual net 0
-rc_try_gen:
-	ulocate building generator false @copper genx geny genFound gen
-	jump rc_no_gen equal genFound false
+	# Compare all power-source types by distance from @this (the fixed line
+	# anchor, not the moving unit) and keep the closest valid one. Distance is
+	# measured from @this so the choice is stable across ticks as the poly walks.
+	set bestFound false
+	set bestDist 0
+
+	# battery: must already be powered (proves a live grid exists)
+	ulocate building battery false @copper tx ty tFound tb
+	jump rc_cand_fac equal tFound false
+	sensor net tb @powerNetIn
+	jump rc_cand_fac equal net 0
+	op sub ddx tx @thisx
+	op sub ddy ty @thisy
+	op len cdist ddx ddy
+	jump rc_keep_bat equal bestFound false
+	jump rc_cand_fac greaterThanEq cdist bestDist
+rc_keep_bat:
+	set bestFound true
+	set bestDist cdist
+	set genx tx
+	set geny ty
+
+rc_cand_fac:
+	# factory: must already be powered
+	ulocate building factory false @copper tx ty tFound tb
+	jump rc_cand_gen equal tFound false
+	sensor net tb @powerNetIn
+	jump rc_cand_gen equal net 0
+	op sub ddx tx @thisx
+	op sub ddy ty @thisy
+	op len cdist ddx ddy
+	jump rc_keep_fac equal bestFound false
+	jump rc_cand_gen greaterThanEq cdist bestDist
+rc_keep_fac:
+	set bestFound true
+	set bestDist cdist
+	set genx tx
+	set geny ty
+
+rc_cand_gen:
+	# generator (e.g. thorium reactor): a source we connect to directly, so no
+	# powered-net requirement
+	ulocate building generator false @copper tx ty tFound tb
+	jump rc_choose equal tFound false
+	op sub ddx tx @thisx
+	op sub ddy ty @thisy
+	op len cdist ddx ddy
+	jump rc_keep_gen equal bestFound false
+	jump rc_choose greaterThanEq cdist bestDist
+rc_keep_gen:
+	set bestFound true
+	set bestDist cdist
+	set genx tx
+	set geny ty
+
+rc_choose:
+	jump rc_no_gen equal bestFound false
 rc_target:
 	op sub gdx genx @thisx
 	op sub gdy geny @thisy
@@ -76,8 +122,12 @@ rc_step_skip:
 	end
 
 rc_finalize:
-	op floor bx genx
-	op floor by geny
+	op mul backx ux 2
+	op mul backy uy 2
+	op sub fx genx backx
+	op sub fy geny backy
+	op floor bx fx
+	op floor by fy
 	ucontrol move bx by 0 0 0
 	ucontrol within bx by 0.5 arrived 0
 	jump rc_fin_skip notEqual arrived true
@@ -101,17 +151,11 @@ rc_connected:
 rc_skip:
 #==== END OF INSERTED RECONNECT SCRIPT ====
 
-
 start:
     jump boot greaterThan bootseq 0
     set bootseq 1
     set creator "[cyan]Ice[blue]wave"
-    jump DeliveryPrint strictEqual reconnect null
-    print reconnect
-    DeliveryPrint:
-    print "[green]Reliable Delivery v1.0[white]\nBy: "
-    print creator
-    printflush message1
+    set version "v1.1 Cleanup Update"
     op mul mx @thisx 1000
     op add key mx @thisy
     boot:
@@ -119,32 +163,45 @@ start:
     jump u1 lessThan current 2
     jump u2 lessThan current 3
     jump u3 lessThan current 4
+    jump u4 lessThan current 5
+    jump u5 lessThan current 6
     set current 0
     end
 
         u1:
         set unit_type @flare
         set current_unit u1
-        set block conveyor1
-        set item1 @surge-alloy
-        set item2 @pyratite
-        set item3 @blast-compound
+        set block mixer1
+        set item1 @titanium
+        set item2 @titanium
         jump checks always
 
         u2:
         set current_unit u2
-        set block conveyor2
-        set item1 @titanium
-        set item2 @titanium
-        set item3 @titanium
+        set block conveyor1
+        set item1 @metaglass
+        set item2 @lead
         jump checks always
 
         u3:
         set current_unit u3
+        set block conveyor2
+        set item1 @metaglass
+        set item2 @lead
+        jump checks always
+
+        u4:
+        set current_unit u4
+        set block conveyor3
+        set item1 @metaglass
+        set item2 @lead
+        jump checks always
+
+        u5:
+        set current_unit u5
         set block null
-        set item1 null
-        set item2 null
-        set item3 null
+        set item1 @metaglass
+        set item2 @lead
         jump checks always
 
     checks:
@@ -161,19 +218,15 @@ start:
             sensor f @unit @flag
             jump binding greaterThan dead 0
             jump unbind notEqual f key
+            ulocate building core false @copper cx cy found core
+            sensor res core item1
 
         sensor type @unit @firstItem
         jump drop equal type item1
         jump drop equal type item2
-        jump drop equal type item3
-        ulocate building core false @copper cx cy found core
         set get item1
-        sensor res core item1
-        jump take greaterThan res 50
+        jump take greaterThan res 100
         set get item2
-        sensor res core item2
-        jump take greaterThan res 10
-        set get item3
 
     take:
         ucontrol approach cx cy 5
@@ -187,7 +240,11 @@ start:
         ucontrol move x y
         ucontrol itemDrop block 999
         end
-
+    clean:
+        ucontrol approach cx cy 5 
+        ucontrol itemDrop core 999
+        end
+        
     binding:
         ubind unit_type
         sensor flag @unit @flag
@@ -211,24 +268,58 @@ start:
                     end
                 u3set:
                     jump unbind equal current_unit u2
-                    jump delay notEqual current 3
+                    jump u4set notEqual current 3
                     set u3 @unit
                     end
-
+                u4set:
+                    jump unbind equal current_unit u3
+                    jump u5set notEqual current 4
+                    set u4 @unit
+                    end
+                u5set:
+                    jump unbind equal current_unit u4
+                    jump delay notEqual current 5
+                    set u5 @unit
+                    end
 unbind:
     jump delay strictEqual current_unit null
     ubind current_unit
         u1r:
             jump u2r notEqual u1 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u1 null
             end
         u2r:
             jump u3r notEqual u2 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u2 null
             end
         u3r:
+            jump u4r notEqual u3 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
             ucontrol flag 0
+            ucontrol unbind
             set u3 null
+            end
+        u4r:
+            jump u5r notEqual u4 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
+            ucontrol flag 0
+            ucontrol unbind
+            set u4 null
+            end
+        u5r:
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
+            ucontrol flag 0
+            ucontrol unbind
+            set u5 null
             end

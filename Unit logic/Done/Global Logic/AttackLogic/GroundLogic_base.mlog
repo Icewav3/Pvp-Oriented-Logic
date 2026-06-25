@@ -29,8 +29,22 @@ check_unit:
     jump bind_loop notEqual flag 0
 
 claim_unit:
+    jump repair_resume equal flag -1
     ucontrol flag 0
     jump combat_mode equal boot true
+
+# A unit flagged -1 is in the repair state. Short-circuit the whole combat
+# loop: only check HP. At full HP release it (flag 0); otherwise pathfind to
+# repair. flag stays -1 across cycles until healed, so this is the only work
+# a repairing unit costs.
+repair_resume:
+    sensor hp @unit @health
+    jump repair_release greaterThanEq hp mhp
+    jump repair_locate always
+
+repair_release:
+    ucontrol flag 0
+    jump end always
 
 boot_sequence:
     jump initialize strictEqual @unit null
@@ -116,14 +130,38 @@ move_flee_from_atk:
     jump fire_phase always
 
 move_repair:
+    # Combat unit dropped below lowhp — enter repair state and head home.
+    ucontrol flag -1
+repair_locate:
     ulocate building repair false @copper repx repy can_repair repair
-    jump move_retreat equal can_repair true
+    jump repair_go equal can_repair true
     # No repair point found — fall through to navigate as normal
     jump move_navigate always
 
-move_retreat:
+repair_go:
     ucontrol pathfind repx repy
-    jump fire_phase always
+    # Covering fire while retreating: keep shooting toward the nearest enemy so a
+    # chaser has to run through rounds already in flight. Fresh radar (atk is
+    # stale here — the combat radar never ran this pass). In weapon range ->
+    # targetp (leads the shot); out of range -> prefire along the bearing so the
+    # rounds are travelling before the enemy closes.
+    jump repair_radar_ground equal atk_type 0
+    uradar enemy any any distance 0 1 atk
+    jump repair_fire always
+repair_radar_ground:
+    uradar enemy ground any distance 0 1 atk
+repair_fire:
+    jump end strictEqual atk null
+    sensor atk_x atk @x
+    sensor atk_y atk @y
+    ucontrol within atk_x atk_y fire_range in_range
+    jump repair_target equal in_range true
+    set x atk_x
+    set y atk_y
+    jump fire_prefire always
+repair_target:
+    ucontrol targetp atk 1
+    jump end always
 
 # Navigate: no enemy unit in radar, healthy — path toward enemy buildings.
 # Priority: turret → generator → reactor → factory → battery → repair → drill → shield → core

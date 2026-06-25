@@ -1,0 +1,248 @@
+delay:
+    set fails 0
+    op mod t @time 500
+    jump delay lessThan t 250
+
+#==== START OF INSERTED RECONNECT SCRIPT ====
+jump rc_boot notEqual reconnect null
+set creator "[cyan]Ice[blue]wave"
+set reconnect "[red]EXP[white]  [yellow]AutoConnect[white] v0.9\n"
+rc_boot:
+sensor net mender1 @powerNetIn
+jump rc_connected notEqual net 0
+
+#bind
+jump rc_find_poly strictEqual polyUnit null
+ubind polyUnit
+sensor pdead @unit @dead
+jump rc_lost equal pdead true
+jump rc_have_poly always
+
+rc_lost:
+	set polyUnit null
+
+rc_find_poly:
+	ubind @poly
+	sensor uctrl @unit @controlled
+	sensor uflag @unit @flag
+	jump rc_claim equal uctrl 0
+	jump rc_claim equal uflag 0
+	end
+
+rc_claim:
+	ucontrol flag @time
+	set polyUnit @unit
+	set progress 0
+
+rc_have_poly:
+	ulocate building battery false @copper genx geny genFound gen
+	jump rc_try_fac equal genFound false
+	sensor net gen @powerNetIn
+	jump rc_target notEqual net 0
+rc_try_fac:
+	ulocate building factory false @copper genx geny genFound gen
+	jump rc_try_gen equal genFound false
+	sensor net gen @powerNetIn
+	jump rc_target notEqual net 0
+rc_try_gen:
+	ulocate building generator false @copper genx geny genFound gen
+	jump rc_no_gen equal genFound false
+rc_target:
+	op sub gdx genx @thisx
+	op sub gdy geny @thisy
+	op len total gdx gdy
+	op div ux gdx total
+	op div uy gdy total
+	op mul stepx ux 5
+	op mul stepy uy 5
+
+	op add nextN progress 1
+	op mul nextDist nextN 5
+	jump rc_finalize greaterThanEq nextDist total
+
+	op mul ox stepx nextN
+	op mul oy stepy nextN
+	op add cx @thisx ox
+	op add cy @thisy oy
+	op floor bx cx
+	op floor by cy
+
+	ucontrol move bx by 0 0 0
+	ucontrol within bx by 0.5 arrived 0
+	jump rc_step_skip notEqual arrived true
+	ucontrol build bx by @power-node 0 0
+	set progress nextN
+rc_step_skip:
+	end
+
+rc_finalize:
+	op floor bx genx
+	op floor by geny
+	ucontrol move bx by 0 0 0
+	ucontrol within bx by 0.5 arrived 0
+	jump rc_fin_skip notEqual arrived true
+	ucontrol build bx by @power-node 0 0
+rc_fin_skip:
+	end
+
+rc_no_gen:
+	ucontrol flag 0
+	set polyUnit null
+	set progress 0
+	end
+
+rc_connected:
+	jump rc_skip strictEqual polyUnit null
+	ubind polyUnit
+	ucontrol flag 0
+	ucontrol unbind
+	set polyUnit null
+	set progress 0
+rc_skip:
+#==== END OF INSERTED RECONNECT SCRIPT ====
+
+
+start:
+    jump boot greaterThan bootseq 0
+    set bootseq 1
+    set creator "[cyan]Ice[blue]wave"
+    jump DeliveryPrint strictEqual reconnect null
+    print reconnect
+    DeliveryPrint:
+    print "[green]Reliable Delivery v1.0[white]\nBy: "
+    print creator
+    printflush message1
+    op mul mx @thisx 1000
+    op add key mx @thisy
+    boot:
+    op add current current 1
+    jump u1 lessThan current 2
+    jump u2 lessThan current 3
+    jump u3 lessThan current 4
+    set current 0
+    end
+
+        u1:
+        set unit_type @flare
+        set current_unit u1
+        set block conveyor1
+        set item1 @surge-alloy
+        set item2 @pyratite
+        set item3 @blast-compound
+        jump checks always
+
+        u2:
+        set current_unit u2
+        set block conveyor2
+        set item1 @titanium
+        set item2 @titanium
+        set item3 @titanium
+        jump checks always
+
+        u3:
+        set current_unit u3
+        set block null
+        set item1 null
+        set item2 null
+        set item3 null
+        jump checks always
+
+    checks:
+        sensor gone block @dead
+        jump delay equal gone true
+        sensor fill block @ammo
+        jump isbindneeded notEqual fill null
+        sensor fill block @totalItems
+
+        isbindneeded:
+            jump unbind greaterThan fill 9
+            ubind current_unit
+            sensor dead @unit @dead
+            sensor f @unit @flag
+            jump binding greaterThan dead 0
+            jump unbind notEqual f key
+
+        sensor type @unit @firstItem
+        jump drop equal type item1
+        jump drop equal type item2
+        jump drop equal type item3
+        ulocate building core false @copper cx cy found core
+        set get item1
+        sensor res core item1
+        jump take greaterThan res 50
+        set get item2
+        sensor res core item2
+        jump take greaterThan res 10
+        set get item3
+
+    take:
+        ucontrol approach cx cy 5
+        ucontrol itemDrop core 999
+        ucontrol itemTake core get 999
+        end
+
+    drop:
+        sensor x block @x
+        sensor y block @y
+        ucontrol move x y
+        ucontrol itemDrop block 999
+        end
+
+    clean:
+        ucontrol approach cx cy 5 
+        ucontrol itemDrop core 999
+        end
+
+    binding:
+        ubind unit_type
+        sensor flag @unit @flag
+        sensor controlled @unit @controlled
+        jump found equal controlled 0
+        op add fails fails 1
+        jump delay greaterThan fails 5
+        jump binding notEqual flag false
+
+        found:
+            ucontrol flag key
+            set current_unit @unit
+                u1set:
+                    jump u2set notEqual current 1
+                    set u1 @unit
+                    end
+                u2set:
+                    jump unbind equal current_unit u1
+                    jump u3set notEqual current 2
+                    set u2 @unit
+                    end
+                u3set:
+                    jump unbind equal current_unit u2
+                    jump delay notEqual current 3
+                    set u3 @unit
+                    end
+
+unbind:
+    jump delay strictEqual current_unit null
+    ubind current_unit
+        u1r:
+            jump u2r notEqual u1 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
+            ucontrol flag 0
+            ucontrol unbind
+            set u1 null
+            end
+        u2r:
+            jump u3r notEqual u2 @unit
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
+            ucontrol flag 0
+            ucontrol unbind
+            set u2 null
+            end
+        u3r:
+            sensor uItem @unit @firstItem
+            jump clean notEqual uItem null
+            ucontrol flag 0
+            ucontrol unbind
+            set u3 null
+            end

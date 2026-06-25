@@ -1,1 +1,35 @@
-#Extract from 4xcryoswarmer_CLEAN.mlog
+# ammo_dump.mlog — flush wrong ammo out of turrets
+# When a turret holds the wrong ammo, force it to fire at our position so it can
+# reload the desired type. Per-turret: only wrong-ammo turrets dump.
+# Source: wireless/defence/v8/4xcryoswarmer_CLEAN.mlog
+#
+# Params: desired ammo (@surge-alloy), turrets swarmer1..N, poor gate (core < 250).
+# Host links (core, swarmer1..N) stay unprefixed; component state uses ad_.
+#
+# (1) trigger — place in the per-cycle checks. Sense all, THEN test, so every
+#     ad_AtypeN is fresh in the dump (the early-exit version left 3/4 stale).
+ad_trigger:
+    sensor ad_SA core @surge-alloy
+    jump ad_poor lessThan ad_SA 250
+    sensor ad_Atype1 swarmer1 @currentAmmoType
+    sensor ad_Atype2 swarmer2 @currentAmmoType
+    sensor ad_Atype3 swarmer3 @currentAmmoType
+    sensor ad_Atype4 swarmer4 @currentAmmoType
+    jump ad_dump notEqual ad_Atype1 @surge-alloy
+    jump ad_dump notEqual ad_Atype2 @surge-alloy
+    jump ad_dump notEqual ad_Atype3 @surge-alloy
+    jump ad_dump notEqual ad_Atype4 @surge-alloy
+ad_poor:
+    # fall through to normal bind / load logic
+
+# (2) dump — tail label. Each turret fires only if its OWN ammo is wrong.
+ad_dump:
+    select ad_shoot1 notEqual ad_Atype1 @surge-alloy 1 0
+    control ad_shoot1 swarmer1 @thisx @thisy ad_shoot1
+    select ad_shoot2 notEqual ad_Atype2 @surge-alloy 1 0
+    control ad_shoot2 swarmer2 @thisx @thisy ad_shoot2
+    select ad_shoot3 notEqual ad_Atype3 @surge-alloy 1 0
+    control ad_shoot3 swarmer3 @thisx @thisy ad_shoot3
+    select ad_shoot4 notEqual ad_Atype4 @surge-alloy 1 0
+    control ad_shoot4 swarmer4 @thisx @thisy ad_shoot4
+    end
